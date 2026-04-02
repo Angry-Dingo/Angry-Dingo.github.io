@@ -1,0 +1,2432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer-when-downgrade">
+<title>LOF基金监控</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --primary: #3b82f6;
+  --primary-dark: #2563eb;
+  --secondary: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --info: #6366f1;
+  --light: #f3f4f6;
+  --dark: #1e293b;
+  --gray: #64748b;
+  --gray-light: #94a3b8;
+  --gray-dark: #334155;
+  --white: #ffffff;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --border: #e2e8f0;
+  --border-radius: 8px;
+  --transition: all 0.3s ease;
+  --version-font-size: 0.4375rem;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--light);
+  color: var(--dark);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* 顶部导航栏 */
+.header {
+  background: var(--white);
+  box-shadow: var(--shadow);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 0.4rem 1rem;
+  transition: all 0.3s ease;
+}
+
+.header.scrolled {
+  box-shadow: var(--shadow-lg);
+  padding-top: 0.3rem;
+  padding-bottom: 0.3rem;
+}
+
+.nav-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 45px;
+  flex-wrap: nowrap;
+  gap: 1rem;
+}
+
+/* 版本切换开关 */
+.version-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: var(--light);
+  padding: 0.25rem;
+  border-radius: var(--border-radius);
+  transition: var(--transition);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  flex-shrink: 0;
+}
+
+.version-toggle button {
+  padding: 0.4rem 1rem;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: transparent;
+  color: var(--gray-dark);
+  min-width: 70px;
+  text-align: center;
+  outline: none;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  padding: 0.25rem 0;
+}
+
+.version {
+  font-size: var(--version-font-size);
+  color: var(--gray);
+  font-weight: 500;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+  color: var(--primary-dark);
+}
+
+.logo span {
+  color: var(--dark);
+}
+
+.version-toggle button.active {
+  background: var(--primary);
+  color: var(--white);
+  box-shadow: var(--shadow);
+  transform: translateY(-1px);
+}
+
+.version-toggle button:hover:not(.active) {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--primary);
+  transform: translateY(-1px);
+}
+
+/* 汉堡菜单 */
+.hamburger-menu {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: var(--border-radius);
+  transition: all 0.3s ease;
+  outline: none;
+  border: none;
+  background: transparent;
+}
+
+.hamburger-menu:hover {
+  background: var(--light);
+}
+
+.hamburger-menu:focus {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.hamburger-menu .bar {
+  width: 24px;
+  height: 2px;
+  background: var(--dark);
+  transition: all 0.3s ease;
+}
+
+.hamburger-menu.active .bar:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.hamburger-menu.active .bar:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger-menu.active .bar:nth-child(3) {
+  transform: rotate(-45deg) translate(5px, -5px);
+}
+
+/* 导航菜单 */
+.nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+/* 标签切换 */
+.filter-tabs {
+  max-width: 1400px;
+  margin: 0.75rem auto 0;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 0 1rem;
+}
+
+.filter-tab {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--border-radius);
+  background: var(--white);
+  font-size: 0.875rem;
+  color: var(--gray-dark);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  outline: none;
+  font-weight: 500;
+}
+
+.filter-tab:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+}
+
+.filter-tab.active {
+  background: var(--primary);
+  color: var(--white);
+  border-color: var(--primary);
+  box-shadow: var(--shadow);
+  transform: translateY(-1px);
+}
+
+.filter-tab:focus {
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+/* 响应式设计 */
+@media (max-width: 1024px) {
+  .nav-container {
+    padding: 0 0.5rem;
+    height: 40px;
+  }
+  
+  .logo {
+    font-size: 1.3rem;
+  }
+  
+  .filter-tabs {
+    gap: 0.5rem;
+  }
+  
+  .filter-tab {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .hamburger-menu {
+    display: flex;
+  }
+  
+  .nav-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--white);
+    box-shadow: var(--shadow-lg);
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0.75rem;
+    gap: 0.75rem;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    z-index: 99;
+    border-top: 1px solid var(--border);
+  }
+  
+  .nav-menu.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  
+  .filter-tabs {
+    justify-content: flex-start;
+    padding: 0 0.5rem;
+  }
+  
+  .filter-tab {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+  }
+  
+  .header {
+    padding: 0.4rem 0.5rem;
+  }
+  
+  .nav-container {
+    height: 35px;
+    gap: 0.5rem;
+  }
+  
+  .logo {
+    font-size: 1.2rem;
+    flex-shrink: 1;
+    min-width: 0;
+  }
+  
+  .version-toggle {
+    flex-shrink: 0;
+  }
+  
+  .version-toggle button {
+    padding: 0.3rem 0.8rem;
+    font-size: 0.7rem;
+    min-width: 60px;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo {
+    font-size: 1.1rem;
+  }
+  
+  .version-toggle button {
+    padding: 0.25rem 0.6rem;
+    font-size: 0.65rem;
+    min-width: 55px;
+  }
+  
+  .header {
+    padding: 0.35rem 0.5rem;
+  }
+  
+  .nav-container {
+    height: 30px;
+    gap: 0.3rem;
+  }
+  
+  .filter-tabs {
+    gap: 0.3rem;
+  }
+  
+  .filter-tab {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.7rem;
+  }
+}
+
+/* 主容器 */
+.main-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* 基金表格 */
+.fund-table-container {
+  background: var(--white);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.fund-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--border);
+}
+
+.fund-table th:last-child {
+  border-right: none;
+}
+
+.fund-table td {
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.fund-table td:last-child {
+  border-right: none;
+}
+
+.fund-table th {
+  background: var(--dark);
+  color: var(--white);
+  padding: 0.75rem 0.5rem;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.8rem;
+  white-space: normal;
+  word-wrap: break-word;
+  cursor: pointer;
+  transition: var(--transition);
+  vertical-align: middle;
+  display: table-cell;
+  vertical-align: middle;
+  min-width: 70px;
+  line-height: 1.2;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* 基金参考指数列样式 */
+.fund-table th:nth-child(7),
+.fund-table td:nth-child(7) {
+  max-width: 180px;
+  white-space: normal;
+  word-wrap: break-word;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+
+/* 代码列宽度调整 */
+.fund-table th:nth-child(2),
+.fund-table td:nth-child(2) {
+  max-width: 90px;
+  width: 11.25%;
+  min-width: 75px;
+}
+
+/* 序号列宽度调整 */
+.fund-table th:nth-child(1),
+.fund-table td:nth-child(1) {
+  max-width: 30px;
+  width: 3%;
+  min-width: 25px;
+}
+
+.fund-table th:hover {
+  background: var(--gray-dark);
+}
+
+.fund-table th.sorted {
+  background: var(--primary);
+}
+
+.mobile-table th.sorted {
+  background: var(--gray-dark);
+  color: var(--white);
+}
+
+.fund-table tr {
+  height: auto;
+  min-height: 60px;
+  overflow: hidden;
+}
+
+.fund-table td {
+  padding: 0.6rem 0.4rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.8rem;
+  text-align: center;
+  vertical-align: middle;
+  height: auto;
+  min-height: 65px;
+  box-sizing: border-box;
+}
+
+/* 除基金参考指数列外的其他列保持 nowrap */
+.fund-table td:not(:nth-child(7)) {
+  white-space: nowrap;
+}
+
+/* 确保所有单元格内容居中对齐 */
+.fund-table th,
+.fund-table td {
+  text-align: center;
+  vertical-align: middle;
+  font-size: 0.875rem;
+}
+
+/* 代码列样式 */
+.code-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  text-align: center;
+  height: 100%;
+  padding: 0.4rem;
+  margin: 0;
+  min-height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.code-cell .fund-name,
+.code-cell .fund-code {
+  margin: 0;
+  padding: 0;
+  line-height: 1.3;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.code-cell .fund-name {
+  font-weight: 500;
+  color: var(--dark);
+  font-size: 0.7rem;
+}
+
+.code-cell .fund-code {
+  font-size: 0.6rem;
+  color: var(--gray);
+  font-family: monospace;
+  margin-top: 0;
+  line-height: 1.3;
+}
+
+.fund-table tr:hover {
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.fund-table tr:last-child td {
+  border-bottom: none;
+}
+
+.fund-name {
+  font-weight: 500;
+  color: var(--dark);
+}
+
+.fund-code {
+  font-size: 0.75rem;
+  color: var(--gray);
+  margin-top: 0.25rem;
+}
+
+.price-change.red {
+  color: var(--danger);
+  font-weight: 500;
+}
+
+.price-change.green {
+  color: var(--secondary);
+  font-weight: 500;
+}
+
+.premium-rate.red {
+  color: var(--danger);
+  font-weight: 500;
+}
+
+.premium-rate.green {
+  color: var(--secondary);
+  font-weight: 500;
+}
+
+.premium-rate {
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+.quota-status {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.quota-status.open {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--secondary);
+}
+
+.quota-status.limited {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--warning);
+}
+
+.quota-status.suspended {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+}
+
+/* 参考指数涨跌幅为0时的样式 */
+.zero-change {
+  background: rgba(239, 68, 68, 0.1);
+  padding: 0.25rem;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+/* 加载状态 */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: var(--gray);
+}
+
+.loading::after {
+  content: '';
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border);
+  border-top: 2px solid var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: 0.5rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 标签切换 */
+.filter-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.filter-tab {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--border-radius);
+  background: var(--white);
+  font-size: 0.875rem;
+  color: var(--gray-dark);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.filter-tab:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.filter-tab.active {
+  background: var(--primary);
+  color: var(--white);
+  border-color: var(--primary);
+}
+
+/* 页脚 */
+.footer {
+  background: var(--dark);
+  color: var(--white);
+  padding: 2rem;
+  margin-top: 2rem;
+}
+
+.footer-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.footer-info {
+  font-size: 0.875rem;
+  color: var(--gray-light);
+  line-height: 1.5;
+}
+
+/* 响应式设计 */
+@media (max-width: 1024px) {
+  .main-container {
+    padding: 0 1rem;
+  }
+  
+  .header {
+    padding: 0 1rem;
+  }
+  
+  .fund-table-container {
+    overflow-x: auto;
+  }
+  
+  .filter-tabs {
+    justify-content: center;
+  }
+  
+  .fund-table th,
+  .fund-table td {
+    padding: 0.75rem;
+    font-size: 0.75rem;
+  }
+  
+  .logo {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .nav-container {
+    flex-direction: row;
+    height: 70px;
+    padding: 0;
+    gap: 1rem;
+  }
+  
+  .main-container {
+    padding: 0 0.25rem;
+  }
+  
+  .header {
+    padding: 0 0.25rem;
+  }
+  
+  .filter-tabs {
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+  
+  .filter-tab {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.7rem;
+  }
+  
+
+  
+  .fund-table tr {
+    height: 50px;
+    overflow: hidden;
+  }
+  
+  .fund-table th {
+    padding: 0.3rem;
+    font-size: 0.7rem;
+    white-space: normal;
+    word-wrap: break-word;
+    height: auto;
+    min-height: 50px;
+    box-sizing: border-box;
+  }
+  
+  .fund-table td {
+    padding: 0.3rem;
+    font-size: 0.7rem;
+    height: 50px;
+    box-sizing: border-box;
+  }
+  
+  .fund-name {
+    font-size: 0.55rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+  
+  .fund-code {
+    font-size: 0.45rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+  
+  /* 手机版代码列样式 */
+  .code-cell {
+    max-width: 100%;
+    overflow: hidden;
+  }
+  
+
+  
+  .footer {
+    padding: 1rem;
+  }
+  
+  .footer-info {
+    font-size: 0.75rem;
+  }
+  
+  /* 手机版表格宽度适配 */
+  .mobile-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+  }
+  
+  .mobile-table th {
+    white-space: normal;
+    word-wrap: break-word;
+    padding: 0.2rem;
+    vertical-align: middle;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    border-left: none;
+    border-right: none;
+  }
+  
+  .mobile-table td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0.2rem;
+    vertical-align: bottom;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    border-left: none;
+    border-right: none;
+  }
+  
+  /* 调整各列宽度，确保完整显示内容 */
+  .mobile-table th:nth-child(1),
+  .mobile-table td:nth-child(1) {
+    width: 38%; /* 增加基金名称列宽度 */
+  }
+  
+  .mobile-table th:nth-child(2),
+  .mobile-table td:nth-child(2) {
+    width: 22%; /* 场内价格列 */
+  }
+  
+  .mobile-table th:nth-child(3),
+  .mobile-table td:nth-child(3) {
+    width: 24%; /* 溢价率/预估净值列 */
+  }
+  
+  .mobile-table th:nth-child(4),
+  .mobile-table td:nth-child(4) {
+    width: 16%; /* 申购限额列，保持紧凑 */
+  }
+  
+  /* 统一手机版字体 */
+  .mobile-table th,
+  .mobile-table td {
+    font-size: 0.7rem;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  
+  /* 优化代码列布局 */
+  .mobile-table .code-cell {
+    display: table-cell;
+    vertical-align: bottom;
+    padding: 0.2rem;
+    height: 100%;
+    box-sizing: border-box;
+  }
+  
+  .mobile-table .code-cell .fund-name,
+  .mobile-table .code-cell .fund-code {
+    display: block;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    line-height: 1.2;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  
+  .mobile-table .code-cell .fund-name {
+    font-weight: 500;
+    color: var(--dark);
+    font-size: 0.65rem; /* 减小字体以显示更多内容 */
+    line-height: 1.3;
+  }
+  
+  .mobile-table .code-cell .fund-code {
+    font-size: 0.6rem; /* 减小字体 */
+    color: var(--gray);
+    line-height: 1.2;
+  }
+  
+  .mobile-table .price-change {
+    font-size: 0.65rem;
+    line-height: 1.1;
+    margin-top: 0.2rem;
+  }
+  
+  .mobile-table .premium-rate {
+    font-size: 0.65rem;
+  }
+  
+  .mobile-table td:nth-child(3) div {
+    font-size: 0.65rem;
+    margin-top: 0.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .filter-tab {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.7rem;
+  }
+  
+  .fund-table th,
+  .fund-table td {
+    padding: 0.4rem;
+    font-size: 0.65rem;
+  }
+  
+  .logo {
+    font-size: 1.1rem;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- 顶部导航栏 -->
+<header class="header" id="mainHeader">
+  <div class="nav-container">
+    <div class="logo">
+      <span>LOF</span>基金监控
+    </div>
+    <div class="version-toggle">
+      <button class="active" onclick="switchVersion('desktop')">电脑版</button>
+      <button onclick="switchVersion('mobile')">手机版</button>
+    </div>
+    <div class="hamburger-menu" id="hamburgerMenu">
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+    </div>
+  </div>
+</header>
+
+<!-- 主容器 -->
+<main class="main-container">
+  <!-- 标签切换 -->
+  <div class="filter-tabs">
+    <button class="filter-tab active" onclick="setFilter('all')">全部</button>
+    <button class="filter-tab" onclick="setFilter('arbitrage')">仅套利</button>
+    <button class="filter-tab" onclick="setFilter('premium')">溢价</button>
+    <button class="filter-tab" onclick="setFilter('discount')">折价</button>
+    <button class="filter-tab active" onclick="setCategory('all')">全类别</button>
+    <button class="filter-tab" onclick="setCategory('us')">美股</button>
+    <button class="filter-tab" onclick="setCategory('hk')">港股</button>
+    <button class="filter-tab" onclick="setCategory('cm')">商品</button>
+    <button class="filter-tab" onclick="setCategory('cn')">A股</button>
+  </div>
+
+  <!-- 基金表格 -->
+  <div class="fund-table-container">
+    <table class="fund-table desktop-table">
+      <thead>
+        <tr>
+          <th onclick="sortTable('index')">序号</th>
+          <th onclick="sortTable('code')">代码</th>
+          <th onclick="sortTable('price')">场内价格</th>
+          <th onclick="sortTable('nav')">预估净值</th>
+          <th onclick="sortTable('officialNav')">净值（T-1）</th>
+          <th onclick="sortTable('premium')" class="sorted">溢价率</th>
+          <th>基金参考指数</th>
+          <th>参考指数涨跌幅</th>
+          <th>参考指数涨跌幅（T-1）</th>
+          <th onclick="sortTable('quota')">申购限额</th>
+        </tr>
+      </thead>
+      <tbody id="fundTableBodyDesktop">
+        <tr>
+          <td colspan="10" class="loading">加载中...</td>
+        </tr>
+      </tbody>
+    </table>
+    <table class="fund-table mobile-table" style="display: none;">
+      <thead>
+        <tr>
+          <th>基金/代码</th>
+          <th>场内价格</th>
+          <th class="sorted">溢价率/预估净值</th>
+          <th>申购限额</th>
+        </tr>
+      </thead>
+      <tbody id="fundTableBodyMobile">
+        <tr>
+          <td colspan="4" class="loading">加载中...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<!-- 页脚 -->
+<footer class="footer">
+  <div class="footer-content">
+    <div class="footer-info">
+      <p>LOF基金监控工具</p>
+      <p>数据来源：腾讯财经、天天基金、东方财富</p>
+      <p>© 2026 LOF基金监控 | 版本：Beta</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+// LOF基金数据，包含场内代码、场外代码映射
+const FUNDS = [
+  // 欧美市场
+  {code:'161127', ocode:'161127', name:'标普生物科技LOF', tq:'sz161127', category:'us', quota:'限10', fee:'1.20%', rfee:'1.00%'},
+  {code:'164906', ocode:'164906', name:'中概互联网LOF', tq:'sz164906', category:'us', quota:'开放', fee:'1.20%', rfee:'1.50%'},
+  {code:'501312', ocode:'501312', name:'海外科技LOF', tq:'sh501312', category:'us', quota:'限2千', fee:'1.20%', rfee:'1.20%'},
+  {code:'164824', ocode:'164824', name:'印度基金LOF', tq:'sz164824', category:'us', quota:'限1千', fee:'1.20%', rfee:'1.50%'},
+  {code:'160644', ocode:'160644', name:'港美互联网LOF', tq:'sz160644', category:'hk', quota:'限10万', fee:'1.50%', rfee:'1.50%'},
+  {code:'162415', ocode:'162415', name:'美国消费LOF', tq:'sz162415', category:'us', quota:'限500', fee:'1.20%', rfee:'1.50%'},
+  {code:'161126', ocode:'161126', name:'标普医疗保健LOF', tq:'sz161126', category:'us', quota:'限10', fee:'1.20%', rfee:'1.00%'},
+  {code:'161128', ocode:'161128', name:'标普信息科技LOF', tq:'sz161128', category:'us', quota:'限10', fee:'1.20%', rfee:'1.00%'},
+  {code:'161125', ocode:'161125', name:'标普500LOF', tq:'sz161125', category:'us', quota:'限10', fee:'1.20%', rfee:'1.50%'},
+  {code:'161130', ocode:'161130', name:'纳斯达克100LOF', tq:'sz161130', category:'us', quota:'限10', fee:'1.20%', rfee:'0.60%'},
+  {code:'501300', ocode:'501300', name:'美元债LOF', tq:'sh501300', category:'us', quota:'限1万', fee:'0.80%', rfee:'1.50%'},
+  {code:'160140', ocode:'160140', name:'美国REIT精选LOF', tq:'sz160140', category:'us', quota:'限100万', fee:'1.20%', rfee:'1.00%'},
+  {code:'501225', ocode:'501225', name:'全球芯片LOF', tq:'sh501225', category:'us', quota:'暂停', fee:'1.50%', rfee:'1.50%'},
+  // 欧美·商品
+  {code:'160216', ocode:'160216', name:'国泰商品LOF', tq:'sz160216', category:'cm', quota:'限1千', fee:'1.50%', rfee:'1.50%'},
+  {code:'161116', ocode:'161116', name:'黄金主题LOF', tq:'sz161116', category:'cm', quota:'暂停', fee:'0%', rfee:'1.50%'},
+  {code:'164701', ocode:'164701', name:'黄金LOF', tq:'sz164701', category:'cm', quota:'限50', fee:'0.80%', rfee:'1.50%'},
+  {code:'165513', ocode:'165513', name:'中信保诚商品LOF', tq:'sz165513', category:'cm', quota:'开放', fee:'1.60%', rfee:'1.50%'},
+  {code:'160719', ocode:'160719', name:'嘉实黄金LOF', tq:'sz160719', category:'cm', quota:'暂停', fee:'1.20%', rfee:'1.50%'},
+  {code:'161815', ocode:'161815', name:'抗通胀LOF', tq:'sz161815', category:'cm', quota:'开放', fee:'1.60%', rfee:'1.50%'},
+  {code:'163208', ocode:'163208', name:'全球油气能源LOF', tq:'sz163208', category:'cm', quota:'暂停', fee:'1.50%', rfee:'1.50%'},
+  {code:'501018', ocode:'501018', name:'南方原油LOF', tq:'sh501018', category:'cm', quota:'暂停', fee:'1.20%', rfee:'1.50%'},
+  {code:'161129', ocode:'161129', name:'原油LOF易方达', tq:'sz161129', category:'cm', quota:'暂停', fee:'1.20%', rfee:'1.50%'},
+  {code:'160723', ocode:'160723', name:'嘉实原油LOF', tq:'sz160723', category:'cm', quota:'暂停', fee:'1.20%', rfee:'1.50%'},
+  {code:'162719', ocode:'162719', name:'石油LOF', tq:'sz162719', category:'cm', quota:'开放', fee:'1.20%', rfee:'1.50%'},
+  {code:'162411', ocode:'162411', name:'华宝油气LOF', tq:'sz162411', category:'cm', quota:'暂停', fee:'1.50%', rfee:'1.50%'},
+  {code:'160416', ocode:'160416', name:'石油基金LOF', tq:'sz160416', category:'cm', quota:'暂停', fee:'1.20%', rfee:'1.50%'},
+  // 亚洲市场·港股
+  {code:'501303', ocode:'501303', name:'恒生中型股LOF', tq:'sh501303', category:'hk', quota:'开放', fee:'1.20%', rfee:'0.60%'},
+  {code:'161124', ocode:'161124', name:'港股小盘LOF', tq:'sz161124', category:'hk', quota:'限1千', fee:'1.20%', rfee:'1.00%'},
+  {code:'160322', ocode:'160322', name:'港股精选LOF', tq:'sz160322', category:'hk', quota:'开放', fee:'1.20%', rfee:'1.50%'},
+  {code:'501021', ocode:'501021', name:'香港中小LOF', tq:'sh501021', category:'hk', quota:'开放', fee:'1.20%', rfee:'1.20%'},
+  {code:'501310', ocode:'501310', name:'价值基金LOF', tq:'sh501310', category:'hk', quota:'开放', fee:'1.20%', rfee:'0.90%'},
+  {code:'501302', ocode:'501302', name:'恒生指数基金LOF', tq:'sh501302', category:'hk', quota:'开放', fee:'1.20%', rfee:'0.60%'},
+  {code:'501307', ocode:'501307', name:'银河高股息LOF', tq:'sh501307', category:'hk', quota:'开放', fee:'1.00%', rfee:'0.68%'},
+  {code:'501306', ocode:'501306', name:'港股高股息LOFC', tq:'sh501306', category:'hk', quota:'开放', fee:'0.00%', rfee:'0.60%'},
+  {code:'160717', ocode:'160717', name:'H股LOF', tq:'sz160717', category:'hk', quota:'开放', fee:'1.20%', rfee:'0.95%'},
+  {code:'501311', ocode:'501311', name:'新经济港通LOF', tq:'sh501311', category:'hk', quota:'开放', fee:'1.20%', rfee:'0.90%'},
+  {code:'501301', ocode:'501301', name:'香港大盘LOF', tq:'sh501301', category:'hk', quota:'开放', fee:'1.20%', rfee:'0.90%'},
+  {code:'164705', ocode:'164705', name:'恒生LOF', tq:'sz164705', category:'hk', quota:'开放', fee:'1.20%', rfee:'1.00%'},
+  {code:'161831', ocode:'161831', name:'恒生国企LOF', tq:'sz161831', category:'hk', quota:'开放', fee:'1.20%', rfee:'1.20%'},
+  {code:'501305', ocode:'501305', name:'港股高股息LOF', tq:'sh501305', category:'hk', quota:'开放', fee:'1.20%', rfee:'0.60%'},
+  {code:'160924', ocode:'160924', name:'恒生指数LOF', tq:'sz160924', category:'hk', quota:'开放', fee:'1.20%', rfee:'1.20%'},
+  {code:'501025', ocode:'501025', name:'香港银行LOF', tq:'sh501025', category:'hk', quota:'开放', fee:'1.20%', rfee:'0.90%'},
+  // A股行业LOF
+  {code:'161226', ocode:'161226', name:'国投白银LOF', tq:'sz161226', category:'cm', quota:'暂停', fee:'1.50%', rfee:'0.50%'},
+  {code:'161217', ocode:'161217', name:'国投瑞银中证上游资源产业指数证券投资基金(LOF)', tq:'sz161217', category:'cm', quota:'开放', fee:'1.50%', rfee:'0.50%'},
+  {code:'161715', ocode:'161715', name:'招商中证大宗商品股票指数证券投资基金(LOF)', tq:'sz161715', category:'cm', quota:'开放', fee:'1.50%', rfee:'0.50%'},
+  {code:'161725', ocode:'161725', name:'招商中证白酒LOF', tq:'sz161725', category:'cn', quota:'开放', fee:'1.50%', rfee:'0.50%'},
+  {code:'161032', ocode:'161032', name:'富国中证煤炭指数LOF', tq:'sz161032', category:'cn', quota:'开放', fee:'1.50%', rfee:'0.50%'},
+];
+
+// 每只基金对应的外盘基准指数（腾讯代码）
+const BENCH = {
+  // 美股 — usIXIC=纳指, usINX=标普（qt.gtimg.cn验证可用）
+  '161127': 'usXBI',    // 标普生物科技（SPSIBI.SPI → XBI）
+  '164906': 'usKWEB',   // 中概互联网（usIXIC→usKWEB，KraneShares中国互联网ETF）
+  '501312': [{tq:'usQQQ',w:0.8},{tq:'hkHSTECH',w:0.1},{tq:'sh000985',w:0.1}],   // 海外科技LOF（v28: 业绩基准=纳指100×80%+恒生科技×10%+中证综合债券×10%；FOF结构，ARK系列ETF为主要底层）
+  '164824': 'usINDA',   // 印度基金LOF（usINX→usINDA，iShares MSCI印度ETF）
+  '160644': 'usKWEB',  // 港美互联网LOF（v28: 业绩基准=中证海外中国互联网指数×95%+活期存款×5%；KWEB=KraneShares中国互联网ETF，与中证海外中国互联网指数高度匹配）
+  '162415': 'usXLY',    // 美国消费（IXY.SPI → XLY）
+  '161126': 'usRSPH',   // 标普医疗保健LOF（v23: 跟踪S5HLTH等权重指数，RSPH=Invesco S&P 500 Equal Wgt Healthcare ETF，比市值加权的XLV更准；腾讯已验证可用）
+  '161128': 'usXLK',    // 标普信息科技（S5INFT.SPI → XLK）
+  '161125': 'usINX',    // 标普500
+  '161130': 'usQQQ',    // 纳斯达克100（NDX.GI → QQQ）
+  '501300': 'usAGG',    // 美元债（彭博美国综合债券ETF，比标普500更准确）
+  '160140': 'usIYR',    // 美国REIT精选LOF（v23: 跟踪道琼斯精选REIT(DWRTF)，IYR跟踪道琼斯美国房地产指数同为Dow Jones体系，比VNQ(MSCI体系)更准；腾讯已验证可用）
+  '501225': 'usSMH',    // 全球芯片LOF（usIXIC→usSMH，VanEck半导体ETF）
+  // 商品 — 外盘实时基准（盘中估值逻辑正确，回测时差误差属正常）
+  // 黄金: sh518880  油气股: usXOP  原油: usUSO  综合商品: usGSG
+  // 160216持仓(2025Q4): SGOL23.4%+GLD19.3%+GLDM15.4%+USO15.3%+SLV15.1%+CPER14.3%+XOP3.8%
+  '160216': [{tq:'usSGOL',w:0.234},{tq:'usGLD',w:0.193},{tq:'usGLDM',w:0.154},{tq:'usUSO',w:0.153},{tq:'usSLV',w:0.151},{tq:'usCPER',w:0.143},{tq:'usXOP',w:0.038}],  // 国泰商品(精确持仓)
+  '161116': 'sh518880',  // 黄金主题(纯黄金ETF)
+  '164701': 'usGLD',  // 黄金LOF（持有境外GLD/IAU，usGLD更准）
+  '165513': 'usGLD',  // 中信保诚商品LOF（2025Q4持仓近乎全境外黄金ETF）
+  '160719': 'sh518880',  // 嘉实黄金
+  // 161815持仓(2025Q4): GLD14.67%+IAU14.37%+AAAU12.33%+SGOL11.90%+BCI10.46%+COMT8.09%+USO4.33%+BNO3.80%+SLV2.07% 归一化
+  '161815': [{tq:'usGLD',w:0.171},{tq:'usIAU',w:0.168},{tq:'usAAAU',w:0.144},{tq:'usSGOL',w:0.139},{tq:'usBCI',w:0.122},{tq:'usCOMT',w:0.095},{tq:'usUSO',w:0.051},{tq:'usBNO',w:0.044},{tq:'usSLV',w:0.024},{tq:'usCPER',w:0.053}],  // 抗通胀LOF (2025Q4实测，前9精确，第10名CPER估算~4.5%)
+  '163208': 'usXLE',   // 全球油气能源（v24: 业绩基准=S&P 500 Energy Sector Index，XLE完全跟踪此指数；原usXOP是上游勘探，XLE=综合能源行业）
+  '501018': [{tq:'usUSO',w:0.6},{tq:'usBNO',w:0.4}],  // 南方原油（v24: 业绩基准=60%WTI+40%BRENT，USO跟踪WTI，BNO跟踪BRENT）
+  '161129': 'usUSO',   // 原油LOF易方达（业绩基准=标普高盛原油商品指数，WTI期货为主，✅正确）
+  '160723': 'usUSO',   // 嘉实原油（业绩基准=100%WTI，✅正确）
+  '162719': 'usXOP',   // 广发道琼斯石油（v24: 跟踪道琼斯美国石油开发与生产指数，上游勘探开采股票，XOP高度匹配；原usUSO是原油期货，错误类型）
+  '162411': 'usXOP',   // 华宝油气（跟踪SPSIOP标普石油天然气上游股票指数，✅正确）
+  '160416': 'usIXC',   // 石油基金（v24: 业绩基准=S&P Global Oil Index，含全球大型综合石油公司（埃克森/壳牌/BP等），IXC=iShares全球能源ETF跟踪S&P Global Energy Sector，最接近；原usUSO是原油期货，错误类型）
+  // 港股 — 恒生国企用HSCEI，其余用HSI
+  '501303': 'hkHSMI',  // ⚠️广发恒生综合中型股LOF（跟踪恒生综合中型股指数HSMI，腾讯hkHSMI代码待实测；若返回空则降级hkHSI）
+  '161124': 'hkHSI',  // ⚠️易方达港股小盘LOF（跟踪恒生综合小型股指数HSSI，腾讯hkHSSI待验证，暂用hkHSI近似）
+  '160322': 'hkHSCI', // v28修正：华夏港股通精选LOF业绩基准=恒生综合指数(HSCI)收益率*90%+活期存款*10%，hkHSCI为腾讯恒生综合指数代码
+  '501021': 'hkHSI',  // ⚠️香港中小LOF（实际跟踪标普香港上市中国中小盘精选指数，非恒生系；腾讯不支持此指数，hkHSI为最优可用代理，精度有限）
+  '501310': [{tq:'sh000300',w:0.5},{tq:'hkHSCEI',w:0.5}], // 价值基金LOF（v28: 跟踪标普沪港深中国增强价值，沪港深三地混合，A股+H股各约50%，沪深300+HSCEI混合基准）
+  '501302': 'hkHSI',
+  '501307': 'csi930917', // 银河高股息LOF（v28核查确认：紧密跟踪中证沪港深高股息指数(930917)，含A+H两市100只高股息股；东财接口已验证可用）
+  '501306': 'csi930914', // 港股高股息LOF-C（v28核查确认：跟踪中证港股通高股息投资指数(930914)，30只港股通高股息股）
+  '160717': 'hkHSCEI', // H股LOF（跟踪恒生中国企业指数，完全匹配）
+  '501311': 'hkHSTECH', // 新经济港通LOF（v28: 跟踪恒生港股通新经济指数，hkHSTECH恒生科技指数科技权重高度重合，比hkHSCEI和hkHSI都更准；腾讯已验证可用）
+  '501301': 'hkHSCEI', // v28修正：跟踪恒生中国(香港上市)30指数（腾讯/阿里/美团等中资H股龙头），HSCEI比HSI更准；2025-11已转型为ETF联接
+  '164705': 'hkHSI',
+  '161831': 'hkHSCEI',  // 恒生国企LOF（跟踪恒生中国企业指数，完全匹配）
+  '501305': 'csi930914', // 港股高股息LOF（v28核查确认：跟踪中证港股通高股息投资指数(930914)，✅完全匹配；501305(A类)/501306(C类)同一基金两类份额）
+  '160924': 'hkHSI',
+  '501025': 'csi930792', // 香港银行LOF（v28: 跟踪中证港股通香港银行指数(930792)，含汇丰/建行/工行/中行/中银香港等；hkHSMBI是恒生内地银行指数不含汇丰等外资行；东财接口已验证可用）
+  // 商品 — 白银
+  '161226': 'nf_AG0',  // 国投白银LOF（沪银主连期货）
+  // A股行业LOF — 沪深300
+  '161217': 'sh000945',  // 国投瑞银中证上游资源产业指数证券投资基金(LOF)（中证上游资源产业指数）
+  '161715': 'sh000066',  // 招商中证大宗商品股票指数证券投资基金(LOF)（上证大宗商品股票指数，更及时更新）
+  '161725': 'sh000852',  // 招商中证白酒LOF（中证白酒指数）
+  '161032': 'sz399998',  // 富国中证煤炭指数LOF（中证煤炭指数）
+};
+
+// 需要拉的所有腾讯代码（基金+指数，去重）
+// 支持混合基准：展开数组取tq字段
+const ALL_TQ_CODES = [
+  ...FUNDS.map(f=>f.tq),
+  ...Object.values(BENCH).flatMap(b=>Array.isArray(b)?b.map(x=>x.tq):[b]),
+];
+
+// 本地缓存管理
+const Cache = {
+  get(key) {
+    try {
+      const item = localStorage.getItem(key);
+      if (!item) return null;
+      const parsed = JSON.parse(item);
+      // 检查是否过期（24小时）
+      if (parsed.expiry && Date.now() > parsed.expiry) {
+        localStorage.removeItem(key);
+        return null;
+      }
+      return parsed.data;
+    } catch (e) {
+      return null;
+    }
+  },
+  set(key, data, expiryHours = 1) {
+    try {
+      const item = {
+        data,
+        expiry: Date.now() + (expiryHours * 60 * 60 * 1000)
+      };
+      localStorage.setItem(key, JSON.stringify(item));
+    } catch (e) {
+      // 忽略存储错误
+    }
+  },
+  remove(key) {
+    try {
+      localStorage.removeItem(key);
+    } catch (e) {
+      // 忽略删除错误
+    }
+  }
+};
+
+// 指数代码到中文名称的映射
+const INDEX_NAMES = {
+  'usXBI': '标普生物科技',
+  'usKWEB': '中概互联网',
+  'usQQQ': '纳斯达克100',
+  'hkHSTECH': '恒生科技',
+  'sh000985': '中证综合债券',
+  'usINDA': '印度ETF',
+  'usXLY': '美国消费',
+  'usRSPH': '标普医疗保健等权重',
+  'usXLK': '标普信息科技',
+  'usINX': '标普500',
+  'usAGG': '美国综合债券',
+  'usIYR': '美国REIT',
+  'usSMH': '半导体ETF',
+  'usSGOL': '白银ETF',
+  'usGLD': '黄金ETF',
+  'usGLDM': '黄金ETF',
+  'usUSO': '原油ETF',
+  'usSLV': '白银ETF',
+  'usCPER': '铜ETF',
+  'usXOP': '石油天然气上游',
+  'sh518880': '黄金ETF',
+  'usIAU': '黄金ETF',
+  'usAAAU': '黄金ETF',
+  'usBCI': '商品ETF',
+  'usCOMT': '商品ETF',
+  'usBNO': '布伦特原油',
+  'usXLE': '能源ETF',
+  'usIXC': '全球能源ETF',
+  'hkHSMI': '恒生综合中型股',
+  'hkHSI': '恒生指数',
+  'hkHSCI': '恒生综合指数',
+  'sh000300': '沪深300',
+  'hkHSCEI': '恒生国企指数',
+  'csi930917': '中证沪港深高股息',
+  'csi930914': '中证港股通高股息',
+  'csi930792': '中证港股通香港银行',
+  'nf_AG0': '沪银主连',
+  'sh000807': '中证食品饮料',
+  'sz399975': '中证全指证券',
+  'sz399998': '中证煤炭',
+  'sh000852': '中证白酒',
+  'sh000066': '上证大宗商品股票指数',
+  'sh000945': '中证上游资源产业指数'
+};
+
+// 全局变量
+let fundData = [];
+let running = false;
+let refreshInterval = 15000; // 默认15秒
+let refreshTimer = null;
+let currentFilter = 'all';
+let currentCategory = 'all';
+let sortColumn = 'premium';
+let sortDirection = 'desc';
+let indexData = {};
+let indexTimes = {}; // 指数时间信息
+let navLoaded = false;
+let currentVersion = 'desktop'; // 默认电脑版
+let dataTimestamp = new Date(); // 数据时间戳
+
+// 设备检测阈值
+const DESKTOP_THRESHOLD = 768; // 桌面端阈值（像素）
+const MOBILE_THRESHOLD = 768; // 移动端阈值（像素）
+
+// 检测设备类型
+function detectDevice() {
+  return window.innerWidth >= DESKTOP_THRESHOLD ? 'desktop' : 'mobile';
+}
+
+// 检查是否需要自动切换版本
+function checkAutoVersionSwitch() {
+  // 检查用户是否已经手动切换过版本
+  const savedVersion = localStorage.getItem('versionPreference');
+  if (savedVersion) {
+    // 如果用户已经手动切换过版本，尊重用户的选择，不自动切换
+    return;
+  }
+  
+  const detectedDevice = detectDevice();
+  if (currentVersion !== detectedDevice) {
+    // 自动切换到检测到的设备版本
+    currentVersion = detectedDevice;
+    // 不保存到localStorage，因为这是自动切换
+    applyVersionSetting();
+    renderTable();
+  }
+}
+
+// DOM 元素
+const fundTableBodyDesktop = document.getElementById('fundTableBodyDesktop');
+const fundTableBodyMobile = document.getElementById('fundTableBodyMobile');
+const desktopTable = document.querySelector('.desktop-table');
+const mobileTable = document.querySelector('.mobile-table');
+const versionToggleButtons = document.querySelectorAll('.version-toggle button');
+
+// 初始化
+function init() {
+  // 检测设备类型
+  const detectedDevice = detectDevice();
+  
+  // 从localStorage加载用户偏好版本
+  const savedVersion = localStorage.getItem('versionPreference');
+  if (savedVersion) {
+    currentVersion = savedVersion;
+  } else {
+    // 如果没有保存的偏好，使用检测到的设备类型
+    currentVersion = detectedDevice;
+  }
+  
+  // 初始化基金数据
+  fundData = FUNDS.map(fund => ({
+    ...fund,
+    price: null,
+    prevClose: null,
+    change: null,
+    volume: 0,
+    nav: null,
+    navChange: null,
+    premium: null,
+    officialNav: null,
+    navDate: ''
+  }));
+  
+  // 应用版本设置
+  applyVersionSetting();
+  
+  // 渲染空表格
+  renderTable();
+  
+  // 添加窗口大小变化监听器
+  window.addEventListener('resize', checkAutoVersionSwitch);
+  
+  // 添加滚动效果
+  window.addEventListener('scroll', handleScroll);
+  
+  // 初始化汉堡菜单
+  initHamburgerMenu();
+  
+  // 自动开始监控
+  running = true;
+  refreshData();
+  startRefreshTimer();
+}
+
+// 处理滚动效果
+function handleScroll() {
+  const header = document.getElementById('mainHeader');
+  if (window.scrollY > 50) {
+    header.classList.add('scrolled');
+  } else {
+    header.classList.remove('scrolled');
+  }
+}
+
+// 初始化汉堡菜单
+function initHamburgerMenu() {
+  const hamburgerMenu = document.getElementById('hamburgerMenu');
+  const navMenu = document.getElementById('navMenu');
+  
+  if (hamburgerMenu && navMenu) {
+    hamburgerMenu.addEventListener('click', () => {
+      hamburgerMenu.classList.toggle('active');
+      navMenu.classList.toggle('active');
+    });
+    
+    // 点击菜单外部关闭菜单
+    document.addEventListener('click', (event) => {
+      if (!hamburgerMenu.contains(event.target) && !navMenu.contains(event.target)) {
+        hamburgerMenu.classList.remove('active');
+        navMenu.classList.remove('active');
+      }
+    });
+    
+    // 键盘导航支持
+    hamburgerMenu.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        hamburgerMenu.click();
+      }
+    });
+  }
+}
+
+// 切换版本
+function switchVersion(version) {
+  currentVersion = version;
+  localStorage.setItem('versionPreference', version);
+  applyVersionSetting();
+  renderTable();
+  updateFilterTabs();
+}
+
+// 更新标签显示
+function updateFilterTabs() {
+  const filterTabs = document.querySelectorAll('.filter-tab');
+  if (currentVersion === 'mobile') {
+    // 手机版只显示前四个标签
+    filterTabs.forEach((tab, index) => {
+      if (index >= 4) {
+        tab.style.display = 'none';
+      } else {
+        tab.style.display = 'inline-block';
+      }
+    });
+  } else {
+    // 电脑版显示所有标签
+    filterTabs.forEach(tab => {
+      tab.style.display = 'inline-block';
+    });
+  }
+}
+
+// 应用版本设置
+function applyVersionSetting() {
+  // 更新按钮状态
+  versionToggleButtons.forEach(button => {
+    if (button.textContent.includes(currentVersion === 'desktop' ? '电脑版' : '手机版')) {
+      button.classList.add('active');
+    } else {
+      button.classList.remove('active');
+    }
+  });
+  
+  // 显示对应的表格
+  if (currentVersion === 'desktop') {
+    desktopTable.style.display = 'table';
+    mobileTable.style.display = 'none';
+  } else {
+    desktopTable.style.display = 'none';
+    mobileTable.style.display = 'table';
+  }
+  
+  // 更新标签显示
+  updateFilterTabs();
+}
+
+// 设置刷新率
+function setRefreshRate(value) {
+  refreshInterval = parseInt(value);
+  startRefreshTimer();
+  localStorage.setItem('refreshRate', refreshInterval);
+}
+
+
+
+// 开始刷新计时器
+function startRefreshTimer() {
+  stopRefreshTimer();
+  refreshTimer = setInterval(refreshData, refreshInterval);
+}
+
+// 停止刷新计时器
+function stopRefreshTimer() {
+  if (refreshTimer) {
+    clearInterval(refreshTimer);
+    refreshTimer = null;
+  }
+}
+
+// 设置筛选类型
+function setFilter(filter) {
+  currentFilter = filter;
+  
+  // 更新标签状态
+  document.querySelectorAll('.filter-tab').forEach(tab => {
+    if (tab.onclick.toString().includes(`setFilter('${filter}')`)) {
+      tab.classList.add('active');
+    } else if (tab.onclick.toString().includes('setFilter(')) {
+      tab.classList.remove('active');
+    }
+  });
+  
+  renderTable();
+}
+
+// 设置基金类别
+function setCategory(category) {
+  currentCategory = category;
+  
+  // 更新标签状态
+  document.querySelectorAll('.filter-tab').forEach(tab => {
+    if (tab.onclick.toString().includes(`setCategory('${category}')`)) {
+      tab.classList.add('active');
+    } else if (tab.onclick.toString().includes('setCategory(')) {
+      tab.classList.remove('active');
+    }
+  });
+  
+  renderTable();
+}
+
+// 降级基金：fundgz接口无实时估值，三接口竞速
+const NO_GSZ_FUNDS = new Set([
+  // 原有：fundgz无实时估值
+  '164906','164824','501300','501225','160216','164701','160719','163208','501018','161129','160723','501021','501310','161226',
+  // 新增：fundgz dwjz净值滞后，改用pingzhongdata+lsjz双接口取最新
+  '161125','161126','161127','161128','161130','162415','160140','160644',
+  '160717','160924','164705','161831','160322','161124',
+  '501303','501301','501302','501305','501306','501307','501311','501025',
+  '161815','165513','161116',
+  // 新增：石油/油气类净值同样滞后
+  '501312','162719','162411','160416',
+]);
+
+// 时间戳转北京日期字符串（东方财富时间戳是北京时间午夜，UTC会少一天）
+function toBeijingDate(ts) {
+  const d = new Date(ts);
+  const offset = 8 * 60 * 60 * 1000; // UTC+8
+  return new Date(d.getTime() + offset).toISOString().slice(0, 10);
+}
+
+// 接口① pingzhongdata.js —— 东方财富JS文件（允许跨域，第三方广泛使用）
+function fetchNavFromPingzhong(fund) {
+  return new Promise(resolve => {
+    const cb = 'pzd' + Date.now() + '_' + fund.code;
+    let done = false;
+    const timer = setTimeout(() => {
+      if (!done) {
+        done = true;
+        delete window[cb];
+        resolve(null);
+      }
+    }, 8000);
+    // pingzhongdata 不是jsonp，直接执行JS并赋值全局变量
+    // 需要用script标签加载后读取全局 Data_netWorthTrend
+    const s = document.createElement('script');
+    s.onload = () => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      try {
+        // 优先读 Data_netWorthTrend（单位净值）
+        // 若y值异常偏大（>50），说明该字段存的不是单位净值，改读 Data_ACWorthTrend
+        let nav = null, dt = '';
+        const arr = window['Data_netWorthTrend'];
+        if (arr && arr.length > 0) {
+          const last = arr[arr.length - 1];
+          const v = parseFloat(last.y || last[1]);
+          if (v > 0 && v <= 50) {
+            nav = v;
+            dt = last.x ? toBeijingDate(last.x) : '';
+          }
+        }
+        // Data_netWorthTrend异常时，读 Data_ACWorthTrend（累计净值，对白银/商品LOF等同单位净值）
+        if (!nav) {
+          const arr2 = window['Data_ACWorthTrend'];
+          if (arr2 && arr2.length > 0) {
+            const last2 = arr2[arr2.length - 1];
+            // 格式：[时间戳, 净值] 数组
+            const v2 = parseFloat(Array.isArray(last2) ? last2[1] : last2.y);
+            const ts = Array.isArray(last2) ? last2[0] : last2.x;
+            dt = ts ? toBeijingDate(ts) : '';
+            if (v2 > 0) {
+              nav = v2;
+            }
+          }
+        }
+        if (nav) {
+          resolve({ nav, date: dt });
+        } else {
+          resolve(null);
+        }
+      } catch (e) {
+        resolve(null);
+      } finally {
+        s.remove();
+        delete window['Data_netWorthTrend'];
+        delete window['Data_ACWorthTrend'];
+      }
+    };
+    s.onerror = () => {
+      if (!done) {
+        done = true;
+        clearTimeout(timer);
+        s.remove();
+        resolve(null);
+      }
+    };
+    s.src = `https://fund.eastmoney.com/pingzhongdata/${fund.code}.js?v=${Date.now()}`;
+    document.head.appendChild(s);
+  });
+}
+
+// 接口② lsjz历史净值API（原方案保留）
+function fetchNavFromLsjz(fund) {
+  return new Promise(resolve => {
+    const cb = 'jq' + Date.now() + '_' + fund.code;
+    const s = document.createElement('script');
+    let done = false;
+    const timer = setTimeout(() => {
+      if (!done) {
+        done = true;
+        delete window[cb];
+        s.remove();
+        resolve(null);
+      }
+    }, 8000);
+    window[cb] = function(d) {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      delete window[cb];
+      s.remove();
+      try {
+        const item = d && d.Data && d.Data.LSJZList && d.Data.LSJZList[0];
+        if (item && item.DWJZ) {
+          resolve({ nav: parseFloat(item.DWJZ), date: item.FSRQ || '' });
+        } else {
+          resolve(null);
+        }
+      } catch (e) {
+        resolve(null);
+      }
+    };
+    s.onerror = () => {
+      if (!done) {
+        done = true;
+        clearTimeout(timer);
+        delete window[cb];
+        resolve(null);
+      }
+    };
+    s.src = `https://api.fund.eastmoney.com/f10/lsjz?fundCode=${fund.code}&pageIndex=1&pageSize=1&callback=${cb}&_=${Date.now()}`;
+    document.head.appendChild(s);
+  });
+}
+
+// 并行跑两个接口，取日期较新的净值
+async function fetchNavFromEM(fund) {
+  // 先检查缓存
+  const cached = Cache.get(`nav_${fund.ocode}`);
+  
+  const [r1, r2] = await Promise.all([fetchNavFromPingzhong(fund), fetchNavFromLsjz(fund)]);
+  if (!r1 && !r2) {
+    return cached || null;
+  }
+  
+  let bestResult;
+  if (!r1) {
+    bestResult = r2;
+  } else if (!r2) {
+    bestResult = r1;
+  } else {
+    // 两个都有数据，取日期较新的
+    const d1 = r1.date || '', d2 = r2.date || '';
+    if (d2 > d1) {
+      bestResult = r2;
+    } else {
+      bestResult = r1; // 日期相同或pingzhongdata更新，用r1
+    }
+  }
+  
+  // 比较新数据与缓存数据的日期，如果新数据更新则使用新数据
+  if (cached) {
+    const cachedDate = cached.date || '';
+    const newDate = bestResult.date || '';
+    if (newDate > cachedDate) {
+      // 新数据日期更新，使用新数据并更新缓存
+      Cache.set(`nav_${fund.ocode}`, bestResult);
+      return bestResult;
+    } else {
+      // 缓存数据日期更新，使用缓存数据
+      return cached;
+    }
+  } else {
+    // 没有缓存数据，使用新数据并缓存
+    Cache.set(`nav_${fund.ocode}`, bestResult);
+    return bestResult;
+  }
+}
+
+// 从天天基金获取场外基金最新净值
+function fetchNav(fund) {
+  return new Promise(resolve => {
+    // 先检查缓存
+    const cached = Cache.get(`nav_${fund.ocode}`);
+
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'display:none;width:0;height:0;border:0';
+    document.body.appendChild(iframe);
+    
+    let done = false;
+    const cleanup = () => {
+      try {
+        document.body.removeChild(iframe);
+      } catch (e) {}
+    };
+    
+    const timer = setTimeout(() => {
+      if (!done) {
+        done = true;
+        cleanup();
+        // 降级到东方财富接口
+        fetchNavFromEM(fund).then(result => {
+          if (result && result.nav > 0) {
+            // 比较新数据与缓存数据的日期
+            if (cached) {
+              const cachedDate = cached.date || '';
+              const newDate = result.date || '';
+              if (newDate > cachedDate) {
+                // 新数据日期更新，使用新数据并更新缓存
+                Cache.set(`nav_${fund.ocode}`, result);
+                resolve(result);
+              } else {
+                // 缓存数据日期更新，使用缓存数据
+                resolve(cached);
+              }
+            } else {
+              // 没有缓存数据，使用新数据并缓存
+              Cache.set(`nav_${fund.ocode}`, result);
+              resolve(result);
+            }
+          } else {
+            // 获取失败，使用缓存数据（如果有）
+            resolve(cached || null);
+          }
+        });
+      }
+    }, 7000);
+    
+    try {
+      const iw = iframe.contentWindow;
+      iw.jsonpgz = function(d) {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        
+        if (!d) {
+          cleanup();
+          // 降级到东方财富接口
+          fetchNavFromEM(fund).then(result => {
+            if (result && result.nav > 0) {
+              // 比较新数据与缓存数据的日期
+              if (cached) {
+                const cachedDate = cached.date || '';
+                const newDate = result.date || '';
+                if (newDate > cachedDate) {
+                  // 新数据日期更新，使用新数据并更新缓存
+                  Cache.set(`nav_${fund.ocode}`, result);
+                  resolve(result);
+                } else {
+                  // 缓存数据日期更新，使用缓存数据
+                  resolve(cached);
+                }
+              } else {
+                // 没有缓存数据，使用新数据并缓存
+                Cache.set(`nav_${fund.ocode}`, result);
+                resolve(result);
+              }
+            } else {
+              // 获取失败，使用缓存数据（如果有）
+              resolve(cached || null);
+            }
+          });
+          return;
+        }
+        
+        const dwjz = parseFloat(d.dwjz);
+        const gsz = parseFloat(d.gsz);
+        
+        // 同时获取东方财富的数据，比较日期
+        fetchNavFromEM(fund).then(emResult => {
+          let bestResult = null;
+          
+          // 处理天天基金数据
+          if (dwjz > 0) {
+            bestResult = { nav: dwjz, date: d.jzrq || '' };
+          } else if (gsz > 0) {
+            // dwjz缺失时用实时估值gsz，日期用gztime前10位
+            const dt = (d.gztime || '').slice(0, 10);
+            bestResult = { nav: gsz, date: dt };
+          }
+          
+          // 比较东方财富数据，如果日期更新则使用
+          if (emResult && emResult.nav > 0) {
+            if (!bestResult || (emResult.date && (!bestResult.date || emResult.date > bestResult.date))) {
+              bestResult = emResult;
+            }
+          }
+          
+          if (bestResult) {
+            // 比较新数据与缓存数据的日期
+            if (cached) {
+              const cachedDate = cached.date || '';
+              const newDate = bestResult.date || '';
+              if (newDate > cachedDate) {
+                // 新数据日期更新，使用新数据并更新缓存
+                Cache.set(`nav_${fund.ocode}`, bestResult);
+                resolve(bestResult);
+              } else {
+                // 缓存数据日期更新，使用缓存数据
+                resolve(cached);
+              }
+            } else {
+              // 没有缓存数据，使用新数据并缓存
+              Cache.set(`nav_${fund.ocode}`, bestResult);
+              resolve(bestResult);
+            }
+          } else {
+            // 获取失败，使用缓存数据（如果有）
+            resolve(cached || null);
+          }
+          
+          cleanup();
+        });
+      };
+      
+      const script = iw.document.createElement('script');
+      script.onerror = () => {
+        if (!done) {
+          done = true;
+          clearTimeout(timer);
+          cleanup();
+          // 降级到东方财富接口
+          fetchNavFromEM(fund).then(result => {
+            if (result && result.nav > 0) {
+              // 比较新数据与缓存数据的日期
+              if (cached) {
+                const cachedDate = cached.date || '';
+                const newDate = result.date || '';
+                if (newDate > cachedDate) {
+                  // 新数据日期更新，使用新数据并更新缓存
+                  Cache.set(`nav_${fund.ocode}`, result);
+                  resolve(result);
+                } else {
+                  // 缓存数据日期更新，使用缓存数据
+                  resolve(cached);
+                }
+              } else {
+                // 没有缓存数据，使用新数据并缓存
+                Cache.set(`nav_${fund.ocode}`, result);
+                resolve(result);
+              }
+            } else {
+              // 获取失败，使用缓存数据（如果有）
+              resolve(cached || null);
+            }
+          });
+        }
+      };
+      script.src = `https://fundgz.1234567.com.cn/js/${fund.ocode}.js?rt=${Date.now()}`;
+      iw.document.head.appendChild(script);
+    } catch (e) {
+      clearTimeout(timer);
+      cleanup();
+      // 降级到东方财富接口
+      fetchNavFromEM(fund).then(result => {
+        if (result && result.nav > 0) {
+          // 比较新数据与缓存数据的日期
+          if (cached) {
+            const cachedDate = cached.date || '';
+            const newDate = result.date || '';
+            if (newDate > cachedDate) {
+              // 新数据日期更新，使用新数据并更新缓存
+              Cache.set(`nav_${fund.ocode}`, result);
+              resolve(result);
+            } else {
+              // 缓存数据日期更新，使用缓存数据
+              resolve(cached);
+            }
+          } else {
+            // 没有缓存数据，使用新数据并缓存
+            Cache.set(`nav_${fund.ocode}`, result);
+            resolve(result);
+          }
+        } else {
+          // 获取失败，使用缓存数据（如果有）
+          resolve(cached || null);
+        }
+      });
+    }
+  });
+}
+
+// 加载所有基金的净值数据
+async function loadNavs() {
+  const BATCH_SIZE = 15;
+  let loaded = 0;
+  
+  for (let i = 0; i < fundData.length; i += BATCH_SIZE) {
+    const batch = fundData.slice(i, i + BATCH_SIZE);
+    const results = await Promise.all(batch.map(fund => {
+      // 对降级基金使用东方财富接口
+      if (NO_GSZ_FUNDS.has(fund.code)) {
+        return fetchNavFromEM(fund);
+      } else {
+        return fetchNav(fund);
+      }
+    }));
+    
+    results.forEach((result, index) => {
+      const fund = batch[index];
+      if (result && result.nav > 0) {
+        fund.officialNav = result.nav;
+        fund.navDate = result.date;
+        loaded++;
+      }
+    });
+  }
+  
+  navLoaded = true;
+}
+
+// 东方财富push2 — 用于腾讯qt不支持的指数（中证港股通高股息等）
+function fetchEastmoney() {
+  const EM_CODES = {
+    'csi930917': '2.930917',  // 中证沪港深高股息指数 CSI930917（501307银河高股息，含A+H两市100只高股息）
+    'csi930914': '2.930914',  // 中证港股通高股息投资指数 CSI930914（501305/501306港股高股息，30只港股通高息股）
+    'csi930792': '2.930792',  // 中证港股通香港银行指数 CSI930792（501025香港银行，含汇丰/工行/建行/中行）
+    'sh000985':  '1.000985',  // 中证综合债券指数（501312海外科技LOF业绩基准10%分量）
+    'sh000066':  '1.000066',  // 上证大宗商品股票指数（161715招商中证大宗商品股票指数基金基准，更及时更新）
+    'sh000945':  '1.000945',  // 中证上游资源产业指数（161217国投瑞银中证上游资源产业指数基金基准）
+  };
+  return Promise.all(Object.entries(EM_CODES).map(([key, secid]) =>
+    fetch(`https://push2.eastmoney.com/api/qt/stock/get?secid=${secid}&fields=f43,f169,f170,f3,f14&_=${Date.now()}`)
+      .then(r => r.json())
+      .then(d => {
+        if (d.data && d.data.f43 > 0) {
+          const chg = (d.data.f170 || 0) / 100;
+          const time = d.data.f14 || ''; // 获取时间信息
+          return [key, chg, time];
+        }
+        return null;
+      })
+      .catch(e => {
+        return null;
+      })
+  )).then(results => {
+    const out = {};
+    const times = {};
+    results.forEach(r => {
+      if (r) {
+        out[r[0]] = r[1];
+        times[r[0]] = r[2] || '';
+      }
+    });
+    return { data: out, times: times };
+  });
+}
+
+// 从腾讯财经获取实时行情数据
+function fetchTencentData() {
+  return new Promise(resolve => {
+    const codes = [...new Set(ALL_TQ_CODES)].join(',');
+    const script = document.createElement('script');
+    
+    let done = false;
+    const timer = setTimeout(() => {
+      if (!done) {
+        done = true;
+        console.log('腾讯行情超时');
+        script.remove();
+        resolve({ funds: {}, indices: {} });
+      }
+    }, 8000);
+    
+    script.onload = () => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      
+      const result = { funds: {}, indices: {} };
+      let ok = 0;
+      
+      // 处理基金数据
+      fundData.forEach(fund => {
+        const data = window[`v_${fund.tq}`];
+        if (!data || data.length < 10) return;
+        
+        const parts = data.split('~');
+        const price = parseFloat(parts[3]);
+        const prevClose = parseFloat(parts[4]);
+        const volume = parseFloat(parts[37]) || 0;
+        
+        if (price > 0) {
+          result.funds[fund.code] = {
+            price,
+            prevClose,
+            change: prevClose > 0 ? (price - prevClose) / prevClose * 100 : 0,
+            volume
+          };
+          ok++;
+        }
+      });
+      
+      // 处理指数数据（用于估值计算）
+      const allIdxCodes = [...new Set(Object.values(BENCH).flatMap(b => Array.isArray(b) ? b.map(x => x.tq) : [b]))];
+      allIdxCodes.forEach(indexCode => {
+        const data = window[`v_${indexCode}`];
+        if (!data || data.length < 5) return;
+        
+        const parts = data.split('~');
+        const price = parseFloat(parts[3]);
+        const prevClose = parseFloat(parts[4]);
+        const time = parts[30] || parts[29] || ''; // 尝试获取时间信息
+        
+        if (price > 0) {
+          result.indices[indexCode] = {
+            price,
+            change: prevClose > 0 ? (price - prevClose) / prevClose * 100 : 0,
+            time: time
+          };
+        }
+      });
+      
+      script.remove();
+      resolve(result);
+    };
+    
+    script.onerror = () => {
+      if (!done) {
+        done = true;
+        clearTimeout(timer);
+        console.log('腾讯脚本加载失败');
+        script.remove();
+        resolve({ funds: {}, indices: {} });
+      }
+    };
+    
+    script.src = `https://qt.gtimg.cn/q=${codes}&_=${Date.now()}`;
+    document.head.appendChild(script);
+  });
+}
+
+// 刷新数据
+async function refreshData() {
+  // 更新数据时间戳
+  dataTimestamp = new Date();
+  
+  // 每次刷新都重新加载净值数据，确保数据是最新的
+  await loadNavs();
+  
+  // 并行获取腾讯财经和东方财富数据，添加错误处理
+  let tencentData = { funds: {}, indices: {} };
+  let emResult = { data: {}, times: {} };
+  
+  try {
+    [tencentData, emResult] = await Promise.all([
+      fetchTencentData().catch(err => {
+        console.error('腾讯财经API调用失败:', err);
+        return { funds: {}, indices: {} };
+      }), 
+      fetchEastmoney().catch(err => {
+        console.error('东方财富API调用失败:', err);
+        return { data: {}, times: {} };
+      })
+    ]);
+  } catch (err) {
+    console.error('数据获取失败:', err);
+  }
+  
+  const emIdx = emResult.data || {};
+  const emTimes = emResult.times || {};
+  
+  // 缓存外盘指数涨跌幅和时间信息（腾讯qt + 东方财富）
+  const newIndexData = {};
+  const newIndexTimes = {};
+  Object.entries(tencentData.indices).forEach(([code, d]) => {
+    newIndexData[code] = d.change;
+    newIndexTimes[code] = d.time || '';
+  });
+  Object.entries(emIdx).forEach(([code, chg]) => {
+    newIndexData[code] = chg;
+    if (emTimes[code]) {
+      // 处理东方财富返回的时间格式
+      newIndexTimes[code] = emTimes[code];
+    } else {
+      // 没有时间信息，使用当前时间
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hour = String(now.getHours()).padStart(2, '0');
+      const minute = String(now.getMinutes()).padStart(2, '0');
+      newIndexTimes[code] = `${year}-${month}-${day} ${hour}:${minute}`;
+    }
+  });
+  
+  // 更新为新数据
+  indexData = newIndexData;
+  indexTimes = newIndexTimes;
+  
+  // 为所有基准指数设置默认时间信息，确保即使获取不到数据也能显示时间
+  Object.values(BENCH).forEach(benchDef => {
+    if (Array.isArray(benchDef)) {
+      benchDef.forEach(b => {
+        if (!indexTimes[b.tq]) {
+          const now = new Date();
+          const year = now.getFullYear();
+          const month = String(now.getMonth() + 1).padStart(2, '0');
+          const day = String(now.getDate()).padStart(2, '0');
+          const hour = String(now.getHours()).padStart(2, '0');
+          const minute = String(now.getMinutes()).padStart(2, '0');
+          indexTimes[b.tq] = `${year}-${month}-${day} ${hour}:${minute}`;
+        }
+      });
+    } else if (benchDef) {
+      if (!indexTimes[benchDef]) {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hour = String(now.getHours()).padStart(2, '0');
+        const minute = String(now.getMinutes()).padStart(2, '0');
+        indexTimes[benchDef] = `${year}-${month}-${day} ${hour}:${minute}`;
+      }
+    }
+  });
+  
+  // 指数降级逻辑（v28新增）
+  // hkHSMI降级：若腾讯返回数据无效则回落到hkHSI（恒生综合中型股指数代码待验证）
+  if (indexData['hkHSMI'] == null || indexData['hkHSMI'] === 0) {
+    if (indexData['hkHSI'] != null) {
+      indexData['hkHSMI'] = indexData['hkHSI'];
+    }
+  }
+  // hkHSCI降级：恒生综合指数（160322基准），若腾讯无此代码则回落到hkHSI近似
+  if (indexData['hkHSCI'] == null || indexData['hkHSCI'] === 0) {
+    if (indexData['hkHSI'] != null) {
+      indexData['hkHSCI'] = indexData['hkHSI'];
+    }
+  }
+  
+  // 更新基金数据
+  fundData.forEach(fund => {
+    const marketData = tencentData.funds[fund.code];
+    if (marketData) {
+      fund.price = marketData.price;
+      fund.prevClose = marketData.prevClose;
+      fund.change = marketData.change;
+      fund.volume = marketData.volume;
+      
+      // 计算实时估值和溢价率
+      // 支持混合基准：BENCH[code] 可以是字符串或 [{tq,w}] 数组
+      const baseNav = fund.officialNav || fund.prevClose;
+      const benchDef = BENCH[fund.code];
+      let benchChgPct = 0;
+      
+      if (Array.isArray(benchDef)) {
+        // 混合基准：加权平均
+        let totalW = 0;
+        benchDef.forEach(b => {
+          const chg = indexData[b.tq] || 0;
+          benchChgPct += chg * b.w;
+          totalW += b.w;
+        });
+        if (totalW > 0) benchChgPct /= totalW;
+      } else if (benchDef) {
+        benchChgPct = indexData[benchDef] || 0;
+      }
+      
+      if (baseNav > 0) {
+        fund.nav = baseNav * (1 + benchChgPct / 100);
+        fund.navChange = benchChgPct;
+        fund.premium = (fund.price - fund.nav) / fund.nav * 100;
+      }
+    }
+  });
+  
+  // 渲染表格
+  renderTable();
+  
+  // 更新生成时间
+  updateGenerateTime();
+}
+
+// 排序表格
+function sortTable(column) {
+  // 移除所有排序标记
+  document.querySelectorAll('th.sorted').forEach(th => th.classList.remove('sorted'));
+  
+  // 设置当前排序列
+  const th = document.querySelector(`th[onclick="sortTable('${column}')"]`);
+  th.classList.add('sorted');
+  
+  // 切换排序方向
+  if (sortColumn === column) {
+    sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortColumn = column;
+    sortDirection = 'desc';
+  }
+  
+  // 渲染表格
+  renderTable();
+}
+
+// 渲染表格
+function renderTable() {
+  // 筛选数据
+  let filteredData = [...fundData];
+  
+  // 按类别筛选
+  if (currentCategory !== 'all') {
+    filteredData = filteredData.filter(fund => fund.category === currentCategory);
+  }
+  
+  // 按状态筛选
+  const threshold = 2; // 固定套利阈值为2%
+  switch (currentFilter) {
+    case 'arbitrage':
+      filteredData = filteredData.filter(fund => 
+        fund.premium !== null && Math.abs(fund.premium) >= threshold && fund.quota !== '暂停'
+      );
+      break;
+    case 'premium':
+      filteredData = filteredData.filter(fund => 
+        fund.premium !== null && fund.premium > 0
+      );
+      break;
+    case 'discount':
+      filteredData = filteredData.filter(fund => 
+        fund.premium !== null && fund.premium < 0
+      );
+      break;
+  }
+  
+  // 电脑版排序
+  const desktopSortedData = filteredData.sort((a, b) => {
+    let valueA, valueB;
+    
+    switch (sortColumn) {
+      case 'index':
+        return sortDirection === 'asc' ? 1 : -1;
+      case 'name':
+        valueA = a.name;
+        valueB = b.name;
+        break;
+      case 'code':
+        valueA = a.code;
+        valueB = b.code;
+        break;
+      case 'category':
+        valueA = a.category;
+        valueB = b.category;
+        break;
+      case 'nav':
+        valueA = a.nav || 0;
+        valueB = b.nav || 0;
+        break;
+      case 'officialNav':
+        valueA = a.officialNav || 0;
+        valueB = b.officialNav || 0;
+        break;
+      case 'price':
+        valueA = a.price || 0;
+        valueB = b.price || 0;
+        break;
+      case 'premium':
+        valueA = a.premium || 0;
+        valueB = b.premium || 0;
+        break;
+      case 'quota':
+        valueA = a.quota;
+        valueB = b.quota;
+        break;
+      default:
+        return 0;
+    }
+    
+    if (typeof valueA === 'string' && typeof valueB === 'string') {
+      return sortDirection === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
+    } else {
+      return sortDirection === 'asc' ? valueA - valueB : valueB - valueA;
+    }
+  });
+  
+  // 手机版固定按溢价率从高到低排序
+  const mobileSortedData = [...filteredData].sort((a, b) => {
+    const valueA = a.premium || 0;
+    const valueB = b.premium || 0;
+    return valueB - valueA; // 从高到低排序
+  });
+  
+  // 渲染电脑版表格
+  renderDesktopTable(desktopSortedData);
+  
+  // 渲染手机版表格
+  renderMobileTable(mobileSortedData);
+}
+
+// 渲染电脑版表格
+function renderDesktopTable(sortedData) {
+  if (sortedData.length === 0) {
+    fundTableBodyDesktop.innerHTML = `
+      <tr>
+        <td colspan="9" class="loading">暂无数据</td>
+      </tr>
+    `;
+    return;
+  }
+  
+  // 类别映射
+  const categoryMap = {
+    'us': '美股',
+    'hk': '港股',
+    'cm': '商品',
+    'cn': 'A股'
+  };
+  
+  fundTableBodyDesktop.innerHTML = sortedData.map((fund, index) => {
+    const quotaClass = fund.quota === '开放' ? 'open' : 
+                      fund.quota === '暂停' ? 'suspended' : 'limited';
+    
+    // 金融行业通用的红涨绿跌颜色标识规则
+    let premiumClass = '';
+    if (fund.premium > 0) {
+      premiumClass = 'red';
+    } else if (fund.premium < 0) {
+      premiumClass = 'green';
+    }
+    
+    const categoryName = categoryMap[fund.category] || fund.category;
+    
+    return `
+      <tr>
+        <td style="font-weight: 600;">${index + 1}</td>
+        <td>
+          <div class="code-cell">
+            <div class="fund-name">${fund.name}</div>
+            <div class="fund-code">${fund.code}</div>
+          </div>
+        </td>
+        <td>
+          ${fund.price ? fund.price.toFixed(2) : '-'}
+          ${fund.change ? `
+            <div class="price-change ${fund.change >= 0 ? 'red' : 'green'}">
+              ${fund.change >= 0 ? '+' : ''}${fund.change.toFixed(2)}%
+            </div>
+          ` : ''}
+        </td>
+        <td>${fund.nav ? fund.nav.toFixed(2) : '-'}</td>
+        <td>
+          ${fund.officialNav ? fund.officialNav.toFixed(4) : '-'}
+          ${fund.navDate ? `
+            <div style="font-size: 0.65rem; color: var(--gray); margin-top: 0.2rem;">
+              ${fund.navDate}
+            </div>
+          ` : ''}
+        </td>
+        <td>
+          ${fund.premium !== null ? `
+            <span class="premium-rate ${premiumClass}">
+              ${fund.premium >= 0 ? '+' : ''}${fund.premium.toFixed(2)}%
+            </span>
+          ` : '-'}
+        </td>
+        <td>
+          ${(() => {
+            const benchDef = BENCH[fund.code];
+            if (Array.isArray(benchDef)) {
+              return benchDef.map(b => `${INDEX_NAMES[b.tq] || b.tq}(${b.tq})(${b.w})`).join('+');
+            } else if (benchDef) {
+              return `${INDEX_NAMES[benchDef] || benchDef}(${benchDef})`;
+            }
+            return '-';
+          })()}
+        </td>
+        <td>
+          ${(() => {
+            const benchDef = BENCH[fund.code];
+            let changeText = '-';
+            let timeStr = '';
+            let isZeroChange = false;
+            if (Array.isArray(benchDef)) {
+              let totalW = 0;
+              let benchChgPct = 0;
+              let mainIndex = benchDef[0].tq; // 选择第一个指数作为主要指数
+              benchDef.forEach(b => {
+                const chg = indexData[b.tq] || 0;
+                benchChgPct += chg * b.w;
+                totalW += b.w;
+              });
+              if (totalW > 0) benchChgPct /= totalW;
+              isZeroChange = benchChgPct === 0;
+              changeText = `${benchChgPct >= 0 ? '+' : ''}${benchChgPct.toFixed(2)}%`;
+              timeStr = indexTimes[mainIndex] || '';
+            } else if (benchDef) {
+              const chg = indexData[benchDef] || 0;
+              isZeroChange = chg === 0;
+              changeText = `${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%`;
+              timeStr = indexTimes[benchDef] || '';
+            }
+            const changeClass = isZeroChange ? 'zero-change' : '';
+            return `<div class="${changeClass}">${changeText}${timeStr ? `<div style="font-size: 0.65rem; color: var(--gray); margin-top: 0.2rem;">${timeStr}</div>` : ''}</div>`;
+          })()}
+        </td>
+        <td>
+          ${(() => {
+            // 参考指数涨跌幅（T-1）列，暂时显示NaN
+            return 'NaN';
+          })()}
+        </td>
+        <td>
+          <span class="quota-status ${quotaClass}">
+            ${fund.quota}
+          </span>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// 渲染手机版表格
+function renderMobileTable(sortedData) {
+  if (sortedData.length === 0) {
+    fundTableBodyMobile.innerHTML = `
+      <tr>
+        <td colspan="5" class="loading">暂无数据</td>
+      </tr>
+    `;
+    return;
+  }
+  
+  fundTableBodyMobile.innerHTML = sortedData.map((fund, index) => {
+    const quotaClass = fund.quota === '开放' ? 'open' : 
+                      fund.quota === '暂停' ? 'suspended' : 'limited';
+    
+    // 金融行业通用的红涨绿跌颜色标识规则
+    let premiumClass = '';
+    if (fund.premium > 0) {
+      premiumClass = 'red';
+    } else if (fund.premium < 0) {
+      premiumClass = 'green';
+    }
+    
+    return `
+      <tr>
+        <td>
+          <div class="code-cell">
+            <div class="fund-name">${fund.name}</div>
+            <div class="fund-code">${fund.code}</div>
+          </div>
+        </td>
+        <td>
+          ${fund.price ? fund.price.toFixed(2) : '-'}
+          ${fund.change ? `
+            <div class="price-change ${fund.change >= 0 ? 'red' : 'green'}">
+              ${fund.change >= 0 ? '+' : ''}${fund.change.toFixed(2)}%
+            </div>
+          ` : ''}
+        </td>
+        <td>
+          ${fund.premium !== null ? `
+            <div class="premium-rate ${premiumClass}">
+              ${fund.premium >= 0 ? '+' : ''}${fund.premium.toFixed(2)}%
+            </div>
+          ` : '-'}
+          ${fund.nav ? `
+            <div style="font-size: 0.7rem; margin-top: 0.2rem;">
+              ${fund.nav.toFixed(2)}
+            </div>
+          ` : ''}
+        </td>
+        <td>
+          <span class="quota-status ${quotaClass}">
+            ${fund.quota}
+          </span>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// 全局错误处理
+window.addEventListener('error', (e) => {
+  console.error('全局错误:', e.message, '发生在', e.filename, '第', e.lineno, '行');
+});
+
+window.addEventListener('unhandledrejection', (e) => {
+  console.error('未处理的Promise拒绝:', e.reason);
+});
+
+// 初始化应用
+init();
+</script>
+</body>
+</html>
