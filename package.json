@@ -1,0 +1,13 @@
+{
+  "name": "lof-fund-monitor",
+  "version": "1.0.0",
+  "description": "LOF基金溢价率监控工具",
+  "type": "module",
+  "main": "monitor.js",
+  "scripts": {
+    "start": "node monitor.js"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  }
+}
