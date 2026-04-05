@@ -23,34 +23,249 @@ const BENCH = {
   '161715': 'sh000066' // 上证大宗商品股票指数
 };
 
+// 所有腾讯财经代码
+const ALL_TQ_CODES = FUNDS.map(fund => fund.tq).concat(Object.values(BENCH));
+
+// 从腾讯财经获取实时行情数据
+async function fetchTencentData() {
+  const codes = [...new Set(ALL_TQ_CODES)].join(',');
+  const url = `https://qt.gtimg.cn/q=${codes}&_=${Date.now()}`;
+  
+  try {
+    const response = await fetch(url);
+    const text = await response.text();
+    
+    const result = { funds: {}, indices: {} };
+    
+    // 解析腾讯财经返回的数据
+    const lines = text.split(';');
+    lines.forEach(line => {
+      if (!line) return;
+      
+      // 提取变量名和数据
+      const match = line.match(/v_(\w+)="([^"]+)"/);
+      if (match) {
+        const code = match[1];
+        const data = match[2];
+        const parts = data.split('~');
+        
+        if (parts.length >= 10) {
+          const price = parseFloat(parts[3]);
+          const prevClose = parseFloat(parts[4]);
+          
+          if (price > 0) {
+            const change = prevClose > 0 ? (price - prevClose) / prevClose * 100 : 0;
+            
+            // 判断是基金还是指数
+            const isFund = FUNDS.some(fund => fund.tq === code);
+            if (isFund) {
+              result.funds[code] = {
+                price,
+                prevClose,
+                change
+              };
+            } else {
+              result.indices[code] = {
+                price,
+                change
+              };
+            }
+          }
+        }
+      }
+    });
+    
+    return result;
+  } catch (error) {
+    console.error('获取腾讯财经数据失败:', error);
+    return { funds: {}, indices: {} };
+  }
+}
+
+// 东方财富push2 — 用于腾讯qt不支持的指数
+async function fetchEastmoney() {
+  const EM_CODES = {
+    'csi930917': '2.930917',  // 中证沪港深高股息指数
+    'csi930914': '2.930914',  // 中证港股通高股息投资指数
+    'csi930792': '2.930792',  // 中证港股通香港银行指数
+    'sh000985':  '1.000985',  // 中证综合债券指数
+    'sh000066':  '1.000066',  // 上证大宗商品股票指数
+    'sh000945':  '1.000945',  // 中证上游资源产业指数
+  };
+  
+  try {
+    const results = await Promise.all(Object.entries(EM_CODES).map(([key, secid]) =>
+      fetch(`https://push2.eastmoney.com/api/qt/stock/get?secid=${secid}&fields=f43,f169,f170,f3,f14&_=${Date.now()}`)
+        .then(r => r.json())
+        .then(d => {
+          if (d.data && d.data.f43 > 0) {
+            const chg = (d.data.f170 || 0) / 100;
+            const time = d.data.f14 || '';
+            return [key, chg, time];
+          }
+          return null;
+        })
+        .catch(e => {
+          console.error(`获取东方财富数据失败 (${key}):`, e);
+          return null;
+        })
+    ));
+    
+    const out = {};
+    const times = {};
+    results.forEach(r => {
+      if (r) {
+        out[r[0]] = r[1];
+        times[r[0]] = r[2] || '';
+      }
+    });
+    
+    return { data: out, times: times };
+  } catch (error) {
+    console.error('获取东方财富数据失败:', error);
+    return { data: {}, times: {} };
+  }
+}
+
+// 从天天基金获取净值数据
+async function fetchNav(fund) {
+  const url = `https://fundgz.1234567.com.cn/js/${fund.code}.js?rt=${Date.now()}`;
+  
+  try {
+    const response = await fetch(url);
+    const text = await response.text();
+    
+    // 解析JSONP数据
+    const match = text.match(/jsonpgz\(([^)]+)\)/);
+    if (match) {
+      const data = JSON.parse(match[1]);
+      if (data && data.data) {
+        return {
+          nav: parseFloat(data.data.dwjz),
+          date: data.data.gztime
+        };
+      }
+    }
+    return null;
+  } catch (error) {
+    console.error(`获取${fund.code}净值数据失败:`, error);
+    return null;
+  }
+}
+
+// 从东方财富获取净值数据（用于某些特殊基金）
+async function fetchNavFromEM(fund) {
+  const url = `https://push2.eastmoney.com/api/qt/fund/newfund/detail/get?fundCode=${fund.code}&_=${Date.now()}`;
+  
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    if (data.data && data.data.fundBaseInfo) {
+      const nav = parseFloat(data.data.fundBaseInfo.FUNDDWJZ);
+      const date = data.data.fundBaseInfo.FUNDDWJZDATE;
+      
+      if (nav > 0) {
+        return {
+          nav,
+          date
+        };
+      }
+    }
+    return null;
+  } catch (error) {
+    console.error(`获取${fund.code}东方财富净值数据失败:`, error);
+    return null;
+  }
+}
+
+// 加载所有基金的净值数据
+async function loadNavs() {
+  const BATCH_SIZE = 15;
+  let loaded = 0;
+  const navData = {};
+  
+  for (let i = 0; i < FUNDS.length; i += BATCH_SIZE) {
+    const batch = FUNDS.slice(i, i + BATCH_SIZE);
+    const results = await Promise.all(batch.map(fund => {
+      return fetchNav(fund);
+    }));
+    
+    results.forEach((result, index) => {
+      const fund = batch[index];
+      if (result && result.nav > 0) {
+        navData[fund.code] = result;
+        loaded++;
+      }
+    });
+  }
+  
+  return navData;
+}
+
 // 检查溢价率异常
 async function checkAbnormalPremium() {
   const threshold = 3; // 3%的阈值
   const abnormalFunds = [];
   
-  // 模拟获取基金数据（实际项目中可以调用API）
-  for (const fund of FUNDS) {
-    try {
-      // 模拟获取场内价格
-      const price = 1 + Math.random() * 0.5;
-      // 模拟获取预估净值
-      const nav = price * (1 + (Math.random() - 0.5) * 0.1);
-      // 计算溢价率
-      const premium = ((price - nav) / nav) * 100;
-      
-      console.log(`${fund.code} ${fund.name}: 价格=${price.toFixed(4)}, 净值=${nav.toFixed(4)}, 溢价率=${premium.toFixed(2)}%`);
-      
-      // 检查是否异常
-      if (Math.abs(premium) >= threshold) {
-        abnormalFunds.push({
-          code: fund.code,
-          name: fund.name,
-          premium: premium
-        });
+  try {
+    // 并行获取数据
+    const [tencentData, eastmoneyData, navData] = await Promise.all([
+      fetchTencentData(),
+      fetchEastmoney(),
+      loadNavs()
+    ]);
+    
+    // 合并指数数据
+    const indexData = { ...tencentData.indices, ...eastmoneyData.data };
+    
+    // 处理基金数据
+    for (const fund of FUNDS) {
+      try {
+        // 获取场内价格
+        const fundData = tencentData.funds[fund.tq];
+        if (!fundData || !fundData.price) {
+          console.log(`未获取到${fund.code} ${fund.name}的场内价格`);
+          continue;
+        }
+        
+        // 获取净值数据
+        const navInfo = navData[fund.code];
+        if (!navInfo || !navInfo.nav) {
+          console.log(`未获取到${fund.code} ${fund.name}的净值数据`);
+          continue;
+        }
+        
+        // 获取基准指数涨跌幅
+        const benchCode = BENCH[fund.code];
+        let benchChange = 0;
+        
+        if (benchCode && indexData[benchCode]) {
+          benchChange = indexData[benchCode];
+        }
+        
+        // 计算预估净值
+        const estimatedNav = navInfo.nav * (1 + benchChange / 100);
+        
+        // 计算溢价率
+        const premium = ((fundData.price - estimatedNav) / estimatedNav) * 100;
+        
+        console.log(`${fund.code} ${fund.name}: 价格=${fundData.price.toFixed(4)}, 净值=${navInfo.nav.toFixed(4)}, 预估净值=${estimatedNav.toFixed(4)}, 溢价率=${premium.toFixed(2)}%`);
+        
+        // 检查是否异常
+        if (Math.abs(premium) >= threshold) {
+          abnormalFunds.push({
+            code: fund.code,
+            name: fund.name,
+            premium: premium
+          });
+        }
+      } catch (error) {
+        console.error(`处理${fund.code} ${fund.name}数据失败:`, error);
       }
-    } catch (error) {
-      console.error(`获取${fund.code} ${fund.name}数据失败:`, error);
     }
+  } catch (error) {
+    console.error('检查溢价率异常失败:', error);
   }
   
   return abnormalFunds;
