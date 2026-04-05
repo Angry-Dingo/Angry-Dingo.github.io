@@ -135,6 +135,18 @@ body {
   margin-left: 0.5rem;
 }
 
+.generate-time {
+  font-size: 0.75rem;
+  color: var(--dark-gray);
+  font-weight: 500;
+  background: var(--light-gray);
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--border-radius-sm);
+  margin-left: 1rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 .logo:hover {
   transform: translateY(-1px);
   color: var(--primary-dark);
@@ -1025,14 +1037,12 @@ body {
       <span>LOF</span>基金监控
     </div>
     <div class="version-toggle">
-      <button class="active" onclick="switchVersion('desktop')">电脑版</button>
-      <button onclick="switchVersion('mobile')">手机版</button>
+      <button class="active">电脑版</button>
     </div>
-    <div class="hamburger-menu" id="hamburgerMenu">
-      <div class="bar"></div>
-      <div class="bar"></div>
-      <div class="bar"></div>
+    <div id="generate-time" class="generate-time">
+      数据生成时间: 加载中...
     </div>
+
   </div>
 </header>
 
@@ -1073,21 +1083,7 @@ body {
         </tr>
       </tbody>
     </table>
-    <table class="fund-table mobile-table" style="display: none;">
-      <thead>
-        <tr>
-          <th>基金/代码</th>
-          <th>场内价格</th>
-          <th class="sorted">溢价率/预估净值</th>
-          <th>申购限额</th>
-        </tr>
-      </thead>
-      <tbody id="fundTableBodyMobile">
-        <tr>
-          <td colspan="4" class="loading">加载中...</td>
-        </tr>
-      </tbody>
-    </table>
+
   </div>
 </main>
 
@@ -1320,58 +1316,14 @@ let sortDirection = 'desc';
 let indexData = {};
 let indexTimes = {}; // 指数时间信息
 let navLoaded = false;
-let currentVersion = 'desktop'; // 默认电脑版
 let dataTimestamp = new Date(); // 数据时间戳
-
-// 设备检测阈值
-const DESKTOP_THRESHOLD = 768; // 桌面端阈值（像素）
-const MOBILE_THRESHOLD = 768; // 移动端阈值（像素）
-
-// 检测设备类型
-function detectDevice() {
-  return window.innerWidth >= DESKTOP_THRESHOLD ? 'desktop' : 'mobile';
-}
-
-// 检查是否需要自动切换版本
-function checkAutoVersionSwitch() {
-  // 检查用户是否已经手动切换过版本
-  const savedVersion = localStorage.getItem('versionPreference');
-  if (savedVersion) {
-    // 如果用户已经手动切换过版本，尊重用户的选择，不自动切换
-    return;
-  }
-  
-  const detectedDevice = detectDevice();
-  if (currentVersion !== detectedDevice) {
-    // 自动切换到检测到的设备版本
-    currentVersion = detectedDevice;
-    // 不保存到localStorage，因为这是自动切换
-    applyVersionSetting();
-    renderTable();
-  }
-}
 
 // DOM 元素
 const fundTableBodyDesktop = document.getElementById('fundTableBodyDesktop');
-const fundTableBodyMobile = document.getElementById('fundTableBodyMobile');
 const desktopTable = document.querySelector('.desktop-table');
-const mobileTable = document.querySelector('.mobile-table');
-const versionToggleButtons = document.querySelectorAll('.version-toggle button');
 
 // 初始化
 function init() {
-  // 检测设备类型
-  const detectedDevice = detectDevice();
-  
-  // 从localStorage加载用户偏好版本
-  const savedVersion = localStorage.getItem('versionPreference');
-  if (savedVersion) {
-    currentVersion = savedVersion;
-  } else {
-    // 如果没有保存的偏好，使用检测到的设备类型
-    currentVersion = detectedDevice;
-  }
-  
   // 初始化基金数据
   fundData = FUNDS.map(fund => ({
     ...fund,
@@ -1386,20 +1338,13 @@ function init() {
     navDate: ''
   }));
   
-  // 应用版本设置
-  applyVersionSetting();
-  
   // 渲染空表格
   renderTable();
-  
-  // 添加窗口大小变化监听器
-  window.addEventListener('resize', checkAutoVersionSwitch);
   
   // 添加滚动效果
   window.addEventListener('scroll', handleScroll);
   
-  // 初始化汉堡菜单
-  initHamburgerMenu();
+
   
   // 自动开始监控
   running = true;
@@ -1415,88 +1360,6 @@ function handleScroll() {
   } else {
     header.classList.remove('scrolled');
   }
-}
-
-// 初始化汉堡菜单
-function initHamburgerMenu() {
-  const hamburgerMenu = document.getElementById('hamburgerMenu');
-  const navMenu = document.getElementById('navMenu');
-  
-  if (hamburgerMenu && navMenu) {
-    hamburgerMenu.addEventListener('click', () => {
-      hamburgerMenu.classList.toggle('active');
-      navMenu.classList.toggle('active');
-    });
-    
-    // 点击菜单外部关闭菜单
-    document.addEventListener('click', (event) => {
-      if (!hamburgerMenu.contains(event.target) && !navMenu.contains(event.target)) {
-        hamburgerMenu.classList.remove('active');
-        navMenu.classList.remove('active');
-      }
-    });
-    
-    // 键盘导航支持
-    hamburgerMenu.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        hamburgerMenu.click();
-      }
-    });
-  }
-}
-
-// 切换版本
-function switchVersion(version) {
-  currentVersion = version;
-  localStorage.setItem('versionPreference', version);
-  applyVersionSetting();
-  renderTable();
-  updateFilterTabs();
-}
-
-// 更新标签显示
-function updateFilterTabs() {
-  const filterTabs = document.querySelectorAll('.filter-tab');
-  if (currentVersion === 'mobile') {
-    // 手机版只显示前四个标签
-    filterTabs.forEach((tab, index) => {
-      if (index >= 4) {
-        tab.style.display = 'none';
-      } else {
-        tab.style.display = 'inline-block';
-      }
-    });
-  } else {
-    // 电脑版显示所有标签
-    filterTabs.forEach(tab => {
-      tab.style.display = 'inline-block';
-    });
-  }
-}
-
-// 应用版本设置
-function applyVersionSetting() {
-  // 更新按钮状态
-  versionToggleButtons.forEach(button => {
-    if (button.textContent.includes(currentVersion === 'desktop' ? '电脑版' : '手机版')) {
-      button.classList.add('active');
-    } else {
-      button.classList.remove('active');
-    }
-  });
-  
-  // 显示对应的表格
-  if (currentVersion === 'desktop') {
-    desktopTable.style.display = 'table';
-    mobileTable.style.display = 'none';
-  } else {
-    desktopTable.style.display = 'none';
-    mobileTable.style.display = 'table';
-  }
-  
-  // 更新标签显示
-  updateFilterTabs();
 }
 
 // 设置刷新率
@@ -2206,84 +2069,15 @@ async function refreshData() {
   
   // 更新生成时间
   updateGenerateTime();
-  
-  // 检测溢价率异常的基金并构建推送消息
-  checkAbnormalPremium();
 }
 
-// 检测溢价率异常的基金并构建推送消息
-function checkAbnormalPremium() {
-  const threshold = 3; // 3%的阈值
-  const abnormalFunds = fundData.filter(fund => {
-    return fund.premium !== null && (fund.premium >= threshold || fund.premium <= -threshold);
-  });
-  
-  if (abnormalFunds.length > 0) {
-    // 构建推送消息
-    const message = buildPushMessage(abnormalFunds);
-    // 推送消息到飞书
-    sendToFeishu(message);
-  }
-}
-
-// 构建推送消息
-function buildPushMessage(funds) {
+// 更新生成时间
+function updateGenerateTime() {
   const now = new Date().toLocaleString('zh-CN');
-  let message = `【LOF基金溢价率异常提醒】\n\n`;
-  message += `检测时间: ${now}\n\n`;
-  message += `溢价率异常的基金:\n\n`;
-  
-  funds.forEach(fund => {
-    const premiumStr = fund.premium >= 0 ? `+${fund.premium.toFixed(2)}%` : `${fund.premium.toFixed(2)}%`;
-    message += `• ${fund.code} ${fund.name}: ${premiumStr}\n`;
-  });
-  
-  message += `\n数据来源: LOF基金监控系统`;
-  return message;
-}
-
-// 发送消息到飞书机器人
-function sendToFeishu(message) {
-  // 飞书机器人webhook地址，需要替换为实际的webhook地址
-  const webhookUrl = 'https://open.feishu.cn/open-apis/bot/v2/hook/fbf3fef1-40a5-4aac-818f-91f1f47c5bdc';
-  
-  // 构建飞书消息格式
-  const feishuMessage = {
-    msg_type: 'text',
-    content: {
-      text: message
-    }
-  };
-  
-  // 发送请求
-  fetch(webhookUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(feishuMessage)
-  })
-  .then(response => response.json())
-  .then(data => {
-    console.log('飞书消息推送结果:', data);
-  })
-  .catch(error => {
-    console.error('飞书消息推送失败:', error);
-  });
-}
-
-// 初始化定时推送功能
-function initPushTimer() {
-  // 每10分钟检测一次溢价率
-  const interval = 10 * 60 * 1000;
-  setInterval(() => {
-    // 先刷新数据，然后检测溢价率
-    refreshData().then(() => {
-      checkAbnormalPremium();
-    });
-  }, interval);
-  
-  console.log('定时推送功能已初始化，每10分钟检测一次溢价率');
+  const generateTimeElement = document.getElementById('generate-time');
+  if (generateTimeElement) {
+    generateTimeElement.textContent = `数据生成时间: ${now}`;
+  }
 }
 
 // 排序表格
@@ -2387,18 +2181,8 @@ function renderTable() {
     }
   });
   
-  // 手机版固定按溢价率从高到低排序
-  const mobileSortedData = [...filteredData].sort((a, b) => {
-    const valueA = a.premium || 0;
-    const valueB = b.premium || 0;
-    return valueB - valueA; // 从高到低排序
-  });
-  
   // 渲染电脑版表格
   renderDesktopTable(desktopSortedData);
-  
-  // 渲染手机版表格
-  renderMobileTable(mobileSortedData);
 }
 
 // 渲染电脑版表格
@@ -2517,71 +2301,10 @@ function renderDesktopTable(sortedData) {
   }).join('');
 }
 
-// 渲染手机版表格
-function renderMobileTable(sortedData) {
-  if (sortedData.length === 0) {
-    fundTableBodyMobile.innerHTML = `
-      <tr>
-        <td colspan="5" class="loading">暂无数据</td>
-      </tr>
-    `;
-    return;
-  }
-  
-  fundTableBodyMobile.innerHTML = sortedData.map((fund, index) => {
-    const quotaClass = fund.quota === '开放' ? 'open' : 
-                      fund.quota === '暂停' ? 'suspended' : 'limited';
-    
-    // 金融行业通用的红涨绿跌颜色标识规则
-    let premiumClass = '';
-    if (fund.premium > 0) {
-      premiumClass = 'red';
-    } else if (fund.premium < 0) {
-      premiumClass = 'green';
-    }
-    
-    return `
-      <tr>
-        <td>
-          <div class="code-cell">
-            <div class="fund-name">${fund.name}</div>
-            <div class="fund-code">${fund.code}</div>
-          </div>
-        </td>
-        <td>
-          ${fund.price ? fund.price.toFixed(2) : '-'}
-          ${fund.change ? `
-            <div class="price-change ${fund.change >= 0 ? 'red' : 'green'}">
-              ${fund.change >= 0 ? '+' : ''}${fund.change.toFixed(2)}%
-            </div>
-          ` : ''}
-        </td>
-        <td>
-          ${fund.premium !== null ? `
-            <div class="premium-rate ${premiumClass}">
-              ${fund.premium >= 0 ? '+' : ''}${fund.premium.toFixed(2)}%
-            </div>
-          ` : '-'}
-          ${fund.nav ? `
-            <div style="font-size: 0.7rem; margin-top: 0.2rem;">
-              ${fund.nav.toFixed(2)}
-            </div>
-          ` : ''}
-        </td>
-        <td>
-          <span class="quota-status ${quotaClass}">
-            ${fund.quota}
-          </span>
-        </td>
-      </tr>
-    `;
-  }).join('');
-}
+
 
 // 初始化应用
 init();
-// 初始化定时推送功能
-initPushTimer();
 </script>
 </body>
 </html>
