@@ -135,18 +135,34 @@ async function fetchNav(fund) {
     const response = await fetch(url);
     const text = await response.text();
     
+    // 检查返回文本是否为空
+    if (!text || text.trim() === '') {
+      console.log(`获取${fund.code}净值数据失败: 返回空数据`);
+      return null;
+    }
+    
     // 解析JSONP数据
     const match = text.match(/jsonpgz\(([^)]+)\)/);
-    if (match) {
+    if (!match || !match[1]) {
+      console.log(`获取${fund.code}净值数据失败: JSONP格式错误`);
+      return null;
+    }
+    
+    try {
       const data = JSON.parse(match[1]);
       if (data && data.data) {
         return {
           nav: parseFloat(data.data.dwjz),
           date: data.data.gztime
         };
+      } else {
+        console.log(`获取${fund.code}净值数据失败: 数据格式错误`);
+        return null;
       }
+    } catch (parseError) {
+      console.error(`获取${fund.code}净值数据失败: JSON解析错误`, parseError);
+      return null;
     }
-    return null;
   } catch (error) {
     console.error(`获取${fund.code}净值数据失败:`, error);
     return null;
@@ -209,6 +225,8 @@ async function checkAbnormalPremium() {
   const abnormalFunds = [];
   
   try {
+    console.log('开始获取数据...');
+    
     // 并行获取数据
     const [tencentData, eastmoneyData, navData] = await Promise.all([
       fetchTencentData(),
@@ -216,10 +234,16 @@ async function checkAbnormalPremium() {
       loadNavs()
     ]);
     
+    console.log('数据获取完成');
+    console.log('腾讯财经数据:', Object.keys(tencentData.funds).length, '只基金');
+    console.log('净值数据:', Object.keys(navData).length, '只基金');
+    
     // 合并指数数据
     const indexData = { ...tencentData.indices, ...eastmoneyData.data };
+    console.log('指数数据:', Object.keys(indexData).length, '个指数');
     
     // 处理基金数据
+    console.log('开始处理基金数据...');
     for (const fund of FUNDS) {
       try {
         // 获取场内价格
@@ -264,6 +288,8 @@ async function checkAbnormalPremium() {
         console.error(`处理${fund.code} ${fund.name}数据失败:`, error);
       }
     }
+    
+    console.log(`处理完成，发现${abnormalFunds.length}只异常基金`);
   } catch (error) {
     console.error('检查溢价率异常失败:', error);
   }
