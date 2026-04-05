@@ -204,7 +204,11 @@ async function loadNavs() {
   for (let i = 0; i < FUNDS.length; i += BATCH_SIZE) {
     const batch = FUNDS.slice(i, i + BATCH_SIZE);
     const results = await Promise.all(batch.map(fund => {
-      return fetchNav(fund);
+      // 优先使用东方财富API获取净值数据
+      return fetchNavFromEM(fund).catch(error => {
+        console.log(`使用东方财富API获取${fund.code}净值数据失败，尝试使用天天基金API`, error);
+        return fetchNav(fund);
+      });
     }));
     
     results.forEach((result, index) => {
