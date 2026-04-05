@@ -1,4 +1,5 @@
-const fetch = require('node-fetch');
+// 使用ESM模块导入
+import fetch from 'node-fetch';
 
 // 从HTML文件中提取的基金数据
 const FUNDS = [
