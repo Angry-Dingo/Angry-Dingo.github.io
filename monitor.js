@@ -641,7 +641,10 @@ function buildPushMessage(funds) {
   message += `检测时间: ${now}\n\n`;
   message += `溢价率异常的基金:\n\n`;
   
-  funds.forEach(fund => {
+  // 按溢价率从高到低排序
+  const sortedFunds = [...funds].sort((a, b) => b.premium - a.premium);
+  
+  sortedFunds.forEach(fund => {
     const premiumStr = fund.premium >= 0 ? `+${fund.premium.toFixed(2)}%` : `${fund.premium.toFixed(2)}%`;
     message += `• ${fund.code} ${fund.name}: ${premiumStr}\n`;
   });
