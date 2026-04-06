@@ -223,29 +223,45 @@ async function loadNavs() {
   return navData;
 }
 
-// 生成模拟数据（当API访问失败时使用）
-function generateMockData() {
-  console.log('使用模拟数据...');
-  const mockFunds = [];
+// 从新浪财经获取基金数据（备用）
+async function fetchSinaData() {
+  const funds = {};
   
-  FUNDS.forEach(fund => {
-    // 生成模拟的场内价格（1-1.5之间）
-    const price = 1 + Math.random() * 0.5;
-    // 生成模拟的净值（0.9-1.4之间）
-    const nav = 0.9 + Math.random() * 0.5;
-    // 生成模拟的溢价率（-5%到10%之间）
-    const premium = ((price - nav) / nav) * 100;
+  try {
+    const fundCodes = FUNDS.map(fund => fund.tq).join(',');
+    const url = `https://hq.sinajs.cn/list=${fundCodes}`;
+    const response = await fetch(url);
+    const text = await response.text();
     
-    mockFunds.push({
-      code: fund.code,
-      name: fund.name,
-      premium: premium
-    });
-    
-    console.log(`${fund.code} ${fund.name}: 模拟溢价率=${premium.toFixed(2)}%`);
-  });
+    const lines = text.split('\n');
+    for (const line of lines) {
+      if (!line) continue;
+      
+      const match = line.match(/^var hq_str_(\w+)="([^"]+)"/);
+      if (!match) continue;
+      
+      const code = match[1];
+      const data = match[2].split(',');
+      
+      if (data.length >= 4) {
+        const price = parseFloat(data[3]);
+        const prevClose = parseFloat(data[2]);
+        
+        if (price > 0 && prevClose > 0) {
+          const change = (price - prevClose) / prevClose * 100;
+          funds[code] = {
+            price,
+            prevClose,
+            change
+          };
+        }
+      }
+    }
+  } catch (error) {
+    console.error('获取新浪财经数据失败:', error);
+  }
   
-  return mockFunds;
+  return { funds };
 }
 
 // 检查溢价率异常
@@ -257,98 +273,76 @@ async function checkAbnormalPremium() {
     console.log('开始获取数据...');
     
     // 并行获取数据
-    const [tencentData, eastmoneyData, navData] = await Promise.all([
+    const [tencentData, eastmoneyData, navData, sinaData] = await Promise.all([
       fetchTencentData(),
       fetchEastmoney(),
-      loadNavs()
+      loadNavs(),
+      fetchSinaData()
     ]);
     
     console.log('数据获取完成');
     console.log('腾讯财经数据:', Object.keys(tencentData.funds).length, '只基金');
+    console.log('新浪财经数据:', Object.keys(sinaData.funds).length, '只基金');
     console.log('净值数据:', Object.keys(navData).length, '只基金');
     
     // 合并指数数据
     const indexData = { ...tencentData.indices, ...eastmoneyData.data };
     console.log('指数数据:', Object.keys(indexData).length, '个指数');
     
-    // 检查是否获取到足够的数据
-    const hasEnoughData = Object.keys(tencentData.funds).length > 0 && Object.keys(navData).length > 0;
+    // 合并基金数据（优先使用腾讯财经数据，新浪财经作为备用）
+    const allFundsData = { ...sinaData.funds, ...tencentData.funds };
+    console.log('合并后基金数据:', Object.keys(allFundsData).length, '只基金');
     
-    if (hasEnoughData) {
-      // 处理基金数据
-      console.log('开始处理基金数据...');
-      for (const fund of FUNDS) {
-        try {
-          // 获取场内价格
-          const fundData = tencentData.funds[fund.tq];
-          if (!fundData || !fundData.price) {
-            console.log(`未获取到${fund.code} ${fund.name}的场内价格`);
-            continue;
-          }
-          
-          // 获取净值数据
-          const navInfo = navData[fund.code];
-          if (!navInfo || !navInfo.nav) {
-            console.log(`未获取到${fund.code} ${fund.name}的净值数据`);
-            continue;
-          }
-          
-          // 获取基准指数涨跌幅
-          const benchCode = BENCH[fund.code];
-          let benchChange = 0;
-          
-          if (benchCode && indexData[benchCode]) {
-            benchChange = indexData[benchCode];
-          }
-          
-          // 计算预估净值
-          const estimatedNav = navInfo.nav * (1 + benchChange / 100);
-          
-          // 计算溢价率
-          const premium = ((fundData.price - estimatedNav) / estimatedNav) * 100;
-          
-          console.log(`${fund.code} ${fund.name}: 价格=${fundData.price.toFixed(4)}, 净值=${navInfo.nav.toFixed(4)}, 预估净值=${estimatedNav.toFixed(4)}, 溢价率=${premium.toFixed(2)}%`);
-          
-          // 检查是否异常
-          if (Math.abs(premium) >= threshold) {
-            abnormalFunds.push({
-              code: fund.code,
-              name: fund.name,
-              premium: premium
-            });
-          }
-        } catch (error) {
-          console.error(`处理${fund.code} ${fund.name}数据失败:`, error);
+    // 处理基金数据
+    console.log('开始处理基金数据...');
+    for (const fund of FUNDS) {
+      try {
+        // 获取场内价格（优先使用腾讯财经，新浪财经作为备用）
+        const fundData = allFundsData[fund.tq];
+        if (!fundData || !fundData.price) {
+          console.log(`未获取到${fund.code} ${fund.name}的场内价格`);
+          continue;
         }
+        
+        // 获取净值数据
+        const navInfo = navData[fund.code];
+        if (!navInfo || !navInfo.nav) {
+          console.log(`未获取到${fund.code} ${fund.name}的净值数据`);
+          continue;
+        }
+        
+        // 获取基准指数涨跌幅
+        const benchCode = BENCH[fund.code];
+        let benchChange = 0;
+        
+        if (benchCode && indexData[benchCode]) {
+          benchChange = indexData[benchCode];
+        }
+        
+        // 计算预估净值
+        const estimatedNav = navInfo.nav * (1 + benchChange / 100);
+        
+        // 计算溢价率
+        const premium = ((fundData.price - estimatedNav) / estimatedNav) * 100;
+        
+        console.log(`${fund.code} ${fund.name}: 价格=${fundData.price.toFixed(4)}, 净值=${navInfo.nav.toFixed(4)}, 预估净值=${estimatedNav.toFixed(4)}, 溢价率=${premium.toFixed(2)}%`);
+        
+        // 检查是否异常
+        if (Math.abs(premium) >= threshold) {
+          abnormalFunds.push({
+            code: fund.code,
+            name: fund.name,
+            premium: premium
+          });
+        }
+      } catch (error) {
+        console.error(`处理${fund.code} ${fund.name}数据失败:`, error);
       }
-    } else {
-      // 使用模拟数据
-      console.log('数据获取不足，使用模拟数据...');
-      const mockFunds = generateMockData();
-      
-      // 检查模拟数据中的异常基金
-      mockFunds.forEach(fund => {
-        if (Math.abs(fund.premium) >= threshold) {
-          abnormalFunds.push(fund);
-        }
-      });
     }
     
     console.log(`处理完成，发现${abnormalFunds.length}只异常基金`);
   } catch (error) {
-    console.error('检查溢价率异常失败，使用模拟数据:', error);
-    
-    // 使用模拟数据
-    const mockFunds = generateMockData();
-    
-    // 检查模拟数据中的异常基金
-    mockFunds.forEach(fund => {
-      if (Math.abs(fund.premium) >= threshold) {
-        abnormalFunds.push(fund);
-      }
-    });
-    
-    console.log(`使用模拟数据，发现${abnormalFunds.length}只异常基金`);
+    console.error('检查溢价率异常失败:', error);
   }
   
   return abnormalFunds;
