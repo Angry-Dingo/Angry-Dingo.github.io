@@ -523,6 +523,14 @@ async function checkAbnormalPremium() {
     // 合并指数数据
     const indexData = { ...tencentData.indices, ...eastmoneyData.data };
     console.log('指数数据:', Object.keys(indexData).length, '个指数');
+    console.log('指数数据键名:', Object.keys(indexData));
+    
+    // 检查部分关键指数是否存在
+    console.log('检查关键指数数据:');
+    console.log('usKWEB:', indexData['usKWEB']);
+    console.log('hkHSTECH:', indexData['hkHSTECH']);
+    console.log('usQQQ:', indexData['usQQQ']);
+    console.log('usINX:', indexData['usINX']);
     
     // 合并基金数据（优先使用腾讯财经数据，新浪财经作为备用）
     const allFundsData = { ...sinaData.funds, ...tencentData.funds };
@@ -557,23 +565,48 @@ async function checkAbnormalPremium() {
             let weightedChange = 0;
             
             for (const bench of benchCode) {
-              if (bench.tq && indexData[bench.tq]) {
-                weightedChange += indexData[bench.tq] * bench.w;
+              if (bench.tq && indexData[bench.tq] && typeof indexData[bench.tq].change === 'number') {
+                weightedChange += indexData[bench.tq].change * bench.w;
                 totalWeight += bench.w;
+              } else {
+                // 尝试其他可能的键名格式
+                const alternativeKeys = [bench.tq];
+                for (const key of alternativeKeys) {
+                  if (indexData[key] && typeof indexData[key].change === 'number') {
+                    weightedChange += indexData[key].change * bench.w;
+                    totalWeight += bench.w;
+                    break;
+                  }
+                }
               }
             }
             
             if (totalWeight > 0) {
               benchChange = weightedChange / totalWeight;
             }
-          } else if (indexData[benchCode]) {
+          } else if (indexData[benchCode] && typeof indexData[benchCode].change === 'number') {
             // 处理单个基准指数
-            benchChange = indexData[benchCode];
+            benchChange = indexData[benchCode].change;
+          } else {
+            // 尝试其他可能的键名格式
+            const alternativeKeys = [benchCode];
+            for (const key of alternativeKeys) {
+              if (indexData[key] && typeof indexData[key].change === 'number') {
+                benchChange = indexData[key].change;
+                break;
+              }
+            }
           }
         }
         
-        // 计算预估净值（如果没有指数数据，直接使用最新净值）
-        const estimatedNav = navInfo.nav;
+        // 如果没有指数数据，使用0（与网页程序逻辑一致）
+        benchChange = benchChange || 0;
+        
+        // 计算预估净值（与网页程序逻辑一致）
+        let estimatedNav = navInfo.nav;
+        if (benchChange !== 0) {
+          estimatedNav = navInfo.nav * (1 + benchChange / 100);
+        }
         
         // 计算溢价率
         const premium = ((fundData.price - estimatedNav) / estimatedNav) * 100;
