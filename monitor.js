@@ -219,8 +219,11 @@ async function fetchEastmoney() {
   }
 }
 
-// 通用fetch函数，添加请求头模拟浏览器
-async function fetchWithHeaders(url) {
+// 通用fetch函数，添加请求头模拟浏览器，带超时处理
+async function fetchWithHeaders(url, timeout = 10000) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+  
   const headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     'Accept': 'text/javascript, application/javascript, application/ecmascript, application/x-ecmascript, */*; q=0.01',
@@ -230,10 +233,19 @@ async function fetchWithHeaders(url) {
   };
   
   try {
-    const response = await fetch(url, { headers });
+    const response = await fetch(url, { 
+      headers,
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
     return response;
   } catch (error) {
-    console.error('网络请求失败:', error);
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      console.error('网络请求超时:', url);
+    } else {
+      console.error('网络请求失败:', error);
+    }
     throw error;
   }
 }
@@ -395,16 +407,26 @@ async function fetchNavFromEM(fund) {
 
 // 加载所有基金的净值数据
 async function loadNavs() {
-  const BATCH_SIZE = 15;
+  const BATCH_SIZE = 10; // 减小批处理大小，避免请求过多
   let loaded = 0;
   const navData = {};
   
   for (let i = 0; i < FUNDS.length; i += BATCH_SIZE) {
     const batch = FUNDS.slice(i, i + BATCH_SIZE);
+    console.log(`处理批次 ${Math.floor(i/BATCH_SIZE) + 1}/${Math.ceil(FUNDS.length/BATCH_SIZE)}: ${batch.map(f => f.code).join(', ')}`);
+    
     const results = await Promise.all(batch.map(async (fund) => {
+      // 为每个基金设置单独的超时处理
+      const fundTimeout = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error(`获取${fund.code}超时`)), 15000);
+      });
+      
       try {
-        // 使用综合数据源获取净值数据
-        const result = await fetchNavFromEM(fund);
+        const result = await Promise.race([
+          fetchNavFromEM(fund),
+          fundTimeout
+        ]);
+        
         if (result && result.nav > 0) {
           console.log(`成功获取${fund.code}净值数据: ${result.nav} (${result.date})`);
           return result;
@@ -413,7 +435,7 @@ async function loadNavs() {
         console.log(`所有API获取${fund.code}净值数据都失败`);
         return null;
       } catch (error) {
-        console.error(`获取${fund.code}净值数据失败:`, error);
+        console.error(`获取${fund.code}净值数据失败:`, error.message);
         return null;
       }
     }));
@@ -425,8 +447,14 @@ async function loadNavs() {
         loaded++;
       }
     });
+    
+    // 批次之间添加短暂延迟，避免API请求过于密集
+    if (i + BATCH_SIZE < FUNDS.length) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
   }
   
+  console.log(`净值数据加载完成，成功获取 ${loaded}/${FUNDS.length} 只基金的数据`);
   return navData;
 }
 
