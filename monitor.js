@@ -636,9 +636,11 @@ async function checkAbnormalPremium() {
 
 // 构建推送消息
 function buildPushMessage(funds) {
-  const now = new Date().toLocaleString('zh-CN');
+  // 使用北京时间
+  const now = new Date(new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }));
+  const beijingTime = now.toLocaleString('zh-CN');
   let message = `【LOF基金溢价率异常提醒】\n\n`;
-  message += `检测时间: ${now}\n\n`;
+  message += `检测时间: ${beijingTime}\n\n`;
   message += `溢价率异常的基金:\n\n`;
   
   // 按溢价率从高到低排序
