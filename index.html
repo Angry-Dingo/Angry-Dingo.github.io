@@ -1099,135 +1099,52 @@ body {
 </footer>
 
 <script>
-// LOF基金数据，包含场内代码、场外代码映射
-const FUNDS = [
-  // 欧美市场
-  {code:'161127', ocode:'161127', name:'标普生物科技LOF', tq:'sz161127', category:'us', quota:'限10', fee:'1.20%', rfee:'1.00%'},
-  {code:'164906', ocode:'164906', name:'中概互联网LOF', tq:'sz164906', category:'us', quota:'开放', fee:'1.20%', rfee:'1.50%'},
-  {code:'501312', ocode:'501312', name:'海外科技LOF', tq:'sh501312', category:'us', quota:'限2千', fee:'1.20%', rfee:'1.20%'},
-  {code:'164824', ocode:'164824', name:'印度基金LOF', tq:'sz164824', category:'us', quota:'限1千', fee:'1.20%', rfee:'1.50%'},
-  {code:'160644', ocode:'160644', name:'港美互联网LOF', tq:'sz160644', category:'hk', quota:'限10万', fee:'1.50%', rfee:'1.50%'},
-  {code:'162415', ocode:'162415', name:'美国消费LOF', tq:'sz162415', category:'us', quota:'限500', fee:'1.20%', rfee:'1.50%'},
-  {code:'161126', ocode:'161126', name:'标普医疗保健LOF', tq:'sz161126', category:'us', quota:'限10', fee:'1.20%', rfee:'1.00%'},
-  {code:'161128', ocode:'161128', name:'标普信息科技LOF', tq:'sz161128', category:'us', quota:'限10', fee:'1.20%', rfee:'1.00%'},
-  {code:'161125', ocode:'161125', name:'标普500LOF', tq:'sz161125', category:'us', quota:'限10', fee:'1.20%', rfee:'1.50%'},
-  {code:'161130', ocode:'161130', name:'纳斯达克100LOF', tq:'sz161130', category:'us', quota:'限10', fee:'1.20%', rfee:'0.60%'},
-  {code:'501300', ocode:'501300', name:'美元债LOF', tq:'sh501300', category:'us', quota:'限1万', fee:'0.80%', rfee:'1.50%'},
-  {code:'160140', ocode:'160140', name:'美国REIT精选LOF', tq:'sz160140', category:'us', quota:'限100万', fee:'1.20%', rfee:'1.00%'},
-  {code:'501225', ocode:'501225', name:'全球芯片LOF', tq:'sh501225', category:'us', quota:'暂停', fee:'1.50%', rfee:'1.50%'},
-  // 欧美·商品
-  {code:'160216', ocode:'160216', name:'国泰商品LOF', tq:'sz160216', category:'cm', quota:'限1千', fee:'1.50%', rfee:'1.50%'},
-  {code:'161116', ocode:'161116', name:'黄金主题LOF', tq:'sz161116', category:'cm', quota:'暂停', fee:'0%', rfee:'1.50%'},
-  {code:'164701', ocode:'164701', name:'黄金LOF', tq:'sz164701', category:'cm', quota:'限50', fee:'0.80%', rfee:'1.50%'},
-  {code:'165513', ocode:'165513', name:'中信保诚商品LOF', tq:'sz165513', category:'cm', quota:'开放', fee:'1.60%', rfee:'1.50%'},
-  {code:'160719', ocode:'160719', name:'嘉实黄金LOF', tq:'sz160719', category:'cm', quota:'暂停', fee:'1.20%', rfee:'1.50%'},
-  {code:'161815', ocode:'161815', name:'抗通胀LOF', tq:'sz161815', category:'cm', quota:'开放', fee:'1.60%', rfee:'1.50%'},
-  {code:'163208', ocode:'163208', name:'全球油气能源LOF', tq:'sz163208', category:'cm', quota:'暂停', fee:'1.50%', rfee:'1.50%'},
-  {code:'501018', ocode:'501018', name:'南方原油LOF', tq:'sh501018', category:'cm', quota:'暂停', fee:'1.20%', rfee:'1.50%'},
-  {code:'161129', ocode:'161129', name:'原油LOF易方达', tq:'sz161129', category:'cm', quota:'暂停', fee:'1.20%', rfee:'1.50%'},
-  {code:'160723', ocode:'160723', name:'嘉实原油LOF', tq:'sz160723', category:'cm', quota:'暂停', fee:'1.20%', rfee:'1.50%'},
-  {code:'162719', ocode:'162719', name:'石油LOF', tq:'sz162719', category:'cm', quota:'开放', fee:'1.20%', rfee:'1.50%'},
-  {code:'162411', ocode:'162411', name:'华宝油气LOF', tq:'sz162411', category:'cm', quota:'暂停', fee:'1.50%', rfee:'1.50%'},
-  {code:'160416', ocode:'160416', name:'石油基金LOF', tq:'sz160416', category:'cm', quota:'暂停', fee:'1.20%', rfee:'1.50%'},
-  // 亚洲市场·港股
-  {code:'501303', ocode:'501303', name:'恒生中型股LOF', tq:'sh501303', category:'hk', quota:'开放', fee:'1.20%', rfee:'0.60%'},
-  {code:'161124', ocode:'161124', name:'港股小盘LOF', tq:'sz161124', category:'hk', quota:'限1千', fee:'1.20%', rfee:'1.00%'},
-  {code:'160322', ocode:'160322', name:'港股精选LOF', tq:'sz160322', category:'hk', quota:'开放', fee:'1.20%', rfee:'1.50%'},
-  {code:'501021', ocode:'501021', name:'香港中小LOF', tq:'sh501021', category:'hk', quota:'开放', fee:'1.20%', rfee:'1.20%'},
-  {code:'501310', ocode:'501310', name:'价值基金LOF', tq:'sh501310', category:'hk', quota:'开放', fee:'1.20%', rfee:'0.90%'},
-  {code:'501302', ocode:'501302', name:'恒生指数基金LOF', tq:'sh501302', category:'hk', quota:'开放', fee:'1.20%', rfee:'0.60%'},
-  {code:'501307', ocode:'501307', name:'银河高股息LOF', tq:'sh501307', category:'hk', quota:'开放', fee:'1.00%', rfee:'0.68%'},
-  {code:'501306', ocode:'501306', name:'港股高股息LOFC', tq:'sh501306', category:'hk', quota:'开放', fee:'0.00%', rfee:'0.60%'},
-  {code:'160717', ocode:'160717', name:'H股LOF', tq:'sz160717', category:'hk', quota:'开放', fee:'1.20%', rfee:'0.95%'},
-  {code:'501311', ocode:'501311', name:'新经济港通LOF', tq:'sh501311', category:'hk', quota:'开放', fee:'1.20%', rfee:'0.90%'},
-  {code:'501301', ocode:'501301', name:'香港大盘LOF', tq:'sh501301', category:'hk', quota:'开放', fee:'1.20%', rfee:'0.90%'},
-  {code:'164705', ocode:'164705', name:'恒生LOF', tq:'sz164705', category:'hk', quota:'开放', fee:'1.20%', rfee:'1.00%'},
-  {code:'161831', ocode:'161831', name:'恒生国企LOF', tq:'sz161831', category:'hk', quota:'开放', fee:'1.20%', rfee:'1.20%'},
-  {code:'501305', ocode:'501305', name:'港股高股息LOF', tq:'sh501305', category:'hk', quota:'开放', fee:'1.20%', rfee:'0.60%'},
-  {code:'160924', ocode:'160924', name:'恒生指数LOF', tq:'sz160924', category:'hk', quota:'开放', fee:'1.20%', rfee:'1.20%'},
-  {code:'501025', ocode:'501025', name:'香港银行LOF', tq:'sh501025', category:'hk', quota:'开放', fee:'1.20%', rfee:'0.90%'},
-  // A股行业LOF
-  {code:'161226', ocode:'161226', name:'国投白银LOF', tq:'sz161226', category:'cm', quota:'暂停', fee:'1.50%', rfee:'0.50%'},
-  {code:'161217', ocode:'161217', name:'国投瑞银中证上游资源产业指数证券投资基金(LOF)', tq:'sz161217', category:'cm', quota:'开放', fee:'1.50%', rfee:'0.50%'},
-  {code:'161715', ocode:'161715', name:'招商中证大宗商品股票指数证券投资基金(LOF)', tq:'sz161715', category:'cm', quota:'开放', fee:'1.50%', rfee:'0.50%'},
-  {code:'161725', ocode:'161725', name:'招商中证白酒LOF', tq:'sz161725', category:'cn', quota:'开放', fee:'1.50%', rfee:'0.50%'},
-  {code:'161032', ocode:'161032', name:'富国中证煤炭指数LOF', tq:'sz161032', category:'cn', quota:'开放', fee:'1.50%', rfee:'0.50%'},
-];
+let FUNDS = [];
+let BENCH = {};
+let INDEX_NAMES = {};
+let ALL_TQ_CODES = [];
 
-// 每只基金对应的外盘基准指数（腾讯代码）
-const BENCH = {
-  // 美股 — usIXIC=纳指, usINX=标普（qt.gtimg.cn验证可用）
-  '161127': 'usXBI',    // 标普生物科技（SPSIBI.SPI → XBI）
-  '164906': 'usKWEB',   // 中概互联网（usIXIC→usKWEB，KraneShares中国互联网ETF）
-  '501312': [{tq:'usQQQ',w:0.8},{tq:'hkHSTECH',w:0.1},{tq:'sh000985',w:0.1}],   // 海外科技LOF（v28: 业绩基准=纳指100×80%+恒生科技×10%+中证综合债券×10%；FOF结构，ARK系列ETF为主要底层）
-  '164824': 'usINDA',   // 印度基金LOF（usINX→usINDA，iShares MSCI印度ETF）
-  '160644': 'usKWEB',  // 港美互联网LOF（v28: 业绩基准=中证海外中国互联网指数×95%+活期存款×5%；KWEB=KraneShares中国互联网ETF，与中证海外中国互联网指数高度匹配）
-  '162415': 'usXLY',    // 美国消费（IXY.SPI → XLY）
-  '161126': 'usRSPH',   // 标普医疗保健LOF（v23: 跟踪S5HLTH等权重指数，RSPH=Invesco S&P 500 Equal Wgt Healthcare ETF，比市值加权的XLV更准；腾讯已验证可用）
-  '161128': 'usXLK',    // 标普信息科技（S5INFT.SPI → XLK）
-  '161125': 'usINX',    // 标普500
-  '161130': 'usQQQ',    // 纳斯达克100（NDX.GI → QQQ）
-  '501300': 'usAGG',    // 美元债（彭博美国综合债券ETF，比标普500更准确）
-  '160140': 'usRWR',    // 美国REIT精选LOF（v31重大修正：官方基准=道琼斯美国精选REIT指数DWRTF；RWR=SPDR Dow Jones REIT ETF，完全跟踪DWRTF，精确匹配；原usIYR跟踪道琼斯美国房地产指数DJUSRE，成分更宽含非REIT房产公司，体系不同；⚠ usRWR已实测腾讯可用）
-  '501225': 'usSMH',    // 全球芯片LOF（usIXIC→usSMH，VanEck半导体ETF）
-  // 商品 — 外盘实时基准（盘中估值逻辑正确，回测时差误差属正常）
-  // 黄金: sh518880  油气股: usXOP  原油: usUSO  综合商品: usGSG
-  // 160216持仓(2025Q4): SGOL23.4%+GLD19.3%+GLDM15.4%+USO15.3%+SLV15.1%+CPER14.3%+XOP3.8%
-  '160216': [{tq:'usSGOL',w:0.234},{tq:'usGLD',w:0.193},{tq:'usGLDM',w:0.154},{tq:'usUSO',w:0.153},{tq:'usSLV',w:0.151},{tq:'usCPER',w:0.143},{tq:'usXOP',w:0.038}],  // 国泰商品(精确持仓)
-  '161116': 'sh518880',  // 黄金主题(纯黄金ETF)
-  '164701': 'usGLD',   // 黄金LOF（持有境外GLD/IAU，usGLD更准；v32修正）
-  '165513': 'usGLD',   // 中信保诚商品LOF（2025Q4持仓近乎全境外黄金ETF；⚠含DGP 2×杠杆4.25%；v32修正）
-  '160719': 'sh518880',  // 嘉实黄金
-  // 161815持仓(2025Q4): GLD14.67%+IAU14.37%+AAAU12.33%+SGOL11.90%+BCI10.46%+COMT8.09%+USO4.33%+BNO3.80%+SLV2.07% 归一化
-  '161815': [{tq:'usGLD',w:0.171},{tq:'usIAU',w:0.168},{tq:'usAAAU',w:0.144},{tq:'usSGOL',w:0.139},{tq:'usBCI',w:0.122},{tq:'usCOMT',w:0.095},{tq:'usUSO',w:0.051},{tq:'usBNO',w:0.044},{tq:'usSLV',w:0.024},{tq:'usCPER',w:0.053}],  // 抗通胀LOF (2025Q4实测，前9精确，第10名CPER估算~4.5%)
-  '163208': 'usXLE',   // 全球油气能源（v24: 业绩基准=S&P 500 Energy Sector Index，XLE完全跟踪此指数；原usXOP是上游勘探，XLE=综合能源行业）
-  '501018': [{tq:'usUSO',w:0.6},{tq:'usBNO',w:0.4}],  // 南方原油（v24: 业绩基准=60%WTI+40%BRENT，USO跟踪WTI，BNO跟踪BRENT）
-  '161129': 'usUSO',   // 原油LOF易方达（业绩基准=标普高盛原油商品指数，WTI期货为主，✅正确）
-  '160723': 'usUSO',   // 嘉实原油（业绩基准=100%WTI，✅正确）
-  '162719': 'usXOP',   // 广发道琼斯石油（v24: 跟踪道琼斯美国石油开发与生产指数，上游勘探开采股票，XOP高度匹配；原usUSO是原油期货，错误类型）
-  '162411': 'usXOP',   // 华宝油气（跟踪SPSIOP标普石油天然气上游股票指数，✅正确）
-  '160416': 'usIXC',   // 石油基金（v24: 业绩基准=S&P Global Oil Index，含全球大型综合石油公司（埃克森/壳牌/BP等），IXC=iShares全球能源ETF跟踪S&P Global Energy Sector，最接近；原usUSO是原油期货，错误类型）
-  // 港股 — 恒生国企用HSCEI，其余用HSI
-  '501303': 'hkHSMI',  // ⚠️广发恒生综合中型股LOF（跟踪恒生综合中型股指数HSMI，腾讯hkHSMI代码待实测；若返回空则降级hkHSI）
-  '161124': 'hkHSSI',   // 易方达港股小盘LOF（跟踪恒生综合小型股指数HSSI；v32升级：东财124.HSSI✅实测，不再回退hkHSI）
-  '160322': 'hkHSCI', // v28修正：华夏港股通精选LOF业绩基准=恒生综合指数(HSCI)收益率*90%+活期存款*10%，hkHSCI为腾讯恒生综合指数代码
-  '501021': 'hkHSTECH', // 香港中小LOF（官方基准=标普香港上市中国中小盘指数SPHCMSHP，标普私有指数腾讯无法查询；Q4持仓：非日消费17%+医疗16%+IT12%，hkHSTECH行业维度最接近，优于hkHSCEI金融/能源重仓；hkHSSI/hkHSMI实测❌；数据源约束下现有最优）
-  '501310': [{tq:'sh000300',w:0.5},{tq:'hkHSCEI',w:0.5}], // 价值基金LOF（v28: 跟踪标普沪港深中国增强价值，沪港深三地混合，A股+H股各约50%，沪深300+HSCEI混合基准）
-  '501302': 'hkHSI',
-  '501307': 'csi930917', // 银河高股息LOF（v28核查确认：紧密跟踪中证沪港深高股息指数(930917)，含A+H两市100只高股息股；东财接口已验证可用）
-  '501306': 'csi930914', // 港股高股息LOF-C（v28核查确认：跟踪中证港股通高股息投资指数(930914)，30只港股通高股息股）
-  '160717': 'hkHSCEI', // H股LOF（跟踪恒生中国企业指数，完全匹配）
-  '501311': 'hkHSTECH', // 新经济港通LOF（v28: 跟踪恒生港股通新经济指数，hkHSTECH恒生科技指数科技权重高度重合，比hkHSCEI和hkHSI都更准；腾讯已验证可用）
-  '501301': 'hkHSCEI', // v28修正：跟踪恒生中国(香港上市)30指数（腾讯/阿里/美团等中资H股龙头），HSCEI比HSI更准；2025-11已转型为ETF联接
-  '164705': 'hkHSI',
-  '161831': 'hkHSCEI',  // 恒生国企LOF（跟踪恒生中国企业指数，完全匹配）
-  '501305': 'csi930914', // 港股高股息LOF（v28核查确认：跟踪中证港股通高股息投资指数(930914)，✅完全匹配；501305(A类)/501306(C类)同一基金两类份额）
-  '160924': 'hkHSI',
-  '501025': 'csi930792', // 香港银行LOF（v28: 跟踪中证港股通香港银行指数(930792)，含汇丰/建行/工行/中行/中银香港等；hkHSMBI是恒生内地银行指数不含汇丰等外资行；东财接口已验证可用）
-  // 商品 — 白银
-  '161226': 'nf_AG0',  // 国投白银LOF（沪银主连期货）
-  // A股行业LOF — 沪深300
-  '161217': 'sh000945',  // 国投瑞银中证上游资源产业指数证券投资基金(LOF)（中证上游资源产业指数）
-  '161715': 'sh000066',  // 招商中证大宗商品股票指数证券投资基金(LOF)（上证大宗商品股票指数，更及时更新）
-  '161725': 'sh000852',  // 招商中证白酒LOF（中证白酒指数）
-  '161032': 'sz399998',  // 富国中证煤炭指数LOF（中证煤炭指数）
-};
+async function loadFundsData() {
+  try {
+    const response = await fetch('data/funds.json?' + Date.now());
+    const data = await response.json();
+    
+    FUNDS = data.funds || [];
+    INDEX_NAMES = data.indexNames || {};
+    
+    BENCH = {};
+    FUNDS.forEach(fund => {
+      if (fund.benchmark) {
+        BENCH[fund.code] = fund.benchmark;
+      }
+    });
+    
+    ALL_TQ_CODES = [
+      ...FUNDS.map(f => f.tq),
+      ...Object.values(BENCH).flatMap(b => Array.isArray(b) ? b.map(x => x.tq) : [b]),
+    ];
+    
+    console.log(`成功加载 ${FUNDS.length} 只基金数据`);
+    return true;
+  } catch (error) {
+    console.error('加载基金数据失败:', error);
+    return false;
+  }
+}
 
-// 需要拉的所有腾讯代码（基金+指数，去重）
-// 支持混合基准：展开数组取tq字段
-const ALL_TQ_CODES = [
-  ...FUNDS.map(f=>f.tq),
-  ...Object.values(BENCH).flatMap(b=>Array.isArray(b)?b.map(x=>x.tq):[b]),
-];
+function getAllTqCodes() {
+  return [
+    ...FUNDS.map(f => f.tq),
+    ...Object.values(BENCH).flatMap(b => Array.isArray(b) ? b.map(x => x.tq) : [b]),
+  ];
+}
 
-// 本地缓存管理
 const Cache = {
   get(key) {
     try {
       const item = localStorage.getItem(key);
       if (!item) return null;
       const parsed = JSON.parse(item);
-      // 检查是否过期（24小时）
       if (parsed.expiry && Date.now() > parsed.expiry) {
         localStorage.removeItem(key);
         return null;
@@ -1245,63 +1162,14 @@ const Cache = {
       };
       localStorage.setItem(key, JSON.stringify(item));
     } catch (e) {
-      // 忽略存储错误
     }
   },
   remove(key) {
     try {
       localStorage.removeItem(key);
     } catch (e) {
-      // 忽略删除错误
     }
   }
-};
-
-// 指数代码到中文名称的映射
-const INDEX_NAMES = {
-  'usXBI': '标普生物科技',
-  'usKWEB': '中概互联网',
-  'usQQQ': '纳斯达克100',
-  'hkHSTECH': '恒生科技',
-  'sh000985': '中证综合债券',
-  'usINDA': '印度ETF',
-  'usXLY': '美国消费',
-  'usRSPH': '标普医疗保健等权重',
-  'usXLK': '标普信息科技',
-  'usINX': '标普500',
-  'usAGG': '美国综合债券',
-  'usIYR': '美国REIT',
-  'usSMH': '半导体ETF',
-  'usSGOL': '白银ETF',
-  'usGLD': '黄金ETF',
-  'usGLDM': '黄金ETF',
-  'usUSO': '原油ETF',
-  'usSLV': '白银ETF',
-  'usCPER': '铜ETF',
-  'usXOP': '石油天然气上游',
-  'sh518880': '黄金ETF',
-  'usIAU': '黄金ETF',
-  'usAAAU': '黄金ETF',
-  'usBCI': '商品ETF',
-  'usCOMT': '商品ETF',
-  'usBNO': '布伦特原油',
-  'usXLE': '能源ETF',
-  'usIXC': '全球能源ETF',
-  'hkHSMI': '恒生综合中型股',
-  'hkHSI': '恒生指数',
-  'hkHSCI': '恒生综合指数',
-  'sh000300': '沪深300',
-  'hkHSCEI': '恒生国企指数',
-  'csi930917': '中证沪港深高股息',
-  'csi930914': '中证港股通高股息',
-  'csi930792': '中证港股通香港银行',
-  'nf_AG0': '沪银主连',
-  'sh000807': '中证食品饮料',
-  'sz399975': '中证全指证券',
-  'sz399998': '中证煤炭',
-  'sh000852': '中证白酒',
-  'sh000066': '上证大宗商品股票指数',
-  'sh000945': '中证上游资源产业指数'
 };
 
 // 全局变量
@@ -1869,7 +1737,7 @@ function fetchEastmoney() {
 // 从腾讯财经获取实时行情数据
 function fetchTencentData() {
   return new Promise(resolve => {
-    const codes = [...new Set(ALL_TQ_CODES)].join(',');
+    const codes = [...new Set(getAllTqCodes())].join(',');
     const script = document.createElement('script');
     
     let done = false;
@@ -2304,7 +2172,16 @@ function renderDesktopTable(sortedData) {
 
 
 // 初始化应用
-init();
+async function bootstrap() {
+  const success = await loadFundsData();
+  if (success) {
+    init();
+  } else {
+    console.error('无法加载基金数据，应用初始化失败');
+  }
+}
+
+bootstrap();
 </script>
 </body>
 </html>
