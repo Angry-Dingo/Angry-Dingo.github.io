@@ -92,29 +92,10 @@ async function fetchQuotaFromDetail(code) {
   return null;
 }
 
-async function fetchQuotaFromList(code) {
-  try {
-    const listUrl = `https://fund.eastmoney.com/Data/Fund_JJJZ_Data.aspx?t=1&lx=1&letter=&gsid=&text=&sort=zdf,desc&page=1,1000&dt=1672531200000&atfc=&onlySale=0`;
-    const data = await httpGet(listUrl);
-    
-    const fundMatch = data.match(new RegExp(`\"${code}\".*?purchaseLimit.*?:(\\d+)`));
-    if (fundMatch && fundMatch[1]) {
-      const limit = parseFloat(fundMatch[1]);
-      if (limit > 0) {
-        return { limit, source: 'list_api' };
-      }
-    }
-  } catch (e) {
-    console.log(`List API request failed for ${code}: ${e.message}`);
-  }
-  return null;
-}
-
 async function getFundQuota(code) {
   const results = await Promise.all([
     fetchQuotaFromAPI(code),
-    fetchQuotaFromDetail(code),
-    fetchQuotaFromList(code)
+    fetchQuotaFromDetail(code)
   ]);
   
   const validResults = results.filter(r => r !== null);
@@ -128,8 +109,7 @@ async function getFundQuota(code) {
       'detail_page': 3,
       'detail_page_suspend': 4,
       'pingzhongdata': 2,
-      'pingzhongdata_min': 1,
-      'list_api': 0
+      'pingzhongdata_min': 1
     };
     return sourcePriority[b.source] - sourcePriority[a.source];
   });
@@ -178,11 +158,26 @@ async function sendFeishuNotification(message) {
   }
 }
 
-function formatQuota(limit) {
-  if (limit === 0) return '暂停申购';
-  if (limit >= 100000000) return `${(limit / 100000000).toFixed(2)}亿`;
-  if (limit >= 10000) return `${(limit / 10000).toFixed(2)}万`;
-  return `${limit}元`;
+function formatQuotaText(limit) {
+  if (limit === 0) return '暂停';
+  if (limit >= 100000000) return `限${(limit / 100000000).toFixed(0)}亿`;
+  if (limit >= 10000) return `限${(limit / 10000).toFixed(0)}万`;
+  return `限${limit}`;
+}
+
+function formatQuotaNumber(quotaText) {
+  if (!quotaText || quotaText === '开放') return null;
+  
+  const match = quotaText.match(/限(\d+\.?\d*)(亿|万|千)?/);
+  if (!match) return null;
+  
+  let limit = parseFloat(match[1]);
+  const unit = match[2];
+  
+  if (unit === '亿') return limit * 100000000;
+  if (unit === '万') return limit * 10000;
+  if (unit === '千') return limit * 1000;
+  return limit;
 }
 
 async function main() {
@@ -199,7 +194,6 @@ async function main() {
   console.log(`共 ${funds.length} 只基金需要更新`);
   
   const changedFunds = [];
-  const unchangedFunds = [];
   
   for (let i = 0; i < funds.length; i++) {
     const fund = funds[i];
@@ -210,24 +204,35 @@ async function main() {
     const result = await getFundQuota(code);
     
     if (result) {
-      const oldQuota = fund.purchaseLimit;
-      const newQuota = result.limit;
+      const oldQuotaText = fund.quota || '开放';
+      const oldLimit = formatQuotaNumber(oldQuotaText);
+      const newLimit = result.limit;
       
-      if (oldQuota !== newQuota) {
+      let newQuotaText;
+      if (newLimit === 0) {
+        newQuotaText = '暂停';
+      } else if (newLimit >= 100000000) {
+        newQuotaText = `限${(newLimit / 100000000).toFixed(0)}亿`;
+      } else if (newLimit >= 10000) {
+        newQuotaText = `限${(newLimit / 10000).toFixed(0)}万`;
+      } else if (newLimit >= 1000) {
+        newQuotaText = `限${(newLimit / 1000).toFixed(0)}千`;
+      } else {
+        newQuotaText = `限${newLimit}`;
+      }
+      
+      if (oldLimit !== newLimit) {
         changedFunds.push({
           name: fund.name,
           code: code,
-          oldQuota: formatQuota(oldQuota),
-          newQuota: formatQuota(newQuota),
+          oldQuota: oldQuotaText,
+          newQuota: newQuotaText,
           source: result.source
         });
-        fund.purchaseLimit = newQuota;
+        fund.quota = newQuotaText;
+        fund.purchaseLimit = newLimit;
         fund.quotaUpdatedAt = new Date().toISOString();
-      } else {
-        unchangedFunds.push(fund.name);
       }
-    } else {
-      console.log(`无法获取 ${fund.name} (${code}) 的申购状态`);
     }
     
     await new Promise(r => setTimeout(r, 1000));
@@ -238,7 +243,6 @@ async function main() {
   
   console.log(`\n更新完成！`);
   console.log(`状态变化: ${changedFunds.length} 只`);
-  console.log(`状态不变: ${unchangedFunds.length} 只`);
   
   if (changedFunds.length > 0) {
     let message = `【LOF基金申购状态更新】\n\n`;
