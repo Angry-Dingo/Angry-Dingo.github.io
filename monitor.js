@@ -1,8 +1,12 @@
 import fetch from 'node-fetch';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-const FUNDS_JSON_PATH = path.join(new URL('.', import.meta.url).pathname, './data/funds.json');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const FUNDS_JSON_PATH = path.join(__dirname, './data/funds.json');
 
 let FUNDS = [];
 let BENCH = {};
