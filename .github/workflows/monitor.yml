@@ -23,6 +23,12 @@ on:
     - cron: '50 2 * * 1-5'  # 10:50
     - cron: '0 3 * * 1-5'   # 11:00
     - cron: '10 3 * * 1-5'  # 11:10
+    - cron: '20 3 * * 1-5'  # 11:20
+    - cron: '30 3 * * 1-5'  # 11:30
+    - cron: '40 3 * * 1-5'  # 11:40
+    - cron: '50 3 * * 1-5'  # 11:50
+    - cron: '0 4 * * 1-5'   # 12:00
+    - cron: '10 4 * * 1-5'  # 12:10
     - cron: '20 4 * * 1-5'  # 12:20
     - cron: '30 4 * * 1-5'  # 12:30
     - cron: '40 4 * * 1-5'  # 12:40
@@ -39,6 +45,7 @@ on:
 
 jobs:
   monitor:
+    name: Monitor Fund Premium
     runs-on: ubuntu-latest
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -57,49 +64,3 @@ jobs:
         env:
           FEISHU_WEBHOOK: ${{ secrets.FEISHU_WEBHOOK }}
         run: node monitor.js
-
-  update-quota:
-    name: Update Fund Quota Status
-    runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-    schedule:
-      # 每天早上8点更新申购状态（北京时间）
-      - cron: '0 0 * * *'
-    workflow_dispatch:
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-      
-      - name: Install dependencies
-        run: npm install
-      
-      - name: Run quota update script
-        env:
-          FEISHU_WEBHOOK: ${{ secrets.FEISHU_WEBHOOK }}
-        run: node scripts/update_quota.js
-      
-      - name: Check for changes
-        id: check_changes
-        run: |
-          git diff --name-only
-          if git diff --name-only | grep -q "data/funds.json"; then
-            echo "changes=true" >> $GITHUB_OUTPUT
-          else
-            echo "changes=false" >> $GITHUB_OUTPUT
-          fi
-      
-      - name: Commit and push changes
-        if: steps.check_changes.outputs.changes == 'true'
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "GitHub Actions"
-          git add data/funds.json
-          git commit -m "Update fund quota status - $(date -u '+%Y-%m-%d %H:%M:%S')"
-          git push
