@@ -193,7 +193,7 @@ async function fetchNavFromPingzhong(fund) {
           const nav = parseFloat(lastData.y || lastData[1]);
           const date = lastData.x ? new Date(lastData.x).toISOString().slice(0, 10) : '';
           
-          if (nav > 0) {
+          if (nav > 0 && nav <= 50) {
             return { nav, date };
           }
         }
