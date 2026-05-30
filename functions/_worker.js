@@ -65,6 +65,8 @@ async function smartMonitor(env, isTestMode = false) {
     let benchChgPct = 0;
 
     const baseNav = fund.officialNav || marketInfo.prevClose;
+    
+    console.log(`基金 ${fund.code}: officialNav=${fund.officialNav}, prevClose=${marketInfo.prevClose}, 使用baseNav=${baseNav}`);
 
     if (fund.benchmark) {
       benchChgPct = calculateBenchChgPct(fund.benchmark, indexData);
@@ -74,6 +76,8 @@ async function smartMonitor(env, isTestMode = false) {
       nav = baseNav * (1 + benchChgPct / 100);
       fundWithData.nav = nav;
       fundWithData.navChange = benchChgPct;
+    } else {
+      console.log(`警告: ${fund.code} baseNav 为 0`);
     }
 
     if (!nav) {
