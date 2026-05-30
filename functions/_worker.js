@@ -108,9 +108,7 @@ async function smartMonitor(env, isTestMode = false) {
     
     console.log(`处理完成: 共处理${processedCount}只, 跳过${skippedCount}只`);
     console.log(`待发送基金数量: ${allAbnormalFunds.length}, 动态报警数量: ${alerts.length}`);
-    
-    console.log(`异常基金数量: ${allAbnormalFunds.length}, 动态报警数量: ${alerts.length}`);
-    
+
     if (isGlobalAlertTime) {
       if (isTestMode) {
         if (allAbnormalFunds.length > 0) {
@@ -210,93 +208,10 @@ function checkDynamicChange(fundCode, currentPremium, marketInfo) {
   return null;
 }
 
-async function sendTestAlert(env, testFunds) {
-  const webhookUrl = env.FEISHU_WEBHOOK;
-  if (!webhookUrl) return;
-  
-  const timeStr = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
-  
-  let content = `${timeStr}\n🧪 【测试推送】\n\n`;
-  
-  testFunds.forEach(item => {
-    const { fund, marketInfo, premiumRate } = item;
-    const emoji = premiumRate >= 0 ? '📈' : '📉';
-    content += `${emoji} ${fund.name}(${fund.code})\n` +
-      `  场内价格: ${marketInfo.price.toFixed(4)}\n` +
-      `  最新净值: ${fund.nav.toFixed(4)}\n` +
-      `  溢价率: ${premiumRate >= 0 ? '+' : ''}${premiumRate.toFixed(2)}%\n\n`;
-  });
-  
-  content += `✅ 飞书推送功能测试成功！`;
-  
-  await fetch(webhookUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      msg_type: 'text',
-      content: { text: content }
-    })
-  });
-}
-
-async function sendGlobalAlert(env, abnormalFunds) {
-  const webhookUrl = env.FEISHU_WEBHOOK;
-  if (!webhookUrl) return;
-  
-  const timeStr = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
-  
-  let content = `${timeStr}\n📢 【9:25 开盘溢价汇总】\n\n`;
-  
-  abnormalFunds.forEach(item => {
-    const { fund, marketInfo, premiumRate } = item;
-    const emoji = premiumRate >= 0 ? '📈' : '📉';
-    content += `${emoji} ${fund.name}(${fund.code})\n` +
-      `  场内价格: ${marketInfo.price.toFixed(4)}\n` +
-      `  最新净值: ${fund.nav.toFixed(4)}\n` +
-      `  溢价率: ${premiumRate >= 0 ? '+' : ''}${premiumRate.toFixed(2)}%\n\n`;
-  });
-  
-  await fetch(webhookUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      msg_type: 'text',
-      content: { text: content }
-    })
-  });
-}
-
-async function sendDynamicAlerts(env, alerts, fundsData) {
-  const webhookUrl = env.FEISHU_WEBHOOK;
-  if (!webhookUrl) return;
-  
-  for (const alert of alerts) {
-    const { fundCode, premium, change, marketInfo, type, time } = alert;
-    const fund = fundsData.funds.find(f => f.code === fundCode);
-    
-    const emoji = change > 0 ? '🚨' : '⚠️';
-    const content = `${time}\n${emoji} 【${type}】\n` +
-      `${fund?.name || fundCode}(${fundCode})\n` +
-      `场内价格: ${marketInfo.price.toFixed(4)}\n` +
-      `溢价率: ${premium >= 0 ? '+' : ''}${premium.toFixed(2)}%\n` +
-      `5分钟变化: ${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
-    
-    await fetch(webhookUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        msg_type: 'text',
-        content: { text: content }
-      })
-    });
-    
-    await new Promise(resolve => setTimeout(resolve, 500));
-  }
-}
-
 async function loadFundsData(env) {
+  const githubDataUrl = env.GITHUB_DATA_URL || 'https://raw.githubusercontent.com/Angry-Dingo/Angry-Dingo.github.io/main/data/funds.json';
+  
   try {
-    const githubDataUrl = env.GITHUB_DATA_URL || 'https://your-username.github.io/repo/data/funds.json';
     console.log('正在加载数据:', githubDataUrl);
     
     const response = await fetch(githubDataUrl);
@@ -387,6 +302,99 @@ async function sendFeishuAlert(env, errorMsg) {
     body: JSON.stringify({
       msg_type: 'text',
       content: { text: `${timeStr}\n❌ ${errorMsg}` }
+    })
+  });
+}
+
+async function sendTestAlert(env, funds) {
+  const webhookUrl = env.FEISHU_WEBHOOK;
+  if (!webhookUrl) {
+    console.error('未配置 FEISHU_WEBHOOK');
+    return;
+  }
+  
+  const timeStr = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+  
+  let message = `🔔 LOF基金监控测试\n发送时间：${timeStr}\n基金数量：${funds.length}\n\n`;
+  
+  funds.slice(0, 10).forEach(({ fund, premiumRate }) => {
+    const quotaStatus = fund.quota || '未知';
+    const premiumStr = premiumRate >= 0 ? `+${premiumRate.toFixed(2)}%` : `${premiumRate.toFixed(2)}%`;
+    message += `【${fund.name}】\n`;
+    message += `代码：${fund.code}\n`;
+    message += `价格：${fund.price?.toFixed(4) || '-'}\n`;
+    message += `净值：${fund.nav?.toFixed(4) || '-'}\n`;
+    message += `溢价率：${premiumStr}\n`;
+    message += `申购状态：${quotaStatus}\n\n`;
+  });
+  
+  if (funds.length > 10) {
+    message += `...\n（还有 ${funds.length - 10} 只基金未显示）`;
+  }
+  
+  await fetch(webhookUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      msg_type: 'text',
+      content: { text: message }
+    })
+  });
+}
+
+async function sendGlobalAlert(env, funds) {
+  const webhookUrl = env.FEISHU_WEBHOOK;
+  if (!webhookUrl) {
+    console.error('未配置 FEISHU_WEBHOOK');
+    return;
+  }
+  
+  const timeStr = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+  
+  let message = `📊 LOF基金监控\n发送时间：${timeStr}\n异常基金数量：${funds.length}\n\n`;
+  
+  funds.forEach(({ fund, premiumRate }) => {
+    const quotaStatus = fund.quota || '未知';
+    const premiumStr = premiumRate >= 0 ? `+${premiumRate.toFixed(2)}%` : `${premiumRate.toFixed(2)}%`;
+    message += `【${fund.name}】${premiumStr}\n`;
+    message += `代码：${fund.code} | 状态：${quotaStatus}\n`;
+    message += `价格：${fund.price?.toFixed(4)} | 净值：${fund.nav?.toFixed(4)}\n\n`;
+  });
+  
+  await fetch(webhookUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      msg_type: 'text',
+      content: { text: message }
+    })
+  });
+}
+
+async function sendDynamicAlerts(env, alerts, fundsData) {
+  const webhookUrl = env.FEISHU_WEBHOOK;
+  if (!webhookUrl) return;
+  
+  const timeStr = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+  
+  let message = `⚠️ LOF基金溢价突变报警\n报警时间：${timeStr}\n报警数量：${alerts.length}\n\n`;
+  
+  alerts.forEach(alert => {
+    const fund = fundsData.funds.find(f => f.code === alert.fundCode);
+    const fundName = fund?.name || alert.fundCode;
+    
+    message += `【${fundName}】${alert.type}\n`;
+    message += `当前溢价率：${alert.premium >= 0 ? '+' : ''}${alert.premium.toFixed(2)}%\n`;
+    message += `溢价变化：${alert.change >= 0 ? '+' : ''}${alert.change.toFixed(2)}%\n`;
+    message += `时间：${alert.time}\n\n`;
+  });
+  
+  await fetch(webhookUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      msg_type: 'text',
+      content: { text: message }
     })
   });
 }
