@@ -46,10 +46,10 @@ async function smartMonitor(env, isTestMode = false) {
     // 3. 获取实时行情
     const marketData = await fetchMarketData(fundsData);
     
-    // 4. 获取基金净值
+    // 4. 获取基金净值（优先使用 funds.json 中的，如果没有则尝试实时获取）
     console.log('开始获取基金净值...');
     const navData = await fetchAllNavs(fundsData.funds);
-    console.log(`净值获取完成: ${Object.keys(navData).length} 只基金`);
+    console.log(`实时获取净值: ${Object.keys(navData).length} 只基金`);
     
     // 5. 检查溢价
     const alerts = [];
@@ -60,14 +60,15 @@ async function smartMonitor(env, isTestMode = false) {
     
     for (const fund of fundsData.funds) {
       const marketInfo = marketData.funds[fund.tq];
-      const navInfo = navData[fund.code];
       
-      if (!marketInfo || !navInfo) {
-        console.log(`跳过 ${fund.code}: 缺少数据 (价格=${marketInfo?.price}, 净值=${navInfo?.nav})`);
+      // 优先使用 funds.json 中的净值，如果没有则使用实时获取的
+      let nav = fund.nav || navData[fund.code]?.nav;
+      
+      if (!marketInfo || !nav) {
+        console.log(`跳过 ${fund.code}: 缺少数据 (价格=${marketInfo?.price}, 净值=${nav})`);
         continue;
       }
       
-      const nav = navInfo.nav;
       const premiumRate = ((marketInfo.price - nav) / nav) * 100;
       const threshold = fund.premiumThreshold || 3;
       
