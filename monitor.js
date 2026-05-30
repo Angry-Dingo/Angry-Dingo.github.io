@@ -376,7 +376,7 @@ async function saveNavData(navData) {
     for (const fund of jsonData.funds) {
       const navInfo = navData[fund.code];
       if (navInfo && navInfo.nav > 0) {
-        fund.nav = navInfo.nav;
+        fund.officialNav = navInfo.nav;
         fund.navDate = navInfo.date;
         updatedCount++;
       }
