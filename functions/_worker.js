@@ -150,6 +150,8 @@ function calculateBenchChgPct(benchDef, indexData) {
     });
     
     return totalW > 0 ? weightedChg / totalW : 0;
+  } else if (benchDef && typeof benchDef === 'object') {
+    return indexData[benchDef.tq] || 0;
   } else if (benchDef) {
     return indexData[benchDef] || 0;
   }
@@ -317,6 +319,8 @@ async function fetchMarketData(fundsData) {
     fundsData.funds.flatMap(f => {
       if (Array.isArray(f.benchmark)) {
         return f.benchmark.map(b => b.tq);
+      } else if (f.benchmark && typeof f.benchmark === 'object') {
+        return [f.benchmark.tq];
       } else if (f.benchmark) {
         return [f.benchmark];
       }
