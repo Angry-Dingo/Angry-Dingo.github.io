@@ -49,65 +49,65 @@ async function smartMonitor(env, isTestMode = false) {
     const allAbnormalFunds = [];
     const allFundsForDebug = [];
     
+    let processedCount = 0;
+    let skippedCount = 0;
+    
     console.log(`开始检查 ${fundsData.funds.length} 只基金`);
 
-  for (const fund of fundsData.funds) {
-    const marketInfo = fundMarketData[fund.tq];
+    for (const fund of fundsData.funds) {
+      const marketInfo = fundMarketData[fund.tq];
 
-    if (!marketInfo) {
-      console.log(`跳过 ${fund.code}: 无市场价格`);
-      continue;
-    }
+      if (!marketInfo) {
+        console.log(`跳过 ${fund.code}: 无市场价格`);
+        skippedCount++;
+        continue;
+      }
 
-    const fundWithData = { ...fund, ...marketInfo };
+      const fundWithData = { ...fund, ...marketInfo };
 
-    let nav = null;
-    let benchChgPct = 0;
+      let nav = null;
+      let benchChgPct = 0;
 
-    const baseNav = fund.officialNav || marketInfo.prevClose;
-    
-    console.log(`基金 ${fund.code}: officialNav=${fund.officialNav}, prevClose=${marketInfo.prevClose}, 使用baseNav=${baseNav}`);
-
-    if (fund.benchmark) {
-      benchChgPct = calculateBenchChgPct(fund.benchmark, indexData);
-    }
-
-    if (baseNav > 0) {
-      nav = baseNav * (1 + benchChgPct / 100);
-      fundWithData.nav = nav;
-      fundWithData.navChange = benchChgPct;
-    } else {
-      console.log(`警告: ${fund.code} baseNav 为 0`);
-    }
-
-    if (!nav) {
-      console.log(`跳过 ${fund.code}: 无法计算净值`);
-      continue;
-    }
-
-    const premiumRate = ((marketInfo.price - nav) / nav) * 100;
-    const threshold = fund.premiumThreshold || 3;
-
-    console.log(`${fund.code} ${fund.name}: 价格=${marketInfo.price.toFixed(4)}, 净值=${nav.toFixed(4)}, 溢价率=${premiumRate.toFixed(2)}%, 指数涨跌幅=${benchChgPct.toFixed(2)}%`);
-
-    allFundsForDebug.push({ fund: fundWithData, marketInfo, premiumRate });
-
-    // 测试模式下：所有有数据的基金都发送
-    if (isTestMode) {
-      allAbnormalFunds.push({ fund: fundWithData, marketInfo, premiumRate });
-    } 
-    // 正常模式下：只发送溢价超过阈值的
-    else if (Math.abs(premiumRate) >= threshold) {
-      allAbnormalFunds.push({ fund: fundWithData, marketInfo, premiumRate });
-    }
+      const baseNav = fund.officialNav || marketInfo.prevClose;
       
-      if (!isTestMode) {
+      if (fund.benchmark) {
+        benchChgPct = calculateBenchChgPct(fund.benchmark, indexData);
+      }
+
+      if (baseNav > 0) {
+        nav = baseNav * (1 + benchChgPct / 100);
+        fundWithData.nav = nav;
+        fundWithData.navChange = benchChgPct;
+      }
+
+      if (!nav) {
+        console.log(`跳过 ${fund.code}: 无法计算净值 (baseNav=${baseNav})`);
+        skippedCount++;
+        continue;
+      }
+
+      const premiumRate = ((marketInfo.price - nav) / nav) * 100;
+      const threshold = fund.premiumThreshold || 3;
+
+      console.log(`${fund.code}: 价格=${marketInfo.price.toFixed(4)}, 净值=${nav.toFixed(4)}, 溢价率=${premiumRate.toFixed(2)}%`);
+
+      allFundsForDebug.push({ fund: fundWithData, marketInfo, premiumRate });
+      processedCount++;
+
+      if (isTestMode) {
+        allAbnormalFunds.push({ fund: fundWithData, marketInfo, premiumRate });
+      } else if (Math.abs(premiumRate) >= threshold) {
+        allAbnormalFunds.push({ fund: fundWithData, marketInfo, premiumRate });
+        
         const dynamicAlert = checkDynamicChange(fund.code, premiumRate, marketInfo);
         if (dynamicAlert) {
           alerts.push(dynamicAlert);
         }
       }
     }
+    
+    console.log(`处理完成: 共处理${processedCount}只, 跳过${skippedCount}只`);
+    console.log(`待发送基金数量: ${allAbnormalFunds.length}, 动态报警数量: ${alerts.length}`);
     
     console.log(`异常基金数量: ${allAbnormalFunds.length}, 动态报警数量: ${alerts.length}`);
     
