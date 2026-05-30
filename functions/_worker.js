@@ -46,7 +46,12 @@ async function smartMonitor(env, isTestMode = false) {
     // 3. 获取实时行情
     const marketData = await fetchMarketData(fundsData);
     
-    // 4. 检查溢价
+    // 4. 获取基金净值
+    console.log('开始获取基金净值...');
+    const navData = await fetchAllNavs(fundsData.funds);
+    console.log(`净值获取完成: ${Object.keys(navData).length} 只基金`);
+    
+    // 5. 检查溢价
     const alerts = [];
     const allAbnormalFunds = [];
     const allFundsForDebug = []; // 用于调试
@@ -55,18 +60,23 @@ async function smartMonitor(env, isTestMode = false) {
     
     for (const fund of fundsData.funds) {
       const marketInfo = marketData.funds[fund.tq];
-      if (!marketInfo || !fund.nav) {
-        console.log(`跳过 ${fund.code}: 缺少数据 (价格=${marketInfo?.price}, 净值=${fund?.nav})`);
+      const navInfo = navData[fund.code];
+      
+      if (!marketInfo || !navInfo) {
+        console.log(`跳过 ${fund.code}: 缺少数据 (价格=${marketInfo?.price}, 净值=${navInfo?.nav})`);
         continue;
       }
       
-      const premiumRate = ((marketInfo.price - fund.nav) / fund.nav) * 100;
+      const nav = navInfo.nav;
+      const premiumRate = ((marketInfo.price - nav) / nav) * 100;
       const threshold = fund.premiumThreshold || 3;
       
-      console.log(`${fund.code} ${fund.name}: 价格=${marketInfo.price.toFixed(4)}, 净值=${fund.nav.toFixed(4)}, 溢价率=${premiumRate.toFixed(2)}%`);
+      console.log(`${fund.code} ${fund.name}: 价格=${marketInfo.price.toFixed(4)}, 净值=${nav.toFixed(4)}, 溢价率=${premiumRate.toFixed(2)}%`);
       
       // 用于调试的所有基金（不管溢价如何都记录下来
-      allFundsForDebug.push({ fund, marketInfo, premiumRate });
+      // 把 nav 注入到 fund 对象中，方便后面使用
+      const fundWithNav = { ...fund, nav };
+      allFundsForDebug.push({ fund: fundWithNav, marketInfo, premiumRate });
       
       // 收集所有异常基金（用于9:25全局报警）
       if (isTestMode || Math.abs(premiumRate) >= threshold) {
@@ -360,4 +370,169 @@ async function sendFeishuAlert(env, errorMsg) {
       content: { text: `${timeStr}\n❌ ${errorMsg}` }
     })
   });
+}
+
+// 以下是获取净值的函数
+async function fetchAllNavs(funds) {
+  const navData = {};
+  const BATCH_SIZE = 8; // 减少批次大小以避免超时
+  
+  for (let i = 0; i < funds.length; i += BATCH_SIZE) {
+    const batch = funds.slice(i, i + BATCH_SIZE);
+    console.log(`处理净值批次 ${Math.floor(i/BATCH_SIZE) + 1}/${Math.ceil(funds.length/BATCH_SIZE)}`);
+    
+    const results = await Promise.all(batch.map(async (fund) => {
+      try {
+        return await fetchSingleNav(fund);
+      } catch (error) {
+        console.error(`获取${fund.code}净值失败:`, error.message);
+        return null;
+      }
+    }));
+    
+    results.forEach((result, index) => {
+      const fund = batch[index];
+      if (result && result.nav > 0) {
+        navData[fund.code] = result;
+      }
+    });
+    
+    if (i + BATCH_SIZE < funds.length) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+  }
+  
+  return navData;
+}
+
+async function fetchSingleNav(fund) {
+  const fundCode = fund.code;
+  
+  try {
+    // 先尝试最简单的 API (fundgz.1234567.com.cn)
+    const result = await fetchNavFromFundgz(fundCode);
+    if (result && result.nav > 0) {
+      console.log(`${fundCode} 从 fundgz 获得净值: ${result.nav}`);
+      return result;
+    }
+  } catch (e) {
+    // 继续尝试下一个
+  }
+  
+  try {
+    // 尝试东方财富 lsjz API
+    const result = await fetchNavFromLsjz(fundCode);
+    if (result && result.nav > 0) {
+      console.log(`${fundCode} 从 lsjz 获得净值: ${result.nav}`);
+      return result;
+    }
+  } catch (e) {
+    // 继续尝试下一个
+  }
+  
+  try {
+    // 尝试 pingzhongdata
+    const result = await fetchNavFromPingzhong(fundCode);
+    if (result && result.nav > 0) {
+      console.log(`${fundCode} 从 pingzhongdata 获得净值: ${result.nav}`);
+      return result;
+    }
+  } catch (e) {
+    // 都失败了
+  }
+  
+  return null;
+}
+
+async function fetchNavFromFundgz(fundCode) {
+  const url = `https://fundgz.1234567.com.cn/js/${fundCode}.js?rt=${Date.now()}`;
+  const response = await fetch(url);
+  const text = await response.text();
+  
+  const match = text.match(/jsonpgz\(([^)]+)\)/);
+  if (!match) return null;
+  
+  try {
+    const data = JSON.parse(match[1]);
+    const nav = parseFloat(data.dwjz);
+    const date = data.jzrq;
+    
+    if (nav > 0) {
+      return { nav, date };
+    }
+  } catch (e) {
+    // 解析失败
+  }
+  
+  return null;
+}
+
+async function fetchNavFromLsjz(fundCode) {
+  const url = `https://api.fund.eastmoney.com/f10/lsjz?fundCode=${fundCode}&pageIndex=1&pageSize=1`;
+  const response = await fetch(url, {
+    headers: {
+      'Referer': 'https://fund.eastmoney.com/',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+    }
+  });
+  const data = await response.json();
+  
+  if (data && data.Data && data.Data.LSJZList && data.Data.LSJZList[0]) {
+    const item = data.Data.LSJZList[0];
+    const nav = parseFloat(item.DWJZ);
+    const date = item.FSRQ;
+    
+    if (nav > 0) {
+      return { nav, date };
+    }
+  }
+  
+  return null;
+}
+
+async function fetchNavFromPingzhong(fundCode) {
+  const url = `https://fund.eastmoney.com/pingzhongdata/${fundCode}.js?v=${Date.now()}`;
+  const response = await fetch(url, {
+    headers: {
+      'Referer': 'https://fund.eastmoney.com/',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+    }
+  });
+  const text = await response.text();
+  
+  // 尝试 Data_netWorthTrend
+  let match = text.match(/Data_netWorthTrend\s*=\s*(\[.+?\]);/s);
+  if (match) {
+    try {
+      const arr = JSON.parse(match[1]);
+      if (arr && arr.length > 0) {
+        const last = arr[arr.length - 1];
+        const nav = parseFloat(last.y);
+        if (nav > 0) {
+          return { nav, date: new Date(last.x).toISOString().slice(0, 10) };
+        }
+      }
+    } catch (e) {
+      // 继续
+    }
+  }
+  
+  // 尝试 Data_ACWorthTrend
+  match = text.match(/Data_ACWorthTrend\s*=\s*(\[.+?\]);/s);
+  if (match) {
+    try {
+      const arr = JSON.parse(match[1]);
+      if (arr && arr.length > 0) {
+        const last = arr[arr.length - 1];
+        const nav = Array.isArray(last) ? parseFloat(last[1]) : parseFloat(last.y);
+        if (nav > 0) {
+          return { nav, date: new Date(last.x || Date.now()).toISOString().slice(0, 10) };
+        }
+      }
+    } catch (e) {
+      // 继续
+    }
+  }
+  
+  return null;
 }
