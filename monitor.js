@@ -578,21 +578,14 @@ async function sendToFeishu(message) {
 }
 
 async function main() {
-  console.log('开始检查基金溢价率...');
+  console.log('开始更新基金净值数据...');
   
   await loadFundsData();
   
-  const abnormalFunds = await checkAbnormalPremium();
+  // 只运行检查，以便更新净值
+  await checkAbnormalPremium();
   
-  if (abnormalFunds.length > 0) {
-    console.log(`发现${abnormalFunds.length}只基金溢价率异常`);
-    const message = buildPushMessage(abnormalFunds);
-    await sendToFeishu(message);
-  } else {
-    console.log('未发现溢价率异常的基金');
-  }
-  
-  console.log('检查完成');
+  console.log('净值数据更新完成');
 }
 
 main();

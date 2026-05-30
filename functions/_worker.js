@@ -26,16 +26,38 @@ export default {
 const PREMIUM_HISTORY = {};
 const LAST_ALERT_TIME = {};
 
+function isTradingHour(hour, minute) {
+  // 工作日 9:25-11:30 和 13:00-15:00
+  const morningStart = hour === 9 && minute >= 25;
+  const morningEnd = hour < 11 || (hour === 11 && minute <= 30);
+  const afternoonStart = hour >= 13;
+  const afternoonEnd = hour < 15 || (hour === 15 && minute === 0);
+  
+  return (morningStart && morningEnd) || (afternoonStart && afternoonEnd);
+}
+
+function isGlobalAlertTime(hour, minute) {
+  // 9:25 发送一次全局提醒
+  return hour === 9 && minute === 25;
+}
+
 async function smartMonitor(env, isTestMode = false) {
   try {
     const now = new Date();
     const beijingTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
     const hour = beijingTime.getUTCHours();
     const minute = beijingTime.getUTCMinutes();
+    const day = beijingTime.getUTCDay(); // 0-6, 0是周日, 6是周六
     
-    console.log(`当前时间(UTC): ${now.toISOString()}, 北京时间: ${hour}:${minute}`);
+    console.log(`当前时间(UTC): ${now.toISOString()}, 北京时间: ${hour}:${minute}, 周${day}`);
     
-    const isGlobalAlertTime = isTestMode || (hour === 1 && minute === 25);
+    // 只在工作日（1-5）和交易时间内运行
+    if (!isTestMode && (day === 0 || day === 6 || !isTradingHour(hour, minute))) {
+      console.log('非交易时间，跳过');
+      return;
+    }
+    
+    const isGlobalAlert = isTestMode || isGlobalAlertTime(hour, minute);
     
     console.log('开始加载静态数据...');
     const fundsData = await loadFundsData(env);
@@ -109,7 +131,7 @@ async function smartMonitor(env, isTestMode = false) {
     console.log(`处理完成: 共处理${processedCount}只, 跳过${skippedCount}只`);
     console.log(`待发送基金数量: ${allAbnormalFunds.length}, 动态报警数量: ${alerts.length}`);
 
-    if (isGlobalAlertTime) {
+    if (isGlobalAlert) {
       if (isTestMode) {
         if (allAbnormalFunds.length > 0) {
           await sendTestAlert(env, allAbnormalFunds);
@@ -124,7 +146,7 @@ async function smartMonitor(env, isTestMode = false) {
       }
     }
     
-    if (!isGlobalAlertTime && alerts.length > 0) {
+    if (!isGlobalAlert && alerts.length > 0) {
       await sendDynamicAlerts(env, alerts, fundsData);
       console.log(`动态报警：${alerts.length} 条`);
     }
@@ -392,417 +414,3 @@ async function sendDynamicAlerts(env, alerts, fundsData) {
     })
   });
 }
-export default {
-  async scheduled(event, envexport default {
-  async scheduled(event, env, ctx) {
-    console.log('开始执行 LOF 基金智能监控任务');
-export default {
-  async scheduled(event, env, ctx) {
-    console.log('开始执行 LOF 基金智能监控任务');
-    ctx.waitUntil(smartMonitor(env));
-  },
-
-  async fetch(request, env,export default {
-  async scheduled(event, env, ctx) {
-    console.log('开始执行 LOF 基金智能监控任务');
-    ctx.waitUntil(smartMonitor(env));
-  },
-
-  async fetch(request, env, ctx) {
-    const url = new URL(request.url);
-    
-    if (url.pathnameexport default {
-  async scheduled(event, env, ctx) {
-    console.log('开始执行 LOF 基金智能监控任务');
-    ctx.waitUntil(smartMonitor(env));
-  },
-
-  async fetch(request, env, ctx) {
-    const url = new URL(request.url);
-    
-    if (url.pathname === '/test') {
-      console.log('触发测试');
-      ctx.waitUntil(smartexport default {
-  async scheduled(event, env, ctx) {
-    console.log('开始执行 LOF 基金智能监控任务');
-    ctx.waitUntil(smartMonitor(env));
-  },
-
-  async fetch(request, env, ctx) {
-    const url = new URL(request.url);
-    
-    if (url.pathname === '/test') {
-      console.log('触发测试');
-      ctx.waitUntil(smartMonitor(env, true));
-      return new Response('测试已触发，请查看飞书', {export default {
-  async scheduled(event, env, ctx) {
-    console.log('开始执行 LOF 基金智能监控任务');
-    ctx.waitUntil(smartMonitor(env));
-  },
-
-  async fetch(request, env, ctx) {
-    const url = new URL(request.url);
-    
-    if (url.pathname === '/test') {
-      console.log('触发测试');
-      ctx.waitUntil(smartMonitor(env, true));
-      return new Response('测试已触发，请查看飞书', {
-        status: 200,
-        headers: { 'Content-Type': 'textexport default {
-  async scheduled(event, env, ctx) {
-    console.log('开始执行 LOF 基金智能监控任务');
-    ctx.waitUntil(smartMonitor(env));
-  },
-
-  async fetch(request, env, ctx) {
-    const url = new URL(request.url);
-    
-    if (url.pathname === '/test') {
-      console.log('触发测试');
-      ctx.waitUntil(smartMonitor(env, true));
-      return new Response('测试已触发，请查看飞书', {
-        status: 200,
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      });
-    }
-    
-    return new Responseexport default {
-  async scheduled(event, env, ctx) {
-    console.log('开始执行 LOF 基金智能监控任务');
-    ctx.waitUntil(smartMonitor(env));
-  },
-
-  async fetch(request, env, ctx) {
-    const url = new URL(request.url);
-    
-    if (url.pathname === '/test') {
-      console.log('触发测试');
-      ctx.waitUntil(smartMonitor(env, true));
-      return new Response('测试已触发，请查看飞书', {
-        status: 200,
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      });
-    }
-    
-    return new Response('LOF 基金智能监控服务', {
-      status: 200,
-export default {
-  async scheduled(event, env, ctx) {
-    console.log('开始执行 LOF 基金智能监控任务');
-    ctx.waitUntil(smartMonitor(env));
-  },
-
-  async fetch(request, env, ctx) {
-    const url = new URL(request.url);
-    
-    if (url.pathname === '/test') {
-      console.log('触发测试');
-      ctx.waitUntil(smartMonitor(env, true));
-      return new Response('测试已触发，请查看飞书', {
-        status: 200,
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      });
-    }
-    
-    return new Response('LOF 基金智能监控服务', {
-      status: 200,
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-export default {
-  async scheduled(event, env, ctx) {
-    console.log('开始执行 LOF 基金智能监控任务');
-    ctx.waitUntil(smartMonitor(env));
-  },
-
-  async fetch(request, env, ctx) {
-    const url = new URL(request.url);
-    
-    if (url.pathname === '/test') {
-      console.log('触发测试');
-      ctx.waitUntil(smartMonitor(env, true));
-      return new Response('测试已触发，请查看飞书', {
-        status: 200,
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      });
-    }
-    
-    return new Response('LOF 基金智能监控服务', {
-      status: 200,
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    });
-  },
-};
-
-const PREMIUM_HISTORY = {};
-constexport default {
-  async scheduled(event, env, ctx) {
-    console.log('开始执行 LOF 基金智能监控任务');
-    ctx.waitUntil(smartMonitor(env));
-  },
-
-  async fetch(request, env, ctx) {
-    const url = new URL(request.url);
-    
-    if (url.pathname === '/test') {
-      console.log('触发测试');
-      ctx.waitUntil(smartMonitor(env, true));
-      return new Response('测试已触发，请查看飞书', {
-        status: 200,
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      });
-    }
-    
-    return new Response('LOF 基金智能监控服务', {
-      status: 200,
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    });
-  },
-};
-
-const PREMIUM_HISTORY = {};
-const LAST_ALERT_TIME = {};
-
-async function smartMonitor(env, isTestMode = false)export default {
-  async scheduled(event, env, ctx) {
-    console.log('开始执行 LOF 基金智能监控任务');
-    ctx.waitUntil(smartMonitor(env));
-  },
-
-  async fetch(request, env, ctx) {
-    const url = new URL(request.url);
-    
-    if (url.pathname === '/test') {
-      console.log('触发测试');
-      ctx.waitUntil(smartMonitor(env, true));
-      return new Response('测试已触发，请查看飞书', {
-        status: 200,
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      });
-    }
-    
-    return new Response('LOF 基金智能监控服务', {
-      status: 200,
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    });
-  },
-};
-
-const PREMIUM_HISTORY = {};
-const LAST_ALERT_TIME = {};
-
-async function smartMonitor(env, isTestMode = false) {
-  try {
-    const now = new Date();
-    const beijingTime =export default {
-  async scheduled(event, env, ctx) {
-    console.log('开始执行 LOF 基金智能监控任务');
-    ctx.waitUntil(smartMonitor(env));
-  },
-
-  async fetch(request, env, ctx) {
-    const url = new URL(request.url);
-    
-    if (url.pathname === '/test') {
-      console.log('触发测试');
-      ctx.waitUntil(smartMonitor(env, true));
-      return new Response('测试已触发，请查看飞书', {
-        status: 200,
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      });
-    }
-    
-    return new Response('LOF 基金智能监控服务', {
-      status: 200,
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    });
-  },
-};
-
-const PREMIUM_HISTORY = {};
-const LAST_ALERT_TIME = {};
-
-async function smartMonitor(env, isTestMode = false) {
-  try {
-    const now = new Date();
-    const beijingTime = new Date(now.getTime() + 8 * 60 * 60 * 1export default {
-  async scheduled(event, env, ctx) {
-    console.log('开始执行 LOF 基金智能监控任务');
-    ctx.waitUntil(smartMonitor(env));
-  },
-
-  async fetch(request, env, ctx) {
-    const url = new URL(request.url);
-    
-    if (url.pathname === '/test') {
-      console.log('触发测试');
-      ctx.waitUntil(smartMonitor(env, true));
-      return new Response('测试已触发，请查看飞书', {
-        status: 200,
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      });
-    }
-    
-    return new Response('LOF 基金智能监控服务', {
-      status: 200,
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    });
-  },
-};
-
-const PREMIUM_HISTORY = {};
-const LAST_ALERT_TIME = {};
-
-async function smartMonitor(env, isTestMode = false) {
-  try {
-    const now = new Date();
-    const beijingTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
-    const hour = beijingTime.getUTCHours();
-    constexport default {
-  async scheduled(event, env, ctx) {
-    console.log('开始执行 LOF 基金智能监控任务');
-    ctx.waitUntil(smartMonitor(env));
-  },
-
-  async fetch(request, env, ctx) {
-    const url = new URL(request.url);
-    
-    if (url.pathname === '/test') {
-      console.log('触发测试');
-      ctx.waitUntil(smartMonitor(env, true));
-      return new Response('测试已触发，请查看飞书', {
-        status: 200,
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      });
-    }
-    
-    return new Response('LOF 基金智能监控服务', {
-      status: 200,
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    });
-  },
-};
-
-const PREMIUM_HISTORY = {};
-const LAST_ALERT_TIME = {};
-
-async function smartMonitor(env, isTestMode = false) {
-  try {
-    const now = new Date();
-    const beijingTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
-    const hour = beijingTime.getUTCHours();
-    const minute = beijingTime.getUTCMinutes();
-    
-    console.log(`当前时间(UTCexport default {
-  async scheduled(event, env, ctx) {
-    console.log('开始执行 LOF 基金智能监控任务');
-    ctx.waitUntil(smartMonitor(env));
-  },
-
-  async fetch(request, env, ctx) {
-    const url = new URL(request.url);
-    
-    if (url.pathname === '/test') {
-      console.log('触发测试');
-      ctx.waitUntil(smartMonitor(env, true));
-      return new Response('测试已触发，请查看飞书', {
-        status: 200,
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      });
-    }
-    
-    return new Response('LOF 基金智能监控服务', {
-      status: 200,
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    });
-  },
-};
-
-const PREMIUM_HISTORY = {};
-const LAST_ALERT_TIME = {};
-
-async function smartMonitor(env, isTestMode = false) {
-  try {
-    const now = new Date();
-    const beijingTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
-    const hour = beijingTime.getUTCHours();
-    const minute = beijingTime.getUTCMinutes();
-    
-    console.log(`当前时间(UTC): ${now.toISOString()}, 北京时间: ${hour}:${minute}`);
-    
-export default {
-  async scheduled(event, env, ctx) {
-    console.log('开始执行 LOF 基金智能监控任务');
-    ctx.waitUntil(smartMonitor(env));
-  },
-
-  async fetch(request, env, ctx) {
-    const url = new URL(request.url);
-    
-    if (url.pathname === '/test') {
-      console.log('触发测试');
-      ctx.waitUntil(smartMonitor(env, true));
-      return new Response('测试已触发，请查看飞书', {
-        status: 200,
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      });
-    }
-    
-    return new Response('LOF 基金智能监控服务', {
-      status: 200,
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    });
-  },
-};
-
-const PREMIUM_HISTORY = {};
-const LAST_ALERT_TIME = {};
-
-async function smartMonitor(env, isTestMode = false) {
-  try {
-    const now = new Date();
-    const beijingTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
-    const hour = beijingTime.getUTCHours();
-    const minute = beijingTime.getUTCMinutes();
-    
-    console.log(`当前时间(UTC): ${now.toISOString()}, 北京时间: ${hour}:${minute}`);
-    
-    const isGlobalAlertTime = isTestMode || (hour === 1 && minute === 2export default {
-  async scheduled(event, env, ctx) {
-    console.log('开始执行 LOF 基金智能监控任务');
-    ctx.waitUntil(smartMonitor(env));
-  },
-
-  async fetch(request, env, ctx) {
-    const url = new URL(request.url);
-    
-    if (url.pathname === '/test') {
-      console.log('触发测试');
-      ctx.waitUntil(smartMonitor(env, true));
-      return new Response('测试已触发，请查看飞书', {
-        status: 200,
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      });
-    }
-    
-    return new Response('LOF 基金智能监控服务', {
-      status: 200,
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    });
-  },
-};
-
-const PREMIUM_HISTORY = {};
-const LAST_ALERT_TIME = {};
-
-async function smartMonitor(env, isTestMode = false) {
-  try {
-    const now = new Date();
-    const beijingTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
-    const hour = beijingTime.getUTCHours();
-    const minute = beijingTime.getUTCMinutes();
-    
-    console.log(`当前时间(UTC): ${now.toISOString()}, 北京时间: ${hour}:${minute}`);
-    
-    const isGlobalAlertTime = isTestMode || (hour === 1 && minute === 25);
-    
-    console.log('开始加载静态数据...');
-    const fundsData = await
