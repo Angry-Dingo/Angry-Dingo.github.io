@@ -27,7 +27,6 @@ const PREMIUM_HISTORY = {};
 const LAST_ALERT_TIME = {};
 
 function isTradingHour(hour, minute) {
-  // 工作日 9:25-11:30 和 13:00-15:00
   const morningStart = hour === 9 && minute >= 25;
   const morningEnd = hour < 11 || (hour === 11 && minute <= 30);
   const afternoonStart = hour >= 13;
@@ -37,15 +36,10 @@ function isTradingHour(hour, minute) {
 }
 
 function isGlobalAlertTime(hour, minute) {
-  // 营业时间内每半小时发送一次全局提醒
-  // 上午：9:30, 10:00, 10:30, 11:00, 11:30
-  // 下午：13:00, 13:30, 14:00, 14:30, 15:00
   return (
-    // 上午时段
-    (hour === 9 && minute === 30) ||
+    (hour === 9 && minute >= 30 && minute <= 59) ||
     (hour === 10 && (minute === 0 || minute === 30)) ||
     (hour === 11 && (minute === 0 || minute === 30)) ||
-    // 下午时段
     (hour === 13 && (minute === 0 || minute === 30)) ||
     (hour === 14 && (minute === 0 || minute === 30)) ||
     (hour === 15 && minute === 0)
@@ -58,11 +52,10 @@ async function smartMonitor(env, isTestMode = false) {
     const beijingTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
     const hour = beijingTime.getUTCHours();
     const minute = beijingTime.getUTCMinutes();
-    const day = beijingTime.getUTCDay(); // 0-6, 0是周日, 6是周六
+    const day = beijingTime.getUTCDay();
     
     console.log(`当前时间(UTC): ${now.toISOString()}, 北京时间: ${hour}:${minute}, 周${day}`);
     
-    // 只在工作日（1-5）和交易时间内运行
     if (!isTestMode && (day === 0 || day === 6 || !isTradingHour(hour, minute))) {
       console.log('非交易时间，跳过');
       return;
