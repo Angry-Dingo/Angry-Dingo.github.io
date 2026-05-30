@@ -30,8 +30,12 @@ const LAST_ALERT_TIME = {};
 async function smartMonitor(env, isTestMode = false) {
   try {
     const now = new Date();
-    const hour = now.getHours() + 8; // UTC+8
-    const minute = now.getMinutes();
+    // 正确计算北京时间 (UTC+8)
+    const beijingTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
+    const hour = beijingTime.getUTCHours();
+    const minute = beijingTime.getUTCMinutes();
+    
+    console.log(`当前时间(UTC): ${now.toISOString()}, 北京时间: ${hour}:${minute}`);
     
     // 1. 检查是否是9:25（全局报警时间）或 测试模式
     const isGlobalAlertTime = isTestMode || (hour === 9 && minute === 25);
@@ -45,13 +49,24 @@ async function smartMonitor(env, isTestMode = false) {
     // 4. 检查溢价
     const alerts = [];
     const allAbnormalFunds = [];
+    const allFundsForDebug = []; // 用于调试
+    
+    console.log(`开始检查 ${fundsData.funds.length} 只基金`);
     
     for (const fund of fundsData.funds) {
       const marketInfo = marketData.funds[fund.tq];
-      if (!marketInfo || !fund.nav) continue;
+      if (!marketInfo || !fund.nav) {
+        console.log(`跳过 ${fund.code}: 缺少数据 (价格=${marketInfo?.price}, 净值=${fund?.nav})`);
+        continue;
+      }
       
       const premiumRate = ((marketInfo.price - fund.nav) / fund.nav) * 100;
       const threshold = fund.premiumThreshold || 3;
+      
+      console.log(`${fund.code} ${fund.name}: 价格=${marketInfo.price.toFixed(4)}, 净值=${fund.nav.toFixed(4)}, 溢价率=${premiumRate.toFixed(2)}%`);
+      
+      // 用于调试的所有基金（不管溢价如何都记录下来
+      allFundsForDebug.push({ fund, marketInfo, premiumRate });
       
       // 收集所有异常基金（用于9:25全局报警）
       if (isTestMode || Math.abs(premiumRate) >= threshold) {
@@ -69,13 +84,20 @@ async function smartMonitor(env, isTestMode = false) {
       }
     }
     
+    console.log(`异常基金数量: ${allAbnormalFunds.length}, 动态报警数量: ${alerts.length}`);
+    
     // 5. 9:25 全局报警（发送所有异常基金）或 测试模式
-    if (isGlobalAlertTime && allAbnormalFunds.length > 0) {
-      // 测试模式：修改消息头标识这是测试
+    if (isGlobalAlertTime) {
       if (isTestMode) {
-        await sendTestAlert(env, allAbnormalFunds);
-        console.log(`测试模式：${allAbnormalFunds.length} 只基金测试发送成功`);
-      } else {
+        // 测试模式：即使没有异常基金也发送前几只用于调试
+        if (allAbnormalFunds.length > 0) {
+          await sendTestAlert(env, allAbnormalFunds);
+          console.log(`测试模式：${allAbnormalFunds.length} 只基金测试发送成功`);
+        } else {
+          await sendTestAlert(env, allFundsForDebug.slice(0, 5));
+          console.log(`测试模式：没有异常基金，发送前5只用于调试`);
+        }
+      } else if (allAbnormalFunds.length > 0) {
         await sendGlobalAlert(env, allAbnormalFunds);
         console.log(`9:25 全局报警：${allAbnormalFunds.length} 只异常基金`);
       }
