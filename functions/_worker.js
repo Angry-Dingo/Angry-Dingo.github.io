@@ -83,7 +83,7 @@ async function smartMonitor(env, isTestMode = false) {
     
     // 6. 动态报警（单独推送）
     if (!isGlobalAlertTime && alerts.length > 0) {
-      await sendDynamicAlerts(env, alerts);
+      await sendDynamicAlerts(env, alerts, fundsData);
       console.log(`动态报警：${alerts.length} 条`);
     }
     
@@ -214,7 +214,7 @@ async function sendGlobalAlert(env, abnormalFunds) {
   });
 }
 
-async function sendDynamicAlerts(env, alerts) {
+async function sendDynamicAlerts(env, alerts, fundsData) {
   const webhookUrl = env.FEISHU_WEBHOOK;
   if (!webhookUrl) return;
   
@@ -222,7 +222,7 @@ async function sendDynamicAlerts(env, alerts) {
     const { fundCode, premium, change, marketInfo, type, time } = alert;
     
     // 获取基金信息
-    const fund = (await loadFundsData(env)).funds.find(f => f.code === fundCode);
+    const fund = fundsData.funds.find(f => f.code === fundCode);
     
     const emoji = change > 0 ? '🚨' : '⚠️';
     const content = `${time}\n${emoji} 【${type}】\n` +
@@ -248,9 +248,25 @@ async function sendDynamicAlerts(env, alerts) {
 async function loadFundsData(env) {
   try {
     const githubDataUrl = env.GITHUB_DATA_URL || 'https://your-username.github.io/repo-name/data/funds.json';
+    console.log('正在加载数据，URL:', githubDataUrl);
+    
     const response = await fetch(githubDataUrl);
-    if (!response.ok) throw new Error(`无法加载基金数据: ${response.status}`);
-    return await response.json();
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('HTTP 错误:', response.status, errorText);
+      throw new Error(`无法加载基金数据: ${response.status}`);
+    }
+    
+    const text = await response.text();
+    console.log('收到响应长度:', text.length, '字节');
+    
+    try {
+      return JSON.parse(text);
+    } catch (parseError) {
+      console.error('JSON 解析失败，收到的内容:', text.slice(0, 200));
+      throw new Error(`JSON 解析失败: ${parseError.message}`);
+    }
   } catch (error) {
     console.error('加载基金数据失败:', error);
     throw error;
