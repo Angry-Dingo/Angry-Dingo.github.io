@@ -366,6 +366,31 @@ async function loadNavs() {
   return navData;
 }
 
+async function saveNavData(navData) {
+  try {
+    const dataContent = fs.readFileSync(FUNDS_JSON_PATH, 'utf-8');
+    const jsonData = JSON.parse(dataContent);
+    
+    // 更新每只基金的净值
+    let updatedCount = 0;
+    for (const fund of jsonData.funds) {
+      const navInfo = navData[fund.code];
+      if (navInfo && navInfo.nav > 0) {
+        fund.nav = navInfo.nav;
+        fund.navDate = navInfo.date;
+        updatedCount++;
+      }
+    }
+    
+    jsonData.updatedAt = new Date().toISOString();
+    
+    fs.writeFileSync(FUNDS_JSON_PATH, JSON.stringify(jsonData, null, 2), 'utf-8');
+    console.log(`成功保存 ${updatedCount} 只基金的净值到 ${FUNDS_JSON_PATH}`);
+  } catch (error) {
+    console.error('保存净值数据失败:', error);
+  }
+}
+
 async function fetchSinaData() {
   const funds = {};
   
@@ -419,6 +444,9 @@ async function checkAbnormalPremium() {
       loadNavs(),
       fetchSinaData()
     ]);
+    
+    // 把获取到的净值保存回 data/funds.json
+    await saveNavData(navData);
     
     console.log('数据获取完成');
     console.log('腾讯财经数据:', Object.keys(tencentData.funds).length, '只基金');
