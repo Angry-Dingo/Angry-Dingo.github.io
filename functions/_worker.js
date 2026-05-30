@@ -315,21 +315,16 @@ async function sendTestAlert(env, funds) {
   
   const timeStr = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
   
-  let message = `🔔 LOF基金监控测试\n发送时间：${timeStr}\n基金数量：${funds.length}\n\n`;
+  let message = `检测时间: ${timeStr}\n\n`;
   
   funds.slice(0, 10).forEach(({ fund, premiumRate }) => {
     const quotaStatus = fund.quota || '未知';
     const premiumStr = premiumRate >= 0 ? `+${premiumRate.toFixed(2)}%` : `${premiumRate.toFixed(2)}%`;
-    message += `【${fund.name}】\n`;
-    message += `代码：${fund.code}\n`;
-    message += `价格：${fund.price?.toFixed(4) || '-'}\n`;
-    message += `净值：${fund.nav?.toFixed(4) || '-'}\n`;
-    message += `溢价率：${premiumStr}\n`;
-    message += `申购状态：${quotaStatus}\n\n`;
+    message += `• ${fund.code} ${fund.name}: ${premiumStr} (${quotaStatus})\n`;
   });
   
   if (funds.length > 10) {
-    message += `...\n（还有 ${funds.length - 10} 只基金未显示）`;
+    message += `\n...\n（还有 ${funds.length - 10} 只基金未显示）`;
   }
   
   await fetch(webhookUrl, {
@@ -351,14 +346,12 @@ async function sendGlobalAlert(env, funds) {
   
   const timeStr = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
   
-  let message = `📊 LOF基金监控\n发送时间：${timeStr}\n异常基金数量：${funds.length}\n\n`;
+  let message = `检测时间: ${timeStr}\n\n`;
   
   funds.forEach(({ fund, premiumRate }) => {
     const quotaStatus = fund.quota || '未知';
     const premiumStr = premiumRate >= 0 ? `+${premiumRate.toFixed(2)}%` : `${premiumRate.toFixed(2)}%`;
-    message += `【${fund.name}】${premiumStr}\n`;
-    message += `代码：${fund.code} | 状态：${quotaStatus}\n`;
-    message += `价格：${fund.price?.toFixed(4)} | 净值：${fund.nav?.toFixed(4)}\n\n`;
+    message += `• ${fund.code} ${fund.name}: ${premiumStr} (${quotaStatus})\n`;
   });
   
   await fetch(webhookUrl, {
@@ -377,16 +370,17 @@ async function sendDynamicAlerts(env, alerts, fundsData) {
   
   const timeStr = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
   
-  let message = `⚠️ LOF基金溢价突变报警\n报警时间：${timeStr}\n报警数量：${alerts.length}\n\n`;
+  let message = `检测时间: ${timeStr}\n\n`;
   
   alerts.forEach(alert => {
     const fund = fundsData.funds.find(f => f.code === alert.fundCode);
     const fundName = fund?.name || alert.fundCode;
+    const quotaStatus = fund?.quota || '未知';
     
-    message += `【${fundName}】${alert.type}\n`;
-    message += `当前溢价率：${alert.premium >= 0 ? '+' : ''}${alert.premium.toFixed(2)}%\n`;
-    message += `溢价变化：${alert.change >= 0 ? '+' : ''}${alert.change.toFixed(2)}%\n`;
-    message += `时间：${alert.time}\n\n`;
+    message += `• ${alert.fundCode} ${fundName}: ${alert.type}\n`;
+    message += `  当前溢价率：${alert.premium >= 0 ? '+' : ''}${alert.premium.toFixed(2)}%\n`;
+    message += `  溢价变化：${alert.change >= 0 ? '+' : ''}${alert.change.toFixed(2)}%\n`;
+    message += `  申购状态：${quotaStatus}\n`;
   });
   
   await fetch(webhookUrl, {
