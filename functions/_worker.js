@@ -37,8 +37,19 @@ function isTradingHour(hour, minute) {
 }
 
 function isGlobalAlertTime(hour, minute) {
-  // 9:25 发送一次全局提醒
-  return hour === 9 && minute === 25;
+  // 营业时间内每半小时发送一次全局提醒
+  // 上午：9:30, 10:00, 10:30, 11:00, 11:30
+  // 下午：13:00, 13:30, 14:00, 14:30, 15:00
+  return (
+    // 上午时段
+    (hour === 9 && minute === 30) ||
+    (hour === 10 && (minute === 0 || minute === 30)) ||
+    (hour === 11 && (minute === 0 || minute === 30)) ||
+    // 下午时段
+    (hour === 13 && (minute === 0 || minute === 30)) ||
+    (hour === 14 && (minute === 0 || minute === 30)) ||
+    (hour === 15 && minute === 0)
+  );
 }
 
 async function smartMonitor(env, isTestMode = false) {
@@ -142,7 +153,7 @@ async function smartMonitor(env, isTestMode = false) {
         }
       } else if (allAbnormalFunds.length > 0) {
         await sendGlobalAlert(env, allAbnormalFunds);
-        console.log(`9:25 全局报警：${allAbnormalFunds.length} 只异常基金`);
+        console.log(`全局提醒：${allAbnormalFunds.length} 只异常基金`);
       }
     }
     
