@@ -5,6 +5,17 @@ export default {
   },
 
   async fetch(request, env, ctx) {
+    const url = new URL(request.url);
+    
+    if (url.pathname === '/test') {
+      console.log('触发测试');
+      ctx.waitUntil(smartMonitor(env, true)); // 第二个参数 = 强制测试模式
+      return new Response('测试已触发，请查看飞书', {
+        status: 200,
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      });
+    }
+    
     return new Response('LOF 基金智能监控服务', {
       status: 200,
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -16,14 +27,14 @@ export default {
 const PREMIUM_HISTORY = {};
 const LAST_ALERT_TIME = {};
 
-async function smartMonitor(env) {
+async function smartMonitor(env, isTestMode = false) {
   try {
     const now = new Date();
     const hour = now.getHours() + 8; // UTC+8
     const minute = now.getMinutes();
     
-    // 1. 检查是否是9:25（全局报警时间）
-    const isGlobalAlertTime = hour === 9 && minute === 25;
+    // 1. 检查是否是9:25（全局报警时间）或 测试模式
+    const isGlobalAlertTime = isTestMode || (hour === 9 && minute === 25);
     
     // 2. 加载基金数据
     const fundsData = await loadFundsData(env);
@@ -43,21 +54,31 @@ async function smartMonitor(env) {
       const threshold = fund.premiumThreshold || 3;
       
       // 收集所有异常基金（用于9:25全局报警）
-      if (Math.abs(premiumRate) >= threshold) {
+      if (isTestMode || Math.abs(premiumRate) >= threshold) {
+        // 测试模式：收集前5只基金
+        if (isTestMode && allAbnormalFunds.length >= 5) continue;
         allAbnormalFunds.push({ fund, marketInfo, premiumRate });
       }
       
-      // 动态检测：溢价突然变化
-      const dynamicAlert = checkDynamicChange(fund.code, premiumRate, marketInfo);
-      if (dynamicAlert) {
-        alerts.push(dynamicAlert);
+      // 动态检测：溢价突然变化（测试模式下跳过，直接用全局报警）
+      if (!isTestMode) {
+        const dynamicAlert = checkDynamicChange(fund.code, premiumRate, marketInfo);
+        if (dynamicAlert) {
+          alerts.push(dynamicAlert);
+        }
       }
     }
     
-    // 5. 9:25 全局报警（发送所有异常基金）
+    // 5. 9:25 全局报警（发送所有异常基金）或 测试模式
     if (isGlobalAlertTime && allAbnormalFunds.length > 0) {
-      await sendGlobalAlert(env, allAbnormalFunds);
-      console.log(`9:25 全局报警：${allAbnormalFunds.length} 只异常基金`);
+      // 测试模式：修改消息头标识这是测试
+      if (isTestMode) {
+        await sendTestAlert(env, allAbnormalFunds);
+        console.log(`测试模式：${allAbnormalFunds.length} 只基金测试发送成功`);
+      } else {
+        await sendGlobalAlert(env, allAbnormalFunds);
+        console.log(`9:25 全局报警：${allAbnormalFunds.length} 只异常基金`);
+      }
     }
     
     // 6. 动态报警（单独推送）
@@ -75,6 +96,36 @@ async function smartMonitor(env) {
       console.error('发送错误通知失败:', e);
     }
   }
+}
+
+// 测试模式专用的发送函数
+async function sendTestAlert(env, testFunds) {
+  const webhookUrl = env.FEISHU_WEBHOOK;
+  if (!webhookUrl) return;
+  
+  const timeStr = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+  
+  let content = `${timeStr}\n🧪 【测试推送】\n\n`;
+  
+  testFunds.forEach(item => {
+    const { fund, marketInfo, premiumRate } = item;
+    const emoji = premiumRate >= 0 ? '📈' : '📉';
+    content += `${emoji} ${fund.name}(${fund.code})\n` +
+      `  场内价格: ${marketInfo.price.toFixed(4)}\n` +
+      `  最新净值: ${fund.nav.toFixed(4)}\n` +
+      `  溢价率: ${premiumRate >= 0 ? '+' : ''}${premiumRate.toFixed(2)}%\n\n`;
+  });
+  
+  content += `✅ 飞书推送功能测试成功！`;
+  
+  await fetch(webhookUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      msg_type: 'text',
+      content: { text: content }
+    })
+  });
 }
 
 function checkDynamicChange(fundCode, currentPremium, marketInfo) {
