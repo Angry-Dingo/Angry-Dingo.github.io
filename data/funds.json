@@ -69,7 +69,9 @@
       "quotaUpdatedAt": "2024-01-01T08:00:00Z",
       "fee": "1.20%",
       "rfee": "1.50%",
-      "benchmark": "usINDA"
+      "benchmark": "usINDA",
+      "officialNav": 1.2947,
+      "navDate": "2026-05-28"
     },
     {
       "code": "160644",
@@ -246,7 +248,9 @@
           "tq": "usXOP",
           "w": 0.038
         }
-      ]
+      ],
+      "officialNav": 0.729,
+      "navDate": "2026-05-28"
     },
     {
       "code": "161116",
@@ -375,7 +379,9 @@
       "quotaUpdatedAt": "2024-01-01T08:00:00Z",
       "fee": "1.50%",
       "rfee": "1.50%",
-      "benchmark": "usXLE"
+      "benchmark": "usXLE",
+      "officialNav": 1.291,
+      "navDate": "2026-05-28"
     },
     {
       "code": "501018",
@@ -397,7 +403,9 @@
           "tq": "usBNO",
           "w": 0.4
         }
-      ]
+      ],
+      "officialNav": 1.8037,
+      "navDate": "2026-05-28"
     },
     {
       "code": "161129",
@@ -674,7 +682,9 @@
       "quotaUpdatedAt": "2024-01-01T08:00:00Z",
       "fee": "1.20%",
       "rfee": "1.20%",
-      "benchmark": "hkHSCEI"
+      "benchmark": "hkHSCEI",
+      "officialNav": 0.7317,
+      "navDate": "2026-05-29"
     },
     {
       "code": "501305",
@@ -777,7 +787,9 @@
       "quotaUpdatedAt": "2024-01-01T08:00:00Z",
       "fee": "1.50%",
       "rfee": "0.50%",
-      "benchmark": "sh000852"
+      "benchmark": "sh000852",
+      "officialNav": 0.5866,
+      "navDate": "2026-05-29"
     },
     {
       "code": "161032",
@@ -840,5 +852,5 @@
     "sh000066": "上证大宗商品股票指数",
     "sh000945": "中证上游资源产业指数"
   },
-  "updatedAt": "2026-05-30T13:47:02.630Z"
+  "updatedAt": "2026-05-30T14:04:20.243Z"
 }
