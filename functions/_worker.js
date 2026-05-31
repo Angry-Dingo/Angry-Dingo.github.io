@@ -26,16 +26,42 @@ export default {
 const PREMIUM_HISTORY = {};
 const LAST_ALERT_TIME = {};
 
+function isTradingHour(hour, minute) {
+  const morningStart = hour === 9 && minute >= 25;
+  const morningEnd = hour < 11 || (hour === 11 && minute <= 30);
+  const afternoonStart = hour >= 13;
+  const afternoonEnd = hour < 15 || (hour === 15 && minute === 0);
+  
+  return (morningStart && morningEnd) || (afternoonStart && afternoonEnd);
+}
+
+function isGlobalAlertTime(hour, minute) {
+  return (
+    (hour === 9 && minute >= 30 && minute <= 59) ||
+    (hour === 10 && (minute === 0 || minute === 30)) ||
+    (hour === 11 && (minute === 0 || minute === 30)) ||
+    (hour === 13 && (minute === 0 || minute === 30)) ||
+    (hour === 14 && (minute === 0 || minute === 30)) ||
+    (hour === 15 && minute === 0)
+  );
+}
+
 async function smartMonitor(env, isTestMode = false) {
   try {
     const now = new Date();
     const beijingTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
     const hour = beijingTime.getUTCHours();
     const minute = beijingTime.getUTCMinutes();
+    const day = beijingTime.getUTCDay();
     
-    console.log(`当前时间(UTC): ${now.toISOString()}, 北京时间: ${hour}:${minute}`);
+    console.log(`当前时间(UTC): ${now.toISOString()}, 北京时间: ${hour}:${minute}, 周${day}`);
     
-    const isGlobalAlertTime = isTestMode || (hour === 1 && minute === 25);
+    if (!isTestMode && (day === 0 || day === 6 || !isTradingHour(hour, minute))) {
+      console.log('非交易时间，跳过');
+      return;
+    }
+    
+    const isGlobalAlert = isTestMode || isGlobalAlertTime(hour, minute);
     
     console.log('开始加载静态数据...');
     const fundsData = await loadFundsData(env);
@@ -109,7 +135,7 @@ async function smartMonitor(env, isTestMode = false) {
     console.log(`处理完成: 共处理${processedCount}只, 跳过${skippedCount}只`);
     console.log(`待发送基金数量: ${allAbnormalFunds.length}, 动态报警数量: ${alerts.length}`);
 
-    if (isGlobalAlertTime) {
+    if (isGlobalAlert) {
       if (isTestMode) {
         if (allAbnormalFunds.length > 0) {
           await sendTestAlert(env, allAbnormalFunds);
@@ -120,11 +146,11 @@ async function smartMonitor(env, isTestMode = false) {
         }
       } else if (allAbnormalFunds.length > 0) {
         await sendGlobalAlert(env, allAbnormalFunds);
-        console.log(`9:25 全局报警：${allAbnormalFunds.length} 只异常基金`);
+        console.log(`全局提醒：${allAbnormalFunds.length} 只异常基金`);
       }
     }
     
-    if (!isGlobalAlertTime && alerts.length > 0) {
+    if (!isGlobalAlert && alerts.length > 0) {
       await sendDynamicAlerts(env, alerts, fundsData);
       console.log(`动态报警：${alerts.length} 条`);
     }
