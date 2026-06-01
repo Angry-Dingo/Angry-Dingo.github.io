@@ -1,50 +1,54 @@
-export default {
-  async scheduled(event, env, ctx) {
-    const now = new Date();
-    const beijingTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
-    const hour = beijingTime.getUTCHours();
-    const minute = beijingTime.getUTCMinutes();
-    const day = beijingTime.getUTCDay();
-
-    // 每天早上 7:00（北京时间，UTC 23:00）更新净值和申购状态
-    if (hour === 23 && minute === 0 && day >= 1 && day <= 5) {
-      console.log('开始执行数据更新任务（净值 + 申购状态）');
-      ctx.waitUntil(updateDataTask(env));
-      return;
-    }
-
-    // 交易时间执行溢价监控
-    console.log('开始执行 LOF 基金智能监控任务');
-    ctx.waitUntil(smartMonitor(env));
-  },
-
-  async fetch(request, env, ctx) {
-    const url = new URL(request.url);
-    
-    if (url.pathname === '/test') {
-      console.log('触发测试');
-      ctx.waitUntil(smartMonitor(env, true));
-      return new Response('测试已触发，请查看飞书', {
-        status: 200,
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      });
-    }
-    
-    if (url.pathname === '/update') {
-      console.log('手动触发数据更新');
-      ctx.waitUntil(updateDataTask(env));
-      return new Response('数据更新已触发', {
-        status: 200,
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      });
-    }
-    
-    return new Response('LOF 基金智能监控服务', {
+export async function onRequest(context) {
+  const { request, env } = context;
+  const url = new URL(request.url);
+  
+  // 处理定时任务
+  if (request.cf && request.cf.cloudflareEvent === 'scheduled') {
+    return new Response('OK');
+  }
+  
+  // 处理 HTTP 请求
+  if (url.pathname === '/test') {
+    console.log('触发测试');
+    context.waitUntil(smartMonitor(env, true));
+    return new Response('测试已触发，请查看飞书', {
       status: 200,
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     });
-  },
-};
+  }
+  
+  if (url.pathname === '/update') {
+    console.log('手动触发数据更新');
+    context.waitUntil(updateDataTask(env));
+    return new Response('数据更新已触发', {
+      status: 200,
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    });
+  }
+  
+  // 对于其他路径，继续到静态资源
+  return env.ASSETS.fetch(request);
+}
+
+export async function onScheduled(context) {
+  const { env } = context;
+  const now = new Date();
+  const beijingTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
+  const hour = beijingTime.getUTCHours();
+  const minute = beijingTime.getUTCMinutes();
+  const day = beijingTime.getUTCDay();
+  
+  // 每天早上 7:00（北京时间，UTC 23:00）更新净值和申购状态
+  if (hour === 23 && minute === 0 && day >= 1 && day <= 5) {
+    console.log('开始执行数据更新任务（净值 + 申购状态）');
+    context.waitUntil(updateDataTask(env));
+    return;
+  }
+  
+  // 交易时间执行溢价监控
+  console.log('开始执行 LOF 基金智能监控任务');
+  context.waitUntil(smartMonitor(env));
+}
 
 // ==================== 数据更新任务 ====================
 
@@ -151,8 +155,8 @@ async function fetchSingleNav(code) {
     const match = text1.match(/jsonpgz\(([^)]+)\)/);
     if (match) {
       const data = JSON.parse(match[1]);
-      if (data && data.dwjz > 0) {
-        return { nav: parseFloat(data.dwjz), date: data.jzrq };
+      if (data && data.DWJZ > 0) {
+        return { nav: parseFloat(data.DWJZ), date: data.FSRQ };
       }
     }
     
@@ -433,7 +437,7 @@ async function smartMonitor(env, isTestMode = false) {
     
     if (!isGlobalAlert && alerts.length > 0) {
       await sendDynamicAlerts(env, alerts, fundsData);
-      console.log(`动态报警：${alerts.length} 条`);
+      console.log(`动态提醒：${alerts.length} 条`);
     }
     
     console.log('监控任务完成');
