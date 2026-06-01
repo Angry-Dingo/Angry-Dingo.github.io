@@ -2,6 +2,8 @@ export async function onRequest(context) {
   const { request, env } = context;
   const url = new URL(request.url);
   
+  console.log('收到 HTTP 请求:', url.pathname);
+  
   // 处理 HTTP 请求
   if (url.pathname === '/test') {
     console.log('触发测试');
