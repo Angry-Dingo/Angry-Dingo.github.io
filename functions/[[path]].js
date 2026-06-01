@@ -35,8 +35,33 @@ export async function onScheduled(context) {
   const minute = beijingTime.getUTCMinutes();
   const day = beijingTime.getUTCDay();
   
-  // 每天早上 7:00（北京时间，UTC 23:00）更新净值和申购状态
-  if (hour === 23 && minute === 0 && day >= 1 && day <= 5) {
+  // 检查 KV 是否需要更新
+  let needUpdateData = false;
+  
+  if (env.FUNDS_KV) {
+    try {
+      const existingData = await env.FUNDS_KV.get('funds');
+      if (!existingData) {
+        needUpdateData = true;
+        console.log('KV 为空，需要更新数据');
+      } else {
+        const data = JSON.parse(existingData);
+        const lastUpdated = new Date(data.updatedAt || 0);
+        const hoursSinceUpdate = (now - lastUpdated) / (1000 * 60 * 60);
+        
+        if (hoursSinceUpdate > 12) {
+          needUpdateData = true;
+          console.log(`距离上次更新已超过 12 小时（${hoursSinceUpdate.toFixed(1)}小时），需要更新数据`);
+        }
+      }
+    } catch (e) {
+      console.log('检查 KV 出错，尝试更新数据:', e);
+      needUpdateData = true;
+    }
+  }
+  
+  // 每天早上 7:00（北京时间，UTC 23:00）强制更新净值和申购状态
+  if ((hour === 23 && minute === 0 && day >= 1 && day <= 5) || needUpdateData) {
     console.log('开始执行数据更新任务（净值 + 申购状态）');
     context.waitUntil(updateDataTask(env));
     return;
