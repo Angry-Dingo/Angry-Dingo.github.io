@@ -50,6 +50,9 @@ export async function onScheduled(context) {
 async function updateDataTask(env) {
   try {
     console.log('=== 开始数据更新任务 ===');
+    console.log('FEISHU_WEBHOOK 已配置:', !!env.FEISHU_WEBHOOK);
+    console.log('GITHUB_TOKEN 已配置:', !!env.GITHUB_TOKEN);
+    console.log('FUNDS_KV 已配置:', !!env.FUNDS_KV);
     
     // 1. 从 GitHub 加载现有数据
     const fundsData = await loadFundsData(env);
@@ -596,18 +599,34 @@ async function fetchMarketData(fundsData) {
 
 async function sendFeishuAlert(env, errorMsg) {
   const webhookUrl = env.FEISHU_WEBHOOK;
-  if (!webhookUrl) return;
+  if (!webhookUrl) {
+    console.log('FEISHU_WEBHOOK 未配置，跳过发送通知');
+    return;
+  }
+  
+  console.log('正在发送飞书通知...');
   
   const timeStr = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
   
-  await fetch(webhookUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      msg_type: 'text',
-      content: { text: `${timeStr}\n${errorMsg}` }
-    })
-  });
+  try {
+    const response = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        msg_type: 'text',
+        content: { text: `${timeStr}\n${errorMsg}` }
+      })
+    });
+    
+    console.log('飞书通知发送状态:', response.status);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('飞书通知发送失败:', errorText);
+    }
+  } catch (e) {
+    console.error('发送飞书通知出错:', e);
+  }
 }
 
 async function sendTestAlert(env, funds) {
