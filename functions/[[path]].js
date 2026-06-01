@@ -2,11 +2,6 @@ export async function onRequest(context) {
   const { request, env } = context;
   const url = new URL(request.url);
   
-  // 处理定时任务
-  if (request.cf && request.cf.cloudflareEvent === 'scheduled') {
-    return new Response('OK');
-  }
-  
   // 处理 HTTP 请求
   if (url.pathname === '/test') {
     console.log('触发测试');
