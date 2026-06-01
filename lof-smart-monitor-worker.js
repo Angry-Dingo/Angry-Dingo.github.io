@@ -1,76 +1,78 @@
-export async function onRequest(context) {
-  const { request, env } = context;
-  const url = new URL(request.url);
-  
-  console.log('收到 HTTP 请求:', url.pathname);
-  
-  // 处理 HTTP 请求
-  if (url.pathname === '/test') {
-    console.log('触发测试');
-    context.waitUntil(smartMonitor(env, true));
-    return new Response('测试已触发，请查看飞书', {
-      status: 200,
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    });
-  }
-  
-  if (url.pathname === '/update') {
-    console.log('手动触发数据更新');
-    context.waitUntil(updateDataTask(env));
-    return new Response('数据更新已触发', {
-      status: 200,
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    });
-  }
-  
-  // 对于其他路径，继续到静态资源
-  return env.ASSETS.fetch(request);
-}
-
-export async function onScheduled(context) {
-  const { env } = context;
-  const now = new Date();
-  const beijingTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
-  const hour = beijingTime.getUTCHours();
-  const minute = beijingTime.getUTCMinutes();
-  const day = beijingTime.getUTCDay();
-  
-  // 检查 KV 是否需要更新
-  let needUpdateData = false;
-  
-  if (env.FUNDS_KV) {
-    try {
-      const existingData = await env.FUNDS_KV.get('funds');
-      if (!existingData) {
-        needUpdateData = true;
-        console.log('KV 为空，需要更新数据');
-      } else {
-        const data = JSON.parse(existingData);
-        const lastUpdated = new Date(data.updatedAt || 0);
-        const hoursSinceUpdate = (now - lastUpdated) / (1000 * 60 * 60);
-        
-        if (hoursSinceUpdate > 12) {
+export default {
+  async scheduled(event, env, ctx) {
+    const now = new Date();
+    const beijingTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
+    const hour = beijingTime.getUTCHours();
+    const minute = beijingTime.getUTCMinutes();
+    const day = beijingTime.getUTCDay();
+    
+    // 检查 KV 是否需要更新
+    let needUpdateData = false;
+    
+    if (env.FUNDS_KV) {
+      try {
+        const existingData = await env.FUNDS_KV.get('funds');
+        if (!existingData) {
           needUpdateData = true;
-          console.log(`距离上次更新已超过 12 小时（${hoursSinceUpdate.toFixed(1)}小时），需要更新数据`);
+          console.log('KV 为空，需要更新数据');
+        } else {
+          const data = JSON.parse(existingData);
+          const lastUpdated = new Date(data.updatedAt || 0);
+          const hoursSinceUpdate = (now - lastUpdated) / (1000 * 60 * 60);
+          
+          if (hoursSinceUpdate > 12) {
+            needUpdateData = true;
+            console.log(`距离上次更新已超过 12 小时（${hoursSinceUpdate.toFixed(1)}小时），需要更新数据`);
+          }
         }
+      } catch (e) {
+        console.log('检查 KV 出错，尝试更新数据:', e);
+        needUpdateData = true;
       }
-    } catch (e) {
-      console.log('检查 KV 出错，尝试更新数据:', e);
-      needUpdateData = true;
     }
-  }
-  
-  // 每天早上 7:00（北京时间，UTC 23:00）强制更新净值和申购状态
-  if ((hour === 23 && minute === 0 && day >= 0 && day <= 4) || needUpdateData) {
-    console.log('开始执行数据更新任务（净值 + 申购状态）');
-    context.waitUntil(updateDataTask(env));
-    return;
-  }
-  
-  // 交易时间执行溢价监控
-  console.log('开始执行 LOF 基金智能监控任务');
-  context.waitUntil(smartMonitor(env));
-}
+    
+    // 每天早上 7:00（北京时间，UTC 23:00）强制更新净值和申购状态
+    // UTC的0-4对应北京时间的周一到周五
+    if ((hour === 23 && minute === 0 && day >= 0 && day <= 4) || needUpdateData) {
+      console.log('开始执行数据更新任务（净值 + 申购状态）');
+      ctx.waitUntil(updateDataTask(env));
+      return;
+    }
+    
+    // 交易时间执行溢价监控
+    console.log('开始执行 LOF 基金智能监控任务');
+    ctx.waitUntil(smartMonitor(env));
+  },
+
+  async fetch(request, env, ctx) {
+    const url = new URL(request.url);
+    
+    console.log('收到 HTTP 请求:', url.pathname);
+    
+    if (url.pathname === '/test') {
+      console.log('触发测试');
+      ctx.waitUntil(smartMonitor(env, true));
+      return new Response('测试已触发，请查看飞书', {
+        status: 200,
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      });
+    }
+    
+    if (url.pathname === '/update') {
+      console.log('手动触发数据更新');
+      ctx.waitUntil(updateDataTask(env));
+      return new Response('数据更新已触发', {
+        status: 200,
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      });
+    }
+    
+    return new Response('LOF Monitor Worker', {
+      status: 200,
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    });
+  },
+};
 
 // ==================== 数据更新任务 ====================
 
