@@ -12,25 +12,8 @@ export default {
       day = (day + 1) % 7;
     }
     
-    let needUpdateData = false;
-    if (env.FUNDS_KV) {
-      try {
-        const existingData = await env.FUNDS_KV.get('funds');
-        if (!existingData) {
-          needUpdateData = true;
-        } else {
-          const data = JSON.parse(existingData);
-          const lastUpdated = new Date(data.updatedAt || 0);
-          const hoursSinceUpdate = (now - lastUpdated) / (1000 * 60 * 60);
-          if (hoursSinceUpdate > 12) needUpdateData = true;
-        }
-      } catch (e) {
-        needUpdateData = true;
-      }
-    }
-    
     // ✅ 北京时间8:00和13:10，周一到周五
-    if ((((hour === 8 && minute === 0) || (hour === 13 && minute === 10)) && day >= 1 && day <= 5) || needUpdateData) {
+    if (((hour === 8 && minute === 0) || (hour === 13 && minute === 10)) && day >= 1 && day <= 5) {
       console.log('开始执行数据更新任务');
       ctx.waitUntil(updateDataTask(env));
       return;
