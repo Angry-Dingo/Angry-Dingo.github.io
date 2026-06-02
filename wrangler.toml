@@ -1,0 +1,21 @@
+name = "lof-smart-monitor"
+main = "lof-smart-monitor-worker.js"
+compatibility_date = "2026-06-02"
+
+compatibility_flags = ["nodejs_compat"]
+
+# 定时任务配置
+[triggers]
+crons = [
+  "0 0 * * 1-5",      # 北京时间8:00 数据更新
+  "*/5 * * * 1-5"     # 交易时间每5分钟监控
+]
+
+# KV 命名空间绑定
+[[kv_namespaces]]
+binding = "FUNDS_KV"
+id = "您的KV_NAMESPACE_ID"
+
+# 敏感变量（通过 wrangler secret 设置）
+# FEISHU_WEBHOOK
+# GITHUB_TOKEN
