@@ -23,8 +23,8 @@ export default {
       }
     }
     
-    // ✅ 北京时间8:00 = UTC0:00，周一到周五
-    if ((hour === 0 && minute === 0 && day >= 1 && day <= 5) || needUpdateData) {
+    // ✅ 北京时间8:00 = UTC0:00，北京时间11:30 = UTC3:30，周一到周五
+    if ((((hour === 0 && minute === 0) || (hour === 3 && minute === 30)) && day >= 1 && day <= 5) || needUpdateData) {
       console.log('开始执行数据更新任务');
       ctx.waitUntil(updateDataTask(env));
       return;
