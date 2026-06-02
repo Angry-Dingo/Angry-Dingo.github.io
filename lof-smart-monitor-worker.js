@@ -13,9 +13,9 @@ export default {
     console.log(`[LOG] UTC时间: ${hour}:${minute}, 星期: ${day}, 北京时间: ${beijingHour}:${minute}, 星期: ${beijingDay}, Cron: ${cron}`);
 
     // ✅ 通过时间判断执行数据更新任务
-    // 配置的更新时间：7:40, 18:00（周一到周五，北京时间）
+    // 配置的更新时间：7:50, 18:00（周一到周五，北京时间）
     const isUpdateTime = (beijingDay >= 1 && beijingDay <= 5) && (
-      (beijingHour === 7 && minute === 40) ||
+      (beijingHour === 7 && minute === 50) ||
       (beijingHour === 18 && minute === 0)
     );
     
