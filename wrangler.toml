@@ -3,6 +3,9 @@ main = "lof-smart-monitor-worker.js"
 compatibility_date = "2026-06-02"
 compatibility_flags = ["nodejs_compat"]
 
+[observability]
+enabled = true
+
 [triggers]
 crons = [
   "30 23 * * 1-5",    # 北京时间7:30 数据更新
