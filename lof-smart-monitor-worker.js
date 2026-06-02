@@ -11,37 +11,21 @@ export default {
     if (now.getUTCHours() + 8 >= 24) {
       day = (day + 1) % 7;
     }
-    
-    let needUpdateData = false;
-    if (env.FUNDS_KV) {
-      try {
-        const existingData = await env.FUNDS_KV.get('funds');
-        if (!existingData) {
-          needUpdateData = true;
-          console.log('KV为空，需要更新数据');
-        }
-      } catch (e) {
-        needUpdateData = true;
-        console.error('KV读取失败:', e);
-      }
-    }
-    
-    // ✅ 北京时间8:00和13:10，周一到周五
+
+    console.log(`[DEBUG] 当前时间 (北京): ${hour}:${minute}, day: ${day}`);
+
+    // ✅ 北京时间8:00和13:10，周一到周五 - 优先级最高，固定触发数据更新
     if (((hour === 8 && minute === 0) || (hour === 13 && minute === 10)) && day >= 1 && day <= 5) {
-      console.log('开始执行数据更新任务（定时）');
+      console.log('[DEBUG] 开始执行数据更新任务（定时）');
       ctx.waitUntil(updateDataTask(env));
       return;
     }
-    
-    if (needUpdateData) {
-      console.log('开始执行数据更新任务（KV为空）');
-      ctx.waitUntil(updateDataTask(env));
-      return;
-    }
-    
+
+    // ✅ 其他时间 - 执行溢价监控
+    console.log('[DEBUG] 开始执行溢价监控任务');
     ctx.waitUntil(smartMonitor(env));
   },
-  
+
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (url.pathname === '/test') {
@@ -328,7 +312,12 @@ async function smartMonitor(env, isTestMode = false) {
       d = (d + 1) % 7;
     }
 
-    if (!isTestMode && (d === 0 || d === 6 || !isTradingHour(h, m))) return;
+    console.log(`[DEBUG] smartMonitor: 北京时间 ${h}:${m}, day: ${d}, isTestMode: ${isTestMode}`);
+
+    if (!isTestMode && (d === 0 || d === 6 || !isTradingHour(h, m))) {
+      console.log(`[DEBUG] 不在交易时间或周末，返回`);
+      return;
+    }
 
     const fundsData = await loadFundsData(env);
     const { fundMarketData, indexData } = await fetchMarketData(fundsData);
@@ -336,6 +325,8 @@ async function smartMonitor(env, isTestMode = false) {
     const alerts = [];
     const allAbnormalFunds = [];
     const isGlobalAlert = isTestMode || isGlobalAlertTime(h, m);
+
+    console.log(`[DEBUG] isGlobalAlert: ${isGlobalAlert}`);
 
     for (const fund of fundsData.funds) {
       const mi = fundMarketData[fund.tq];
@@ -356,10 +347,15 @@ async function smartMonitor(env, isTestMode = false) {
       }
     }
 
+    console.log(`[DEBUG] allAbnormalFunds.length: ${allAbnormalFunds.length}`);
+    console.log(`[DEBUG] alerts.length: ${alerts.length}`);
+
     if (isGlobalAlert && allAbnormalFunds.length > 0) {
+      console.log('[DEBUG] 发送全局推送');
       await sendGlobalAlert(env, allAbnormalFunds);
     }
     if (!isGlobalAlert && alerts.length > 0) {
+      console.log('[DEBUG] 发送动态推送');
       await sendDynamicAlerts(env, alerts, fundsData);
     }
   } catch (e) {
