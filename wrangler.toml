@@ -14,7 +14,7 @@ crons = [
 # KV 命名空间绑定
 [[kv_namespaces]]
 binding = "FUNDS_KV"
-id = "您的KV_NAMESPACE_ID"
+id = "获取您的KV空间ID后填入此处"
 
 # 敏感变量（通过 wrangler secret 设置）
 # FEISHU_WEBHOOK
