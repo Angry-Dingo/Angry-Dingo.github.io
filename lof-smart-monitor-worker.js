@@ -10,10 +10,10 @@ export default {
     console.log(`[LOG] 北京时间: ${hour}:${minute}, 星期: ${day}, Cron: ${cron}`);
 
     // ✅ 通过时间判断执行数据更新任务
-    // 配置的更新时间：8:00, 17:45（周一到周五）
+    // 配置的更新时间：8:00, 18:00（周一到周五）
     const isUpdateTime = (day >= 1 && day <= 5) && (
       (hour === 8 && minute === 0) ||
-      (hour === 17 && minute === 45)
+      (hour === 18 && minute === 0)
     );
     
     if (isUpdateTime) {
