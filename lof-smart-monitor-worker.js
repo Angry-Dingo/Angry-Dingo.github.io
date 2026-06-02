@@ -77,6 +77,13 @@ async function updateDataTask(env) {
     console.log(`获取到 ${Object.keys(navData).length} 只基金的净值`);
     console.log(`获取到 ${Object.keys(quotaData).length} 只基金的申购状态`);
     
+    // 记录申购状态变化
+    const quotaChanges = [];
+    const originalQuota = {};
+    fundsData.funds.forEach(fund => {
+      originalQuota[fund.code] = fund.quota;
+    });
+    
     let updatedCount = 0;
     for (const fund of fundsData.funds) {
       const navInfo = navData[fund.code];
@@ -85,28 +92,40 @@ async function updateDataTask(env) {
         fund.navDate = navInfo.date;
         updatedCount++;
       }
+      
       const quotaInfo = quotaData[fund.code];
       if (quotaInfo) {
+        let newQuota = null;
         if (quotaInfo.limit === 0) {
-          fund.quota = '暂停';
+          newQuota = '暂停';
         } else if (quotaInfo.limit === null) {
-          fund.quota = '开放';
+          newQuota = '开放';
         } else if (quotaInfo.limit === -1) {
-          fund.quota = '限大额';
+          newQuota = '限大额';
         } else if (quotaInfo.limit > 0) {
-          // 格式化为易读形式
           if (quotaInfo.limit >= 10000) {
             const wan = quotaInfo.limit / 10000;
-            fund.quota = `限额${wan % 1 === 0 ? wan.toFixed(0) : wan.toFixed(2)}万`;
+            newQuota = `限额${wan % 1 === 0 ? wan.toFixed(0) : wan.toFixed(2)}万`;
           } else {
-            fund.quota = `限额${quotaInfo.limit.toFixed(0)}元`;
+            newQuota = `限额${quotaInfo.limit.toFixed(0)}元`;
           }
         }
+        
+        if (newQuota !== null && newQuota !== originalQuota[fund.code]) {
+          quotaChanges.push({
+            code: fund.code,
+            name: fund.name,
+            oldQuota: originalQuota[fund.code] || '未知',
+            newQuota: newQuota
+          });
+        }
+        fund.quota = newQuota;
       }
     }
     
     fundsData.updatedAt = new Date().toISOString();
     console.log(`更新了 ${updatedCount} 只基金的净值`);
+    console.log(`申购状态变化: ${quotaChanges.length} 只基金`);
     
     if (env.FUNDS_KV) {
       try {
@@ -126,11 +145,35 @@ async function updateDataTask(env) {
       }
     }
     
-    await sendFeishuAlert(env, `数据更新完成：${updatedCount} 只基金`);
+    // 发送申购状态变化通知
+    await sendQuotaUpdateAlert(env, Object.keys(quotaData).length, quotaChanges);
   } catch (error) {
     console.error('数据更新任务失败:', error.message);
     await sendFeishuAlert(env, `❌ 数据更新失败: ${error.message}`);
   }
+}
+
+// 发送申购状态更新通知
+async function sendQuotaUpdateAlert(env, totalCount, changes) {
+  if (!env.FEISHU_WEBHOOK) return;
+  
+  const t = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+  let msg = `📊 申购状态更新完成 (${t})\n\n`;
+  msg += `总计获取: ${totalCount} 只基金\n`;
+  msg += `状态变化: ${changes.length} 只基金\n`;
+  
+  if (changes.length > 0) {
+    msg += '\n📋 变化列表:\n';
+    changes.forEach(({ code, name, oldQuota, newQuota }) => {
+      msg += `• ${code} ${name}: ${oldQuota} → ${newQuota}\n`;
+    });
+  }
+  
+  await fetch(env.FEISHU_WEBHOOK, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ msg_type: 'text', content: { text: msg } })
+  });
 }
 
 // ✅ 单次请求，不重试
@@ -259,7 +302,7 @@ function isTradingHour(h, m) {
 }
 
 function isGlobalAlertTime(h, m) {
-  return (h === 9 && m >= 30) || (h === 10 && (m === 0 || m === 30)) || (h === 11 && (m === 0 || m === 30)) || (h >= 13 && h < 15 && m === 0) || (h >= 13 && h < 15 && m === 30);
+  return (h === 9 && m === 25) || (h === 10 && (m === 0 || m === 30)) || (h === 11 && (m === 0 || m === 30)) || (h >= 13 && h < 15 && m === 0) || (h >= 13 && h < 15 && m === 30);
 }
 
 async function smartMonitor(env, isTestMode = false) {
