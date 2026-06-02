@@ -1,0 +1,14 @@
+name = "lof-smart-monitor"
+main = "lof-smart-monitor-worker.js"
+compatibility_date = "2026-06-02"
+compatibility_flags = ["nodejs_compat"]
+
+[triggers]
+crons = [
+  "0 0 * * 1-5",
+  "*/5 * * * 1-5"
+]
+
+[[kv_namespaces]]
+binding = "FUNDS_KV"
+id = "0d6d2904a8aa4a859e91292d1fd9f1e2"
