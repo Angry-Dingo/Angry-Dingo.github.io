@@ -10,10 +10,11 @@ export default {
     console.log(`[LOG] 北京时间: ${hour}:${minute}, 星期: ${day}, Cron: ${cron}`);
 
     // ✅ 完全由Cron控制任务执行
-    // 根据Cron表达式判断执行哪个任务
-    // 数据更新Cron: 0 23 * * SUN-THU (北京时间8:00) 和 5 5 * * MON-FRI (北京时间13:10)
-    // 监控Cron: 1-59/5 * * * 1-5 (交易时间每5分钟)
-    if (cron === '0 23 * * SUN-THU' || cron === '5 5 * * MON-FRI') {
+    // 通过环境变量配置数据更新任务的Cron表达式（逗号分隔）
+    // 例如: UPDATE_CRON="0 23 * * SUN-THU,5 5 * * MON-FRI"
+    const updateCrons = env.UPDATE_CRON ? env.UPDATE_CRON.split(',').map(s => s.trim()) : [];
+    
+    if (updateCrons.includes(cron)) {
       console.log('[LOG] 执行数据更新任务（Cron触发）');
       ctx.waitUntil(updateDataTask(env));
     } else {
