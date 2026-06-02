@@ -29,8 +29,8 @@ export default {
       }
     }
     
-    // ✅ 北京时间8:00和13:00，周一到周五
-    if ((((hour === 8 && minute === 0) || (hour === 13 && minute === 0)) && day >= 1 && day <= 5) || needUpdateData) {
+    // ✅ 北京时间8:00和13:10，周一到周五
+    if ((((hour === 8 && minute === 0) || (hour === 13 && minute === 10)) && day >= 1 && day <= 5) || needUpdateData) {
       console.log('开始执行数据更新任务');
       ctx.waitUntil(updateDataTask(env));
       return;
