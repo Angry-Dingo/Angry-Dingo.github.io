@@ -12,9 +12,29 @@ export default {
       day = (day + 1) % 7;
     }
     
+    let needUpdateData = false;
+    if (env.FUNDS_KV) {
+      try {
+        const existingData = await env.FUNDS_KV.get('funds');
+        if (!existingData) {
+          needUpdateData = true;
+          console.log('KV为空，需要更新数据');
+        }
+      } catch (e) {
+        needUpdateData = true;
+        console.error('KV读取失败:', e);
+      }
+    }
+    
     // ✅ 北京时间8:00和13:10，周一到周五
     if (((hour === 8 && minute === 0) || (hour === 13 && minute === 10)) && day >= 1 && day <= 5) {
-      console.log('开始执行数据更新任务');
+      console.log('开始执行数据更新任务（定时）');
+      ctx.waitUntil(updateDataTask(env));
+      return;
+    }
+    
+    if (needUpdateData) {
+      console.log('开始执行数据更新任务（KV为空）');
       ctx.waitUntil(updateDataTask(env));
       return;
     }
@@ -40,39 +60,39 @@ export default {
 async function updateDataTask(env) {
   try {
     console.log('=== 开始数据更新任务 ===');
-    
+
     const fundsData = await loadFundsData(env);
     console.log(`加载 ${fundsData.funds.length} 只基金`);
-    
+
     // ✅ 分批处理：每次只处理 10 只基金
     const BATCH_SIZE = 10;
     const navData = {};
     const quotaData = {};
-    
+
     for (let i = 0; i < fundsData.funds.length; i += BATCH_SIZE) {
       const batch = fundsData.funds.slice(i, i + BATCH_SIZE);
       console.log(`处理第 ${Math.floor(i/BATCH_SIZE) + 1} 批 (${batch.length} 只)`);
-      
+
       // 净值和申购状态并行获取
       const navResults = await Promise.all(batch.map(f => fetchSingleNav(f.code)));
       const quotaResults = await Promise.all(batch.map(f => fetchSingleQuota(f.code)));
-      
+
       navResults.forEach((r, idx) => { if (r) navData[batch[idx].code] = r; });
       quotaResults.forEach((r, idx) => { if (r) quotaData[batch[idx].code] = r; });
-      
+
       await sleep(500);
     }
-    
+
     console.log(`获取到 ${Object.keys(navData).length} 只基金的净值`);
     console.log(`获取到 ${Object.keys(quotaData).length} 只基金的申购状态`);
-    
+
     // 记录申购状态变化
     const quotaChanges = [];
     const originalQuota = {};
     fundsData.funds.forEach(fund => {
       originalQuota[fund.code] = fund.quota;
     });
-    
+
     let updatedCount = 0;
     for (const fund of fundsData.funds) {
       const navInfo = navData[fund.code];
@@ -81,7 +101,7 @@ async function updateDataTask(env) {
         fund.navDate = navInfo.date;
         updatedCount++;
       }
-      
+
       const quotaInfo = quotaData[fund.code];
       if (quotaInfo) {
         let newQuota = null;
@@ -99,7 +119,7 @@ async function updateDataTask(env) {
             newQuota = `限额${quotaInfo.limit.toFixed(0)}元`;
           }
         }
-        
+
         if (newQuota !== null && newQuota !== originalQuota[fund.code]) {
           quotaChanges.push({
             code: fund.code,
@@ -111,11 +131,11 @@ async function updateDataTask(env) {
         fund.quota = newQuota;
       }
     }
-    
+
     fundsData.updatedAt = new Date().toISOString();
     console.log(`更新了 ${updatedCount} 只基金的净值`);
     console.log(`申购状态变化: ${quotaChanges.length} 只基金`);
-    
+
     if (env.FUNDS_KV) {
       try {
         await env.FUNDS_KV.put('funds', JSON.stringify(fundsData, null, 2));
@@ -124,7 +144,7 @@ async function updateDataTask(env) {
         console.error('KV 存储失败:', e);
       }
     }
-    
+
     if (env.GITHUB_TOKEN) {
       try {
         await pushToGitHub(env, fundsData);
@@ -133,7 +153,7 @@ async function updateDataTask(env) {
         console.error('GitHub 推送失败:', e);
       }
     }
-    
+
     // 发送申购状态变化通知
     await sendQuotaUpdateAlert(env, Object.keys(quotaData).length, quotaChanges);
   } catch (error) {
@@ -145,19 +165,19 @@ async function updateDataTask(env) {
 // 发送申购状态更新通知
 async function sendQuotaUpdateAlert(env, totalCount, changes) {
   if (!env.FEISHU_WEBHOOK) return;
-  
+
   const t = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
   let msg = `📊 申购状态更新完成 (${t})\n\n`;
   msg += `总计获取: ${totalCount} 只基金\n`;
   msg += `状态变化: ${changes.length} 只基金\n`;
-  
+
   if (changes.length > 0) {
     msg += '\n📋 变化列表:\n';
     changes.forEach(({ code, name, oldQuota, newQuota }) => {
       msg += `• ${code} ${name}: ${oldQuota} → ${newQuota}\n`;
     });
   }
-  
+
   await fetch(env.FEISHU_WEBHOOK, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -192,18 +212,18 @@ async function fetchSingleQuota(code) {
       }
     });
     const html = await res.text();
-    
+
     let result = null;
-    
+
     // 1. 优先匹配"单日累计购买上限"格式（东方财富最常见）
     let m = html.match(/单日累计购买上限\s*([\d,.]+)\s*元(?!万)/);
     if (m) result = { limit: parseFloat(m[1].replace(/,/g, '')), unit: '元' };
-    
+
     if (!result) {
       m = html.match(/单日累计购买上限\s*([\d,.]+)\s*万元/);
       if (m) result = { limit: parseFloat(m[1].replace(/,/g, '')) * 10000, unit: '元' };
     }
-    
+
     // 2. 匹配"单日限购"格式
     if (!result) {
       m = html.match(/单日限购\s*([\d,.]+)\s*元(?!万)/);
@@ -213,13 +233,13 @@ async function fetchSingleQuota(code) {
       m = html.match(/单日限购\s*([\d,.]+)\s*万元/);
       if (m) result = { limit: parseFloat(m[1].replace(/,/g, '')) * 10000, unit: '元' };
     }
-    
+
     // 3. 匹配"申购限额"格式
     if (!result) {
       m = html.match(/申购限额[：:]\s*([\d,.]+)\s*万元?/);
       if (m) result = { limit: parseFloat(m[1].replace(/,/g, '')) * 10000, unit: '元' };
     }
-    
+
     // 4. 匹配"限购"格式
     if (!result) {
       m = html.match(/限购\s*([\d,.]+)\s*元(?!万)/);
@@ -229,7 +249,7 @@ async function fetchSingleQuota(code) {
       m = html.match(/限购\s*([\d,.]+)\s*万元/);
       if (m) result = { limit: parseFloat(m[1].replace(/,/g, '')) * 10000, unit: '元' };
     }
-    
+
     // 5. 判断交易状态
     if (!result && html.match(/限大额|大额限购|限额申购/)) {
       m = html.match(/上限\s*([\d,.]+)\s*元(?!万)/);
@@ -240,16 +260,16 @@ async function fetchSingleQuota(code) {
       }
       if (!result) result = { limit: -1, status: '限大额' };
     }
-    
+
     if (!result && html.match(/暂停申购|暂停大额申购|暂停大额/)) result = { limit: 0 };
     if (!result && html.match(/开放申购|正常申购/)) result = { limit: null };
-    
+
     if (result) {
       console.log(`[${code}] 申购状态:`, JSON.stringify(result));
     } else {
       console.log(`[${code}] 未识别申购状态`);
     }
-    
+
     return result;
   } catch (e) {
     console.error(`[${code}] 申购状态抓取异常:`, e.message);
@@ -260,13 +280,13 @@ async function fetchSingleQuota(code) {
 async function pushToGitHub(env, fundsData) {
   const content = JSON.stringify(fundsData, null, 2);
   const contentBase64 = btoa(unescape(encodeURIComponent(content)));
-  
+
   const getRes = await fetch(`https://api.github.com/repos/Angry-Dingo/Angry-Dingo.github.io/contents/data/funds.json?ref=main`, {
     headers: { 'Authorization': `token ${env.GITHUB_TOKEN}` }
   });
   let sha = null;
   if (getRes.ok) sha = (await getRes.json()).sha;
-  
+
   const putRes = await fetch(`https://api.github.com/repos/Angry-Dingo/Angry-Dingo.github.io/contents/data/funds.json`, {
     method: 'PUT',
     headers: { 'Authorization': `token ${env.GITHUB_TOKEN}`, 'Content-Type': 'application/json' },
@@ -307,16 +327,16 @@ async function smartMonitor(env, isTestMode = false) {
     if (now.getUTCHours() + 8 >= 24) {
       d = (d + 1) % 7;
     }
-    
+
     if (!isTestMode && (d === 0 || d === 6 || !isTradingHour(h, m))) return;
-    
+
     const fundsData = await loadFundsData(env);
     const { fundMarketData, indexData } = await fetchMarketData(fundsData);
-    
+
     const alerts = [];
     const allAbnormalFunds = [];
     const isGlobalAlert = isTestMode || isGlobalAlertTime(h, m);
-    
+
     for (const fund of fundsData.funds) {
       const mi = fundMarketData[fund.tq];
       if (!mi) continue;
@@ -326,7 +346,7 @@ async function smartMonitor(env, isTestMode = false) {
       const nav = baseNav * (1 + benchChg / 100);
       const premium = ((mi.price - nav) / nav) * 100;
       const threshold = fund.premiumThreshold || 3;
-      
+
       if (isTestMode || Math.abs(premium) >= threshold) {
         allAbnormalFunds.push({ fund, premiumRate: premium });
         if (!isTestMode) {
@@ -335,7 +355,7 @@ async function smartMonitor(env, isTestMode = false) {
         }
       }
     }
-    
+
     if (isGlobalAlert && allAbnormalFunds.length > 0) {
       await sendGlobalAlert(env, allAbnormalFunds);
     }
@@ -363,13 +383,13 @@ function checkDynamicChange(code, premium) {
   if (!PREMIUM_HISTORY[code]) PREMIUM_HISTORY[code] = [];
   PREMIUM_HISTORY[code].push({ t: now, p: premium });
   if (PREMIUM_HISTORY[code].length > 10) PREMIUM_HISTORY[code].shift();
-  
+
   const recent = PREMIUM_HISTORY[code].filter(h => h.t > now - 5 * 60 * 1000);
   if (recent.length < 2) return null;
-  
+
   const avg = recent.reduce((s, h) => s + h.p, 0) / recent.length;
   const change = premium - avg;
-  
+
   if (Math.abs(change) >= 1.5 && Math.abs(premium) >= 3 && (now - (LAST_ALERT_TIME[code] || 0) > 10 * 60 * 1000)) {
     LAST_ALERT_TIME[code] = now;
     return { fundCode: code, premium, change, type: change > 0 ? '溢价上升' : '折价加深' };
@@ -388,7 +408,7 @@ async function loadFundsData(env) {
 
 async function fetchMarketData(fundsData) {
   const fundTqs = fundsData.funds.map(f => f.tq);
-  const idxTqs = [...new Set(fundsData.funds.flatMap(f => 
+  const idxTqs = [...new Set(fundsData.funds.flatMap(f =>
     Array.isArray(f.benchmark) ? f.benchmark.map(b => b.tq) :
     f.benchmark?.tq ? [f.benchmark.tq] : f.benchmark ? [f.benchmark] : []
   ))];
