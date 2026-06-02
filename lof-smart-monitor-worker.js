@@ -9,13 +9,15 @@ export default {
 
     console.log(`[LOG] 北京时间: ${hour}:${minute}, 星期: ${day}, Cron: ${cron}`);
 
-    // ✅ 完全由Cron控制任务执行
-    // 通过环境变量配置数据更新任务的Cron表达式（逗号分隔）
-    // 例如: UPDATE_CRON="0 23 * * SUN-THU,5 5 * * MON-FRI"
-    const updateCrons = env.UPDATE_CRON ? env.UPDATE_CRON.split(',').map(s => s.trim()) : [];
+    // ✅ 通过时间判断执行数据更新任务
+    // 配置的更新时间：8:00, 17:45（周一到周五）
+    const isUpdateTime = (day >= 1 && day <= 5) && (
+      (hour === 8 && minute === 0) ||
+      (hour === 17 && minute === 45)
+    );
     
-    if (updateCrons.includes(cron)) {
-      console.log('[LOG] 执行数据更新任务（Cron触发）');
+    if (isUpdateTime) {
+      console.log('[LOG] 执行数据更新任务（定时触发）');
       ctx.waitUntil(updateDataTask(env));
     } else {
       console.log('[LOG] 执行溢价监控任务（Cron触发）');
