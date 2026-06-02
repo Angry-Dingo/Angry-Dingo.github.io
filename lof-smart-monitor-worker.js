@@ -87,9 +87,21 @@ async function updateDataTask(env) {
       }
       const quotaInfo = quotaData[fund.code];
       if (quotaInfo) {
-        if (quotaInfo.limit === 0) fund.quota = '暂停';
-        else if (quotaInfo.limit === null) fund.quota = '开放';
-        else if (quotaInfo.limit > 0) fund.quota = `限额${quotaInfo.limit}`;
+        if (quotaInfo.limit === 0) {
+          fund.quota = '暂停';
+        } else if (quotaInfo.limit === null) {
+          fund.quota = '开放';
+        } else if (quotaInfo.limit === -1) {
+          fund.quota = '限大额';
+        } else if (quotaInfo.limit > 0) {
+          // 格式化为易读形式
+          if (quotaInfo.limit >= 10000) {
+            const wan = quotaInfo.limit / 10000;
+            fund.quota = `限额${wan % 1 === 0 ? wan.toFixed(0) : wan.toFixed(2)}万`;
+          } else {
+            fund.quota = `限额${quotaInfo.limit.toFixed(0)}元`;
+          }
+        }
       }
     }
     
@@ -142,15 +154,75 @@ async function fetchSingleNav(code) {
 async function fetchSingleQuota(code) {
   try {
     const res = await fetch(`https://fund.eastmoney.com/${code}.html`, {
-      headers: { 'User-Agent': 'Mozilla/5.0' }
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Referer': 'http://fund.eastmoney.com/'
+      }
     });
     const html = await res.text();
-    if (html.match(/暂停申购|暂停大额|大额暂停/)) return { limit: 0 };
-    let m = html.match(/申购限额[：:]\s*([\d.]+)\s*万元?/);
-    if (m) return { limit: parseFloat(m[1]) * 10000 };
-    if (html.match(/开放申购/)) return { limit: null };
+    
+    let result = null;
+    
+    // 1. 优先匹配"单日累计购买上限"格式（东方财富最常见）
+    let m = html.match(/单日累计购买上限\s*([\d,.]+)\s*元(?!万)/);
+    if (m) result = { limit: parseFloat(m[1].replace(/,/g, '')), unit: '元' };
+    
+    if (!result) {
+      m = html.match(/单日累计购买上限\s*([\d,.]+)\s*万元/);
+      if (m) result = { limit: parseFloat(m[1].replace(/,/g, '')) * 10000, unit: '元' };
+    }
+    
+    // 2. 匹配"单日限购"格式
+    if (!result) {
+      m = html.match(/单日限购\s*([\d,.]+)\s*元(?!万)/);
+      if (m) result = { limit: parseFloat(m[1].replace(/,/g, '')), unit: '元' };
+    }
+    if (!result) {
+      m = html.match(/单日限购\s*([\d,.]+)\s*万元/);
+      if (m) result = { limit: parseFloat(m[1].replace(/,/g, '')) * 10000, unit: '元' };
+    }
+    
+    // 3. 匹配"申购限额"格式
+    if (!result) {
+      m = html.match(/申购限额[：:]\s*([\d,.]+)\s*万元?/);
+      if (m) result = { limit: parseFloat(m[1].replace(/,/g, '')) * 10000, unit: '元' };
+    }
+    
+    // 4. 匹配"限购"格式
+    if (!result) {
+      m = html.match(/限购\s*([\d,.]+)\s*元(?!万)/);
+      if (m) result = { limit: parseFloat(m[1].replace(/,/g, '')), unit: '元' };
+    }
+    if (!result) {
+      m = html.match(/限购\s*([\d,.]+)\s*万元/);
+      if (m) result = { limit: parseFloat(m[1].replace(/,/g, '')) * 10000, unit: '元' };
+    }
+    
+    // 5. 判断交易状态
+    if (!result && html.match(/限大额|大额限购|限额申购/)) {
+      m = html.match(/上限\s*([\d,.]+)\s*元(?!万)/);
+      if (m) result = { limit: parseFloat(m[1].replace(/,/g, '')), unit: '元' };
+      if (!result) {
+        m = html.match(/上限\s*([\d,.]+)\s*万元/);
+        if (m) result = { limit: parseFloat(m[1].replace(/,/g, '')) * 10000, unit: '元' };
+      }
+      if (!result) result = { limit: -1, status: '限大额' };
+    }
+    
+    if (!result && html.match(/暂停申购|暂停大额申购|暂停大额/)) result = { limit: 0 };
+    if (!result && html.match(/开放申购|正常申购/)) result = { limit: null };
+    
+    if (result) {
+      console.log(`[${code}] 申购状态:`, JSON.stringify(result));
+    } else {
+      console.log(`[${code}] 未识别申购状态`);
+    }
+    
+    return result;
+  } catch (e) {
+    console.error(`[${code}] 申购状态抓取异常:`, e.message);
     return null;
-  } catch (e) { return null; }
+  }
 }
 
 async function pushToGitHub(env, fundsData) {
