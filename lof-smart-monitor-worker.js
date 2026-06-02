@@ -1,10 +1,16 @@
 export default {
   async scheduled(event, env, ctx) {
     const now = new Date();
-    const beijingTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
-    const hour = beijingTime.getUTCHours();
-    const minute = beijingTime.getUTCMinutes();
-    const day = beijingTime.getUTCDay();
+    // ✅ 直接用UTC时间计算北京时间
+    // UTC小时 +8 = 北京时间小时，超过24则减24
+    let hour = now.getUTCHours() + 8;
+    if (hour >= 24) hour -= 24;
+    const minute = now.getUTCMinutes();
+    let day = now.getUTCDay();
+    // 如果UTC小时+8超过了24，说明是北京时间的第二天
+    if (now.getUTCHours() + 8 >= 24) {
+      day = (day + 1) % 7;
+    }
     
     let needUpdateData = false;
     if (env.FUNDS_KV) {
@@ -23,8 +29,8 @@ export default {
       }
     }
     
-    // ✅ 北京时间8:00 = UTC0:00，北京时间12:30 = UTC4:30，周一到周五
-    if ((((hour === 0 && minute === 0) || (hour === 4 && minute === 30)) && day >= 1 && day <= 5) || needUpdateData) {
+    // ✅ 北京时间8:00和12:30，周一到周五
+    if ((((hour === 8 && minute === 0) || (hour === 12 && minute === 30)) && day >= 1 && day <= 5) || needUpdateData) {
       console.log('开始执行数据更新任务');
       ctx.waitUntil(updateDataTask(env));
       return;
@@ -308,10 +314,16 @@ function isGlobalAlertTime(h, m) {
 async function smartMonitor(env, isTestMode = false) {
   try {
     const now = new Date();
-    const beijingTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
-    const h = beijingTime.getUTCHours();
-    const m = beijingTime.getUTCMinutes();
-    const d = beijingTime.getUTCDay();
+    // ✅ 直接用UTC时间计算北京时间
+    // UTC小时 +8 = 北京时间小时，超过24则减24
+    let h = now.getUTCHours() + 8;
+    if (h >= 24) h -= 24;
+    const m = now.getUTCMinutes();
+    let d = now.getUTCDay();
+    // 如果UTC小时+8超过了24，说明是北京时间的第二天
+    if (now.getUTCHours() + 8 >= 24) {
+      d = (d + 1) % 7;
+    }
     
     if (!isTestMode && (d === 0 || d === 6 || !isTradingHour(h, m))) return;
     
