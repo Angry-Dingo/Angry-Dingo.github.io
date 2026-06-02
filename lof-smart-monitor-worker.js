@@ -191,8 +191,9 @@ async function smartMonitor(env, isTestMode = false) {
         (h === 9 && m >= 25) ||
         (h === 10) ||
         (h === 11 && m <= 30) ||
-        (h === 13) ||
-        (h === 14)
+        (h === 13 && m >= 0) ||
+        (h === 14) ||
+        (h === 15 && m <= 0)
       )
     );
 
