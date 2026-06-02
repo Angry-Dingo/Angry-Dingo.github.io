@@ -114,6 +114,16 @@ async function updateDataTask(env) {
       console.log('[LOG] KV 存储成功');
     }
 
+    // 同步更新到GitHub
+    if (env.GITHUB_TOKEN) {
+      try {
+        await pushToGitHub(env, fundsData);
+        console.log('[LOG] GitHub 推送成功');
+      } catch (e) {
+        console.error('[ERROR] GitHub 推送失败:', e.message);
+      }
+    }
+
     await sendQuotaUpdateAlert(env, Object.keys(quotaData).length, quotaChanges);
     console.log('[LOG] 数据更新任务完成');
   } catch (error) {
@@ -138,6 +148,29 @@ async function sendQuotaUpdateAlert(env, totalCount, changes) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ msg_type: 'text', content: { text: msg } })
   });
+}
+
+async function pushToGitHub(env, fundsData) {
+  const content = JSON.stringify(fundsData, null, 2);
+  const contentBase64 = btoa(unescape(encodeURIComponent(content)));
+
+  const getRes = await fetch('https://api.github.com/repos/Angry-Dingo/Angry-Dingo.github.io/contents/data/funds.json?ref=main', {
+    headers: { 'Authorization': `token ${env.GITHUB_TOKEN}` }
+  });
+  let sha = null;
+  if (getRes.ok) sha = (await getRes.json()).sha;
+
+  const putRes = await fetch('https://api.github.com/repos/Angry-Dingo/Angry-Dingo.github.io/contents/data/funds.json', {
+    method: 'PUT',
+    headers: { 'Authorization': `token ${env.GITHUB_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      message: `Update funds ${new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}`,
+      content: contentBase64,
+      branch: 'main',
+      sha: sha
+    })
+  });
+  if (!putRes.ok) throw new Error((await putRes.json()).message);
 }
 
 async function fetchSingleNav(code) {

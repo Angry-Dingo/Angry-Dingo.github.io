@@ -16,3 +16,7 @@ crons = [
 [[kv_namespaces]]
 binding = "FUNDS_KV"
 id = "0d6d2904a8aa4a859e91292d1fd9f1e2"
+
+# 敏感变量（通过 wrangler secret 设置）
+# FEISHU_WEBHOOK: 飞书Webhook地址
+# GITHUB_TOKEN: GitHub Personal Access Token，用于推送funds.json到仓库
