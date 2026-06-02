@@ -1,19 +1,22 @@
 export default {
   async scheduled(event, env, ctx) {
     const now = new Date();
-    const beijingTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
-    const hour = beijingTime.getUTCHours();
-    const minute = beijingTime.getUTCMinutes();
-    const day = beijingTime.getUTCDay();
+    const hour = now.getUTCHours();
+    const minute = now.getUTCMinutes();
+    const day = now.getUTCDay();
     const cron = event.cron;
 
-    console.log(`[LOG] 北京时间: ${hour}:${minute}, 星期: ${day}, Cron: ${cron}`);
+    // 转换为北京时间
+    const beijingHour = (hour + 8) % 24;
+    const beijingDay = (hour + 8 >= 24) ? (day + 1) % 7 : day;
+    
+    console.log(`[LOG] UTC时间: ${hour}:${minute}, 星期: ${day}, 北京时间: ${beijingHour}:${minute}, 星期: ${beijingDay}, Cron: ${cron}`);
 
     // ✅ 通过时间判断执行数据更新任务
-    // 配置的更新时间：8:00, 18:00（周一到周五）
-    const isUpdateTime = (day >= 1 && day <= 5) && (
-      (hour === 8 && minute === 0) ||
-      (hour === 18 && minute === 0)
+    // 配置的更新时间：7:00, 18:00（周一到周五，北京时间）
+    const isUpdateTime = (beijingDay >= 1 && beijingDay <= 5) && (
+      (beijingHour === 7 && minute === 0) ||
+      (beijingHour === 18 && minute === 0)
     );
     
     if (isUpdateTime) {
@@ -181,10 +184,13 @@ const LAST_ALERT_TIME = {};
 async function smartMonitor(env, isTestMode = false) {
   try {
     const now = new Date();
-    const beijingTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
-    const h = beijingTime.getUTCHours();
-    const m = beijingTime.getUTCMinutes();
-    const d = beijingTime.getUTCDay();
+    const hour = now.getUTCHours();
+    const m = now.getUTCMinutes();
+    const day = now.getUTCDay();
+    
+    // 转换为北京时间
+    const h = (hour + 8) % 24;
+    const d = (hour + 8 >= 24) ? (day + 1) % 7 : day;
 
     console.log(`[LOG] smartMonitor - 北京时间: ${h}:${m}, 星期: ${d}`);
 
