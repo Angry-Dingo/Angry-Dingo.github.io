@@ -1,14 +1,16 @@
 import fetch from 'node-fetch';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-async function httpGet(url, retries = 3) {
+const BASE_UA = { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' } };
+const FUND_UA = { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36', Referer: 'https://fund.eastmoney.com/' } };
+async function httpGet(url, retries = 3, opts) {
   for (let i = 0; i < retries; i++) {
-    try { const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' } }); if (res.ok) { const text = await res.text(); if (text && text.length > 10) return text; } } catch (e) { if (i < retries - 1) console.log(`    [RETRY] ${e.message}`); }
+    try { const res = await fetch(url, opts || BASE_UA); if (res.ok) { const text = await res.text(); if (text && text.length > 10) return text; } } catch (e) { if (i < retries - 1) console.log(`    [RETRY] ${e.message}`); }
     if (i < retries - 1) await sleep(2000);
   }
   return null;
 }
 export async function fetchFundNavHistory(code, days = 120) {
-  const text = await httpGet(`https://api.fund.eastmoney.com/f10/lsjz?callback=jQuery&fundCode=${code}&pageIndex=1&pageSize=${days}&startDate=&endDate=`, 3);
+  const text = await httpGet(`https://api.fund.eastmoney.com/f10/lsjz?callback=jQuery&fundCode=${code}&pageIndex=1&pageSize=${days}&startDate=&endDate=`, 3, FUND_UA);
   if (!text) return [];
   const m = text.match(/jQuery[^(]*\(([\s\S]+)\)/); if (!m) return [];
   try { const data = JSON.parse(m[1]); if (!data.Data?.LSJZList) return []; return data.Data.LSJZList.map(i => ({ date: i.FSRQ, nav: parseFloat(i.DWJZ) })).filter(d => d.nav > 0).reverse(); } catch (e) { return []; }
