@@ -12,14 +12,11 @@ export default {
     
     console.log(`[LOG] UTC时间: ${hour}:${minute}, 星期: ${day}, 北京时间: ${beijingHour}:${minute}, 星期: ${beijingDay}, Cron: ${cron}`);
 
-    // ✅ 通过时间判断执行数据更新任务
-    // 配置的更新时间：8:10, 18:00（周一到周五，北京时间）
-    const isUpdateTime = (beijingDay >= 1 && beijingDay <= 5) && (
-      (beijingHour === 8 && minute === 10) ||
-      (beijingHour === 18 && minute === 0)
-    );
+    // ✅ 完全由Cron决定任务类型
+    // 数据更新的Cron特征：包含 "10 0" (8:10) 或 "0 10" (18:00)
+    const isUpdateTask = cron.includes('10 0') || cron.includes('0 10');
     
-    if (isUpdateTime) {
+    if (isUpdateTask) {
       console.log('[LOG] 执行数据更新任务（定时触发）');
       ctx.waitUntil(updateDataTask(env));
     } else {
