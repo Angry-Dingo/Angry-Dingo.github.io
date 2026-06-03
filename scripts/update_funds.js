@@ -25,24 +25,124 @@ async function fetchSingleNav(code) {
   } catch (e) { return null; }
 }
 
+async function httpGet(url) {
+  try {
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept-Language': 'zh-CN,zh;q=0.9'
+      },
+      redirect: 'follow'
+    });
+    return await response.text();
+  } catch (error) {
+    console.error(`HTTP request failed for ${url}:`, error.message);
+    return null;
+  }
+}
+
 async function fetchSingleQuota(code) {
   try {
-    const res = await fetch(`https://fund.eastmoney.com/${code}.html`, {
-      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36', 'Referer': 'http://fund.eastmoney.com/' }
-    });
-    const html = await res.text();
-    let result = null;
-    let m = html.match(/单日累计购买上限\s*([\d,.]+)\s*元(?!万)/);
-    if (m) result = { limit: parseFloat(m[1].replace(/,/g, '')), unit: '元' };
-    if (!result) {
-      m = html.match(/单日累计购买上限\s*([\d,.]+)\s*万元/);
-      if (m) result = { limit: parseFloat(m[1].replace(/,/g, '')) * 10000, unit: '元' };
+    const url = `https://fund.eastmoney.com/${code}.html`;
+    const html = await httpGet(url);
+    if (!html) return null;
+
+    if (html.match(/暂停申购|暂停大额申购|暂停大额|大额暂停/)) {
+      return { limit: 0 };
     }
-    if (!result && html.match(/限大额|大额限购/)) result = { limit: -1, status: '限大额' };
-    if (!result && html.match(/暂停申购/)) result = { limit: 0 };
-    if (!result && html.match(/开放申购/)) result = { limit: null };
-    return result;
-  } catch (e) { return null; }
+
+    let limitMatch = html.match(/申购限额[：:]\s*([\d.]+)\s*万元?/);
+    if (limitMatch && limitMatch[1]) {
+      const limit = parseFloat(limitMatch[1]);
+      if (limit > 0) return { limit: limit * 10000 };
+    }
+
+    limitMatch = html.match(/单笔限额\s*([\d.]+)\s*万元?/);
+    if (limitMatch && limitMatch[1]) {
+      const limit = parseFloat(limitMatch[1]);
+      if (limit > 0) return { limit: limit * 10000 };
+    }
+
+    limitMatch = html.match(/单日累计申购上限\s*([\d.]+)\s*万元?/);
+    if (limitMatch && limitMatch[1]) {
+      const limit = parseFloat(limitMatch[1]);
+      if (limit > 0) return { limit: limit * 10000 };
+    }
+
+    limitMatch = html.match(/单日累计购买上限\s*([\d.]+)\s*万元?/);
+    if (limitMatch && limitMatch[1]) {
+      const limit = parseFloat(limitMatch[1]);
+      if (limit > 0) return { limit: limit * 10000 };
+    }
+
+    limitMatch = html.match(/单个投资者单日累计申购金额上限为[^<]*?([\d.]+)\s*万元?/);
+    if (limitMatch && limitMatch[1]) {
+      const limit = parseFloat(limitMatch[1]);
+      if (limit > 0) return { limit: limit * 10000 };
+    }
+
+    limitMatch = html.match(/单日累计购买上限\s*([\d,.]+)\s*元(?!万)/);
+    if (limitMatch && limitMatch[1]) {
+      const limit = parseFloat(limitMatch[1].replace(/,/g, ''));
+      if (limit > 0) return { limit };
+    }
+
+    if (html.match(/限大额|大额限购/)) return { limit: -1 };
+
+    if (html.match(/开放申购/)) return { limit: null };
+
+  } catch (e) {
+    console.log(`Detail page request failed for ${code}: ${e.message}`);
+  }
+  return null;
+}
+
+function formatQuotaText(limit) {
+  if (limit === 0) return '暂停';
+  if (limit === null) return '开放';
+  if (limit === -1) return '限大额';
+  if (limit >= 100000000) return `限${(limit / 100000000).toFixed(0)}亿`;
+  if (limit >= 10000) return `限${(limit / 10000).toFixed(0)}万`;
+  if (limit >= 1000) return `限${(limit / 1000).toFixed(0)}千`;
+  return `限${limit}`;
+}
+
+function formatQuotaNumber(quotaText) {
+  if (!quotaText || quotaText === '开放') return null;
+  if (quotaText === '暂停') return 0;
+  if (quotaText === '限大额') return -1;
+
+  const match = quotaText.match(/限([\d.]+)(亿|万|千)?/);
+  if (!match) return null;
+
+  let limit = parseFloat(match[1]);
+  const unit = match[2];
+
+  if (unit === '亿') return limit * 100000000;
+  if (unit === '万') return limit * 10000;
+  if (unit === '千') return limit * 1000;
+  return limit;
+}
+
+async function sendFeishuNotification(message) {
+  const webhookUrl = process.env.FEISHU_WEBHOOK;
+  if (!webhookUrl) {
+    console.log('飞书Webhook未配置，跳过通知');
+    return;
+  }
+
+  try {
+    await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        msg_type: 'text',
+        content: { text: message }
+      })
+    });
+  } catch (e) {
+    console.log(`飞书通知发送失败: ${e.message}`);
+  }
 }
 
 async function updateFundsData() {
@@ -84,25 +184,9 @@ async function updateFundsData() {
 
     const quotaInfo = quotaData[fund.code];
     if (quotaInfo) {
-      let newQuota = null;
-      if (quotaInfo.limit === 0) newQuota = '暂停';
-      else if (quotaInfo.limit === null) newQuota = '开放';
-      else if (quotaInfo.limit === -1) newQuota = '限大额';
-      else if (quotaInfo.limit > 0) {
-        if (quotaInfo.limit >= 10000) {
-          const wan = quotaInfo.limit / 10000;
-          newQuota = `限${wan % 1 === 0 ? wan.toFixed(0) : wan.toFixed(2)}万`;
-        } else {
-          if (quotaInfo.limit >= 1000) {
-            const qian = quotaInfo.limit / 1000;
-            newQuota = `限${qian % 1 === 0 ? qian.toFixed(0) : qian.toFixed(1)}千`;
-          } else {
-            newQuota = `限${quotaInfo.limit.toFixed(0)}`;
-          }
-        }
-      }
+      const newQuota = formatQuotaText(quotaInfo.limit);
 
-      if (newQuota !== null && newQuota !== originalQuota[fund.code]) {
+      if (newQuota !== originalQuota[fund.code]) {
         quotaChanges.push({
           code: fund.code,
           name: fund.name,
@@ -111,17 +195,7 @@ async function updateFundsData() {
         });
       }
       fund.quota = newQuota;
-      
-      // 同步更新 purchaseLimit 字段
-      if (quotaInfo.limit === 0) {
-        fund.purchaseLimit = 0;
-      } else if (quotaInfo.limit === null) {
-        fund.purchaseLimit = null;
-      } else if (quotaInfo.limit === -1) {
-        fund.purchaseLimit = -1;
-      } else {
-        fund.purchaseLimit = quotaInfo.limit;
-      }
+      fund.purchaseLimit = quotaInfo.limit;
       fund.quotaUpdatedAt = new Date().toISOString();
     }
   }
@@ -133,6 +207,25 @@ async function updateFundsData() {
 
   console.log(`[LOG] 总计获取 ${Object.keys(quotaData).length} 只基金申购状态`);
   console.log(`[LOG] 状态变化 ${quotaChanges.length} 只基金`);
+
+  if (quotaChanges.length > 0) {
+    let message = `【LOF基金申购状态更新】\n\n`;
+    message += `更新时间: ${new Date().toLocaleString('zh-CN')}\n`;
+    message += `更新基金数: ${fundsData.funds.length}\n`;
+    message += `状态变化: ${quotaChanges.length} 只\n\n`;
+    message += `---\n\n`;
+
+    quotaChanges.forEach(f => {
+      message += `${f.name} (${f.code})\n`;
+      message += `  申购限额: ${f.oldQuota} → ${f.newQuota}\n\n`;
+    });
+
+    console.log('\n发送飞书通知...');
+    await sendFeishuNotification(message);
+    console.log('通知已发送');
+  } else {
+    console.log('\n无申购状态变化，无需发送通知');
+  }
 
   return { totalCount: Object.keys(quotaData).length, changes: quotaChanges };
 }
