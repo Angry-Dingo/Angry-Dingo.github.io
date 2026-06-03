@@ -6,13 +6,14 @@
       "name": "标普生物科技LOF",
       "tq": "sz161127",
       "category": "us",
-      "quota": "限额10元",
+      "quota": "暂停",
       "purchaseLimit": 0,
       "quotaUpdatedAt": "2026-05-28T13:45:54.017Z",
       "fee": "1.20%",
       "rfee": "1.00%",
       "benchmark": "usXBI",
-      "officialNav": 1.7965
+      "officialNav": 1.7965,
+      "navDate": "2026-06-01"
     },
     {
       "code": "164906",
@@ -35,7 +36,7 @@
       "name": "海外科技LOF",
       "tq": "sh501312",
       "category": "us",
-      "quota": "限额100元",
+      "quota": "限2千",
       "purchaseLimit": 2000,
       "quotaUpdatedAt": "2024-01-01T08:00:00Z",
       "fee": "1.20%",
@@ -63,7 +64,7 @@
       "name": "印度基金LOF",
       "tq": "sz164824",
       "category": "us",
-      "quota": "限额50万",
+      "quota": "限1千",
       "purchaseLimit": 1000,
       "quotaUpdatedAt": "2024-01-01T08:00:00Z",
       "fee": "1.20%",
@@ -78,13 +79,14 @@
       "name": "港美互联网LOF",
       "tq": "sz160644",
       "category": "hk",
-      "quota": "限额1万",
+      "quota": "暂停",
       "purchaseLimit": 0,
       "quotaUpdatedAt": "2026-05-28T13:45:56.666Z",
       "fee": "1.50%",
       "rfee": "1.50%",
       "benchmark": "usKWEB",
-      "officialNav": 2.0795
+      "officialNav": 2.0795,
+      "navDate": "2026-06-01"
     },
     {
       "code": "162415",
@@ -92,13 +94,14 @@
       "name": "美国消费LOF",
       "tq": "sz162415",
       "category": "us",
-      "quota": "限额1000元",
+      "quota": "限500",
       "purchaseLimit": 500000,
       "quotaUpdatedAt": "2024-01-01T08:00:00Z",
       "fee": "1.20%",
       "rfee": "1.50%",
       "benchmark": "usXLY",
-      "officialNav": 2.916
+      "officialNav": 2.916,
+      "navDate": "2026-06-01"
     },
     {
       "code": "161126",
@@ -106,13 +109,14 @@
       "name": "标普医疗保健LOF",
       "tq": "sz161126",
       "category": "us",
-      "quota": "限额10元",
+      "quota": "暂停",
       "purchaseLimit": 0,
       "quotaUpdatedAt": "2026-05-28T13:45:57.707Z",
       "fee": "1.20%",
       "rfee": "1.00%",
       "benchmark": "usRSPH",
-      "officialNav": 1.8219
+      "officialNav": 1.8219,
+      "navDate": "2026-06-01"
     },
     {
       "code": "161128",
@@ -120,7 +124,7 @@
       "name": "标普信息科技LOF",
       "tq": "sz161128",
       "category": "us",
-      "quota": "限额10元",
+      "quota": "暂停",
       "purchaseLimit": 0,
       "quotaUpdatedAt": "2026-05-28T13:45:58.238Z",
       "fee": "1.20%",
@@ -135,13 +139,14 @@
       "name": "标普500LOF",
       "tq": "sz161125",
       "category": "us",
-      "quota": "限额10元",
+      "quota": "暂停",
       "purchaseLimit": 0,
       "quotaUpdatedAt": "2026-05-28T13:45:59.135Z",
       "fee": "1.20%",
       "rfee": "1.50%",
       "benchmark": "usINX",
-      "officialNav": 3.1395
+      "officialNav": 3.1395,
+      "navDate": "2026-06-01"
     },
     {
       "code": "161130",
@@ -149,7 +154,7 @@
       "name": "纳斯达克100LOF",
       "tq": "sz161130",
       "category": "us",
-      "quota": "限额10元",
+      "quota": "暂停",
       "purchaseLimit": 0,
       "quotaUpdatedAt": "2026-05-28T13:45:59.961Z",
       "fee": "1.20%",
@@ -164,7 +169,7 @@
       "name": "美元债LOF",
       "tq": "sh501300",
       "category": "us",
-      "quota": "限额1000万",
+      "quota": "暂停",
       "purchaseLimit": 0,
       "quotaUpdatedAt": "2026-05-28T13:46:00.653Z",
       "fee": "0.80%",
@@ -185,7 +190,8 @@
       "fee": "1.20%",
       "rfee": "1.00%",
       "benchmark": "usRWR",
-      "officialNav": 1.3724
+      "officialNav": 1.3724,
+      "navDate": "2026-06-01"
     },
     {
       "code": "501225",
@@ -193,7 +199,7 @@
       "name": "全球芯片LOF",
       "tq": "sh501225",
       "category": "us",
-      "quota": "限额100元",
+      "quota": "暂停",
       "purchaseLimit": 0,
       "quotaUpdatedAt": "2024-01-01T08:00:00Z",
       "fee": "1.50%",
@@ -208,7 +214,7 @@
       "name": "国泰商品LOF",
       "tq": "sz160216",
       "category": "cm",
-      "quota": "限额1000元",
+      "quota": "限1千",
       "purchaseLimit": 1000,
       "quotaUpdatedAt": "2024-01-01T08:00:00Z",
       "fee": "1.50%",
@@ -252,13 +258,14 @@
       "name": "黄金主题LOF",
       "tq": "sz161116",
       "category": "cm",
-      "quota": "限额10元",
+      "quota": "暂停",
       "purchaseLimit": 0,
       "quotaUpdatedAt": "2024-01-01T08:00:00Z",
       "fee": "0%",
       "rfee": "1.50%",
       "benchmark": "sh518880",
-      "officialNav": 1.6679
+      "officialNav": 1.6679,
+      "navDate": "2026-06-01"
     },
     {
       "code": "164701",
@@ -266,7 +273,7 @@
       "name": "黄金LOF",
       "tq": "sz164701",
       "category": "cm",
-      "quota": "限额500元",
+      "quota": "暂停",
       "purchaseLimit": 0,
       "quotaUpdatedAt": "2026-05-28T13:46:04.548Z",
       "fee": "0.80%",
@@ -296,7 +303,7 @@
       "name": "嘉实黄金LOF",
       "tq": "sz160719",
       "category": "cm",
-      "quota": "限额5元",
+      "quota": "暂停",
       "purchaseLimit": 0,
       "quotaUpdatedAt": "2024-01-01T08:00:00Z",
       "fee": "1.20%",
@@ -367,7 +374,7 @@
       "name": "全球油气能源LOF",
       "tq": "sz163208",
       "category": "cm",
-      "quota": "限额500元",
+      "quota": "暂停",
       "purchaseLimit": 0,
       "quotaUpdatedAt": "2024-01-01T08:00:00Z",
       "fee": "1.50%",
@@ -406,7 +413,7 @@
       "name": "原油LOF易方达",
       "tq": "sz161129",
       "category": "cm",
-      "quota": "限额10元",
+      "quota": "暂停",
       "purchaseLimit": 0,
       "quotaUpdatedAt": "2024-01-01T08:00:00Z",
       "fee": "1.20%",
@@ -421,7 +428,7 @@
       "name": "嘉实原油LOF",
       "tq": "sz160723",
       "category": "cm",
-      "quota": "限额5元",
+      "quota": "暂停",
       "purchaseLimit": 0,
       "quotaUpdatedAt": "2024-01-01T08:00:00Z",
       "fee": "1.20%",
@@ -436,13 +443,14 @@
       "name": "石油LOF",
       "tq": "sz162719",
       "category": "cm",
-      "quota": "限额10元",
+      "quota": "暂停",
       "purchaseLimit": 0,
       "quotaUpdatedAt": "2026-05-28T13:46:10.669Z",
       "fee": "1.20%",
       "rfee": "1.50%",
       "benchmark": "usXOP",
-      "officialNav": 2.6816
+      "officialNav": 2.6816,
+      "navDate": "2026-06-01"
     },
     {
       "code": "162411",
@@ -450,13 +458,14 @@
       "name": "华宝油气LOF",
       "tq": "sz162411",
       "category": "cm",
-      "quota": "限额10元",
+      "quota": "暂停",
       "purchaseLimit": 0,
       "quotaUpdatedAt": "2024-01-01T08:00:00Z",
       "fee": "1.50%",
       "rfee": "1.50%",
       "benchmark": "usXOP",
-      "officialNav": 0.8878
+      "officialNav": 0.8878,
+      "navDate": "2026-06-01"
     },
     {
       "code": "160416",
@@ -464,7 +473,7 @@
       "name": "石油基金LOF",
       "tq": "sz160416",
       "category": "cm",
-      "quota": "限额2元",
+      "quota": "暂停",
       "purchaseLimit": 0,
       "quotaUpdatedAt": "2024-01-01T08:00:00Z",
       "fee": "1.20%",
@@ -494,13 +503,14 @@
       "name": "港股小盘LOF",
       "tq": "sz161124",
       "category": "hk",
-      "quota": "限额3000元",
+      "quota": "限1千",
       "purchaseLimit": 1000,
       "quotaUpdatedAt": "2024-01-01T08:00:00Z",
       "fee": "1.20%",
       "rfee": "1.00%",
       "benchmark": "hkHSSI",
-      "officialNav": 1.0347
+      "officialNav": 1.0347,
+      "navDate": "2026-06-02"
     },
     {
       "code": "160322",
@@ -583,7 +593,8 @@
       "fee": "1.00%",
       "rfee": "0.68%",
       "benchmark": "csi930917",
-      "officialNav": 1.2865
+      "officialNav": 1.2865,
+      "navDate": "2026-06-02"
     },
     {
       "code": "501306",
@@ -597,7 +608,8 @@
       "fee": "0.00%",
       "rfee": "0.60%",
       "benchmark": "csi930914",
-      "officialNav": 1.2683
+      "officialNav": 1.2683,
+      "navDate": "2026-06-02"
     },
     {
       "code": "160717",
@@ -626,7 +638,8 @@
       "fee": "1.20%",
       "rfee": "0.90%",
       "benchmark": "hkHSTECH",
-      "officialNav": 1.0023
+      "officialNav": 1.0023,
+      "navDate": "2026-06-02"
     },
     {
       "code": "501301",
@@ -685,7 +698,8 @@
       "fee": "1.20%",
       "rfee": "0.60%",
       "benchmark": "csi930914",
-      "officialNav": 1.3133
+      "officialNav": 1.3133,
+      "navDate": "2026-06-02"
     },
     {
       "code": "160924",
@@ -723,7 +737,7 @@
       "name": "国投白银LOF",
       "tq": "sz161226",
       "category": "cm",
-      "quota": "限额100元",
+      "quota": "暂停",
       "purchaseLimit": 0,
       "quotaUpdatedAt": "2024-01-01T08:00:00Z",
       "fee": "1.50%",
@@ -768,7 +782,7 @@
       "name": "招商中证白酒LOF",
       "tq": "sz161725",
       "category": "cn",
-      "quota": "限额50万",
+      "quota": "开放",
       "purchaseLimit": null,
       "quotaUpdatedAt": "2024-01-01T08:00:00Z",
       "fee": "1.50%",
@@ -838,5 +852,5 @@
     "sh000066": "上证大宗商品股票指数",
     "sh000945": "中证上游资源产业指数"
   },
-  "updatedAt": "2026-06-03T02:07:19.031Z"
+  "updatedAt": "2026-06-03T03:24:19.518Z"
 }
