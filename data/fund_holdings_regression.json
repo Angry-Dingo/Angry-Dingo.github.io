@@ -1,0 +1,94 @@
+{
+  "updatedAt": "2026-06-03T14:20:50.411Z",
+  "totalFunds": 22,
+  "results": {
+    "160322": {
+      "status": "skipped",
+      "note": "no_nav_data"
+    },
+    "160644": {
+      "status": "skipped",
+      "note": "no_nav_data"
+    },
+    "160717": {
+      "status": "skipped",
+      "note": "no_nav_data"
+    },
+    "160924": {
+      "status": "skipped",
+      "note": "no_nav_data"
+    },
+    "161032": {
+      "status": "skipped",
+      "note": "no_nav_data"
+    },
+    "161124": {
+      "status": "skipped",
+      "note": "no_nav_data"
+    },
+    "161126": {
+      "status": "skipped",
+      "note": "no_nav_data"
+    },
+    "161217": {
+      "status": "skipped",
+      "note": "no_nav_data"
+    },
+    "161715": {
+      "status": "skipped",
+      "note": "no_nav_data"
+    },
+    "161725": {
+      "status": "skipped",
+      "note": "no_nav_data"
+    },
+    "161831": {
+      "status": "skipped",
+      "note": "no_nav_data"
+    },
+    "164705": {
+      "status": "skipped",
+      "note": "no_nav_data"
+    },
+    "501021": {
+      "status": "skipped",
+      "note": "no_nav_data"
+    },
+    "501025": {
+      "status": "skipped",
+      "note": "no_nav_data"
+    },
+    "501301": {
+      "status": "skipped",
+      "note": "no_nav_data"
+    },
+    "501302": {
+      "status": "skipped",
+      "note": "no_nav_data"
+    },
+    "501303": {
+      "status": "skipped",
+      "note": "no_nav_data"
+    },
+    "501305": {
+      "status": "skipped",
+      "note": "no_nav_data"
+    },
+    "501306": {
+      "status": "skipped",
+      "note": "no_nav_data"
+    },
+    "501307": {
+      "status": "skipped",
+      "note": "no_nav_data"
+    },
+    "501310": {
+      "status": "skipped",
+      "note": "no_nav_data"
+    },
+    "501311": {
+      "status": "skipped",
+      "note": "no_nav_data"
+    }
+  }
+}
