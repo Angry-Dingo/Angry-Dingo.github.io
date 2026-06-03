@@ -87,6 +87,15 @@ async function syncDataFromGitHub(env) {
 
 async function sendQuotaUpdateAlert(env, totalCount, changes) {
   if (!env.FEISHU_WEBHOOK) return;
+  
+  // 去重检查：5分钟内只发送一次
+  const lastSendTime = await env.FUNDS_KV?.get('lastQuotaAlertTime');
+  const now = Date.now();
+  if (lastSendTime && now - parseInt(lastSendTime) < 5 * 60 * 1000) {
+    console.log('[LOG] 5分钟内已发送过申购状态更新通知，跳过');
+    return;
+  }
+  
   const t = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
   let msg = `📊 申购状态更新完成 (${t})\n\n`;
   msg += `总计获取: ${totalCount} 只基金\n`;
@@ -97,11 +106,16 @@ async function sendQuotaUpdateAlert(env, totalCount, changes) {
       msg += `• ${code} ${name}: ${oldQuota} → ${newQuota}\n`;
     });
   }
+  
   await fetch(env.FEISHU_WEBHOOK, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ msg_type: 'text', content: { text: msg } })
   });
+  
+  // 更新最后发送时间
+  await env.FUNDS_KV?.put('lastQuotaAlertTime', now.toString());
+  console.log('[LOG] 申购状态更新通知已发送');
 }
 
 
