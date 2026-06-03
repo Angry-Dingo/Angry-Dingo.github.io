@@ -91,9 +91,14 @@ async function updateFundsData() {
       else if (quotaInfo.limit > 0) {
         if (quotaInfo.limit >= 10000) {
           const wan = quotaInfo.limit / 10000;
-          newQuota = `限额${wan % 1 === 0 ? wan.toFixed(0) : wan.toFixed(2)}万`;
+          newQuota = `限${wan % 1 === 0 ? wan.toFixed(0) : wan.toFixed(2)}万`;
         } else {
-          newQuota = `限额${quotaInfo.limit.toFixed(0)}元`;
+          if (quotaInfo.limit >= 1000) {
+            const qian = quotaInfo.limit / 1000;
+            newQuota = `限${qian % 1 === 0 ? qian.toFixed(0) : qian.toFixed(1)}千`;
+          } else {
+            newQuota = `限${quotaInfo.limit.toFixed(0)}`;
+          }
         }
       }
 
