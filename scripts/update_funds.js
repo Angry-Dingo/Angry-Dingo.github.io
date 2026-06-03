@@ -13,16 +13,39 @@ function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 async function fetchSingleNav(code) {
   try {
     const url = `https://fundgz.1234567.com.cn/js/${code}.js?rt=${Date.now()}`;
-    const res = await fetch(url);
-    const text = await res.text();
-    const match = text.match(/jsonpgz\(([^)]+)\)/);
-    if (match) {
-      const data = JSON.parse(match[1]);
-      const dwjz = data.DWJZ || data.dwjz;
-      if (dwjz > 0) return { nav: parseFloat(dwjz), date: data.FSRQ || data.fsrq };
+    const text = await httpGet(url);
+    
+    if (!text || text.trim() === '') {
+      console.log(`[WARN] 获取${code}净值数据失败: 返回空数据`);
+      return null;
     }
+    
+    const match = text.match(/jsonpgz\(([^)]+)\)/);
+    if (!match || !match[1]) {
+      console.log(`[WARN] 获取${code}净值数据失败: JSONP格式错误`);
+      return null;
+    }
+    
+    try {
+      const data = JSON.parse(match[1]);
+      if (data) {
+        const dwjz = data.DWJZ || data.dwjz || data.data?.dwjz;
+        const nav = parseFloat(dwjz);
+        const date = data.FSRQ || data.fsrq || data.jzrq || data.data?.jzrq || '';
+        
+        if (nav > 0) {
+          return { nav, date };
+        }
+      }
+      return null;
+    } catch (parseError) {
+      console.log(`[WARN] 获取${code}净值数据失败: JSON解析错误 - ${parseError.message}`);
+      return null;
+    }
+  } catch (e) {
+    console.log(`[WARN] 获取${code}净值数据失败: ${e.message}`);
     return null;
-  } catch (e) { return null; }
+  }
 }
 
 async function httpGet(url) {
@@ -124,27 +147,6 @@ function formatQuotaNumber(quotaText) {
   return limit;
 }
 
-async function sendFeishuNotification(message) {
-  const webhookUrl = process.env.FEISHU_WEBHOOK;
-  if (!webhookUrl) {
-    console.log('飞书Webhook未配置，跳过通知');
-    return;
-  }
-
-  try {
-    await fetch(webhookUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        msg_type: 'text',
-        content: { text: message }
-      })
-    });
-  } catch (e) {
-    console.log(`飞书通知发送失败: ${e.message}`);
-  }
-}
-
 async function updateFundsData() {
   console.log('[LOG] === 开始数据更新任务 ===');
 
@@ -209,22 +211,10 @@ async function updateFundsData() {
   console.log(`[LOG] 状态变化 ${quotaChanges.length} 只基金`);
 
   if (quotaChanges.length > 0) {
-    let message = `【LOF基金申购状态更新】\n\n`;
-    message += `更新时间: ${new Date().toLocaleString('zh-CN')}\n`;
-    message += `更新基金数: ${fundsData.funds.length}\n`;
-    message += `状态变化: ${quotaChanges.length} 只\n\n`;
-    message += `---\n\n`;
-
+    console.log('\n[LOG] 状态变化详情:');
     quotaChanges.forEach(f => {
-      message += `${f.name} (${f.code})\n`;
-      message += `  申购限额: ${f.oldQuota} → ${f.newQuota}\n\n`;
+      console.log(`  ${f.name} (${f.code}): ${f.oldQuota} → ${f.newQuota}`);
     });
-
-    console.log('\n发送飞书通知...');
-    await sendFeishuNotification(message);
-    console.log('通知已发送');
-  } else {
-    console.log('\n无申购状态变化，无需发送通知');
   }
 
   return { totalCount: Object.keys(quotaData).length, changes: quotaChanges };
