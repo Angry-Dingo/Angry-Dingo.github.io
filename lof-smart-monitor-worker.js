@@ -219,14 +219,31 @@ async function smartMonitor(env, isTestMode = false) {
     }
 
     console.log(`[LOG] 异常基金数量: ${allAbnormalFunds.length}`);
-
-    if (isGlobalAlert && allAbnormalFunds.length > 0) {
-      console.log('[LOG] 发送全局提醒');
-      await sendGlobalAlert(env, allAbnormalFunds);
+    
+    // 调试日志：打印所有基金的溢价情况
+    if (allAbnormalFunds.length > 0) {
+      console.log('[LOG] 异常基金详情:');
+      allAbnormalFunds.forEach(({ fund, premiumRate }) => {
+        console.log(`[LOG]   ${fund.code} ${fund.name}: ${premiumRate.toFixed(2)}%`);
+      });
+    } else {
+      console.log('[LOG] 没有异常基金，不会发送提醒');
     }
-    if (!isGlobalAlert && alerts.length > 0) {
-      console.log('[LOG] 发送动态提醒');
-      await sendDynamicAlerts(env, alerts, fundsData);
+
+    if (isGlobalAlert) {
+      if (allAbnormalFunds.length > 0) {
+        console.log('[LOG] 发送全局提醒');
+        await sendGlobalAlert(env, allAbnormalFunds);
+      } else {
+        console.log('[LOG] 全局提醒时间但无异常基金，不发送');
+      }
+    } else {
+      if (alerts.length > 0) {
+        console.log('[LOG] 发送动态提醒');
+        await sendDynamicAlerts(env, alerts, fundsData);
+      } else {
+        console.log('[LOG] 动态提醒时间但无符合条件的基金，不发送');
+      }
     }
   } catch (e) {
     console.error('[ERROR] 监控失败:', e);
@@ -313,22 +330,75 @@ async function fetchMarketData(fundsData) {
 
 async function sendGlobalAlert(env, funds) {
   if (!env.FEISHU_WEBHOOK) return;
-  const t = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
-  let msg = `检测时间: ${t}\n\n`;
-  funds.forEach(({ fund, premiumRate }) => {
-    const p = premiumRate >= 0 ? `+${premiumRate.toFixed(2)}%` : `${premiumRate.toFixed(2)}%`;
-    msg += `• ${fund.code} ${fund.name}: ${p} (${fund.quota || '未知'})\n`;
-  });
-  await fetch(env.FEISHU_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ msg_type: 'text', content: { text: msg } }) });
+  
+  // 全局提醒去重：相同分钟只发一次
+  const now = new Date();
+  const timeKey = `${now.getHours()}:${now.getMinutes()}`;
+  const lockKey = `globalAlertLock_${timeKey}`;
+  
+  try {
+    const lockAcquired = await env.FUNDS_KV?.put(lockKey, 'locked', {
+      expirationTtl: 2 * 60, // 2分钟过期
+      onlyIf: 'not_exists'
+    });
+    
+    if (!lockAcquired) {
+      console.log('[LOG] 相同时间已发送过全局提醒，跳过');
+      return;
+    }
+    
+    const t = now.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+    let msg = `📈 溢价提醒 - 全局汇总\n检测时间: ${t}\n\n`;
+    funds.forEach(({ fund, premiumRate }) => {
+      const p = premiumRate >= 0 ? `+${premiumRate.toFixed(2)}%` : `${premiumRate.toFixed(2)}%`;
+      msg += `• ${fund.code} ${fund.name}: ${p} (${fund.quota || '未知'})\n`;
+    });
+    
+    await fetch(env.FEISHU_WEBHOOK, { 
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json' }, 
+      body: JSON.stringify({ msg_type: 'text', content: { text: msg } }) 
+    });
+    
+    console.log('[LOG] 全局溢价提醒已发送');
+  } catch (error) {
+    console.error('[ERROR] 发送全局溢价提醒失败:', error.message);
+  }
 }
 
 async function sendDynamicAlerts(env, alerts, fundsData) {
   if (!env.FEISHU_WEBHOOK) return;
-  const t = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
-  let msg = `检测时间: ${t}\n\n`;
-  alerts.forEach(a => {
-    const f = fundsData.funds.find(x => x.code === a.fundCode);
-    msg += `• ${a.fundCode} ${f?.name || a.fundCode}: ${a.type}\n  当前: ${a.premium.toFixed(2)}%  变化: ${a.change.toFixed(2)}%  ${f?.quota || '未知'}\n`;
-  });
-  await fetch(env.FEISHU_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ msg_type: 'text', content: { text: msg } }) });
+  
+  // 动态提醒去重：2分钟内只发一次
+  const now = Date.now();
+  const lockKey = 'dynamicAlertLock';
+  
+  try {
+    const lockAcquired = await env.FUNDS_KV?.put(lockKey, 'locked', {
+      expirationTtl: 2 * 60, // 2分钟过期
+      onlyIf: 'not_exists'
+    });
+    
+    if (!lockAcquired) {
+      console.log('[LOG] 2分钟内已发送过动态提醒，跳过');
+      return;
+    }
+    
+    const t = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+    let msg = `📊 溢价提醒 - 动态变化\n检测时间: ${t}\n\n`;
+    alerts.forEach(a => {
+      const f = fundsData.funds.find(x => x.code === a.fundCode);
+      msg += `• ${a.fundCode} ${f?.name || a.fundCode}: ${a.type}\n  当前: ${a.premium.toFixed(2)}%  变化: ${a.change.toFixed(2)}%  ${f?.quota || '未知'}\n`;
+    });
+    
+    await fetch(env.FEISHU_WEBHOOK, { 
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json' }, 
+      body: JSON.stringify({ msg_type: 'text', content: { text: msg } }) 
+    });
+    
+    console.log('[LOG] 动态溢价提醒已发送');
+  } catch (error) {
+    console.error('[ERROR] 发送动态溢价提醒失败:', error.message);
+  }
 }
