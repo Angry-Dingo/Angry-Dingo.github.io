@@ -50,7 +50,7 @@ async function updateDataTask(env) {
     const fundsData = await loadFundsData(env);
     console.log(`[LOG] 加载 ${fundsData.funds.length} 只基金`);
 
-    const BATCH_SIZE = 10;
+    const BATCH_SIZE = 5;  // 减少批量大小，避免超过子请求限制
     const navData = {};
     const quotaData = {};
 
@@ -64,7 +64,7 @@ async function updateDataTask(env) {
       navResults.forEach((r, idx) => { if (r) navData[batch[idx].code] = r; });
       quotaResults.forEach((r, idx) => { if (r) quotaData[batch[idx].code] = r; });
 
-      await sleep(500);
+      await sleep(1000);  // 增加延迟
     }
 
     const quotaChanges = [];
