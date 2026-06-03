@@ -13,12 +13,12 @@ export default {
     console.log(`[LOG] UTC时间: ${hour}:${minute}, 星期: ${day}, 北京时间: ${beijingHour}:${minute}, 星期: ${beijingDay}, Cron: ${cron}`);
 
     // ✅ 判断任务类型
-    // 北京时间7:00 (UTC 23:00 前一天) 执行数据同步
-    const isSyncTime = (hour === 23 && minute === 0 && day >= 0 && day <= 4); // UTC 23:00 周日-周四 = 北京7:00 周一-周五
+    // 每10分钟执行数据更新
+    const isUpdateTime = (minute % 10 === 0);
     
-    if (isSyncTime) {
-      console.log('[LOG] 执行数据同步任务（北京时间7:00）');
-      ctx.waitUntil(syncDataFromGitHub(env));
+    if (isUpdateTime) {
+      console.log('[LOG] 执行数据更新任务（每10分钟）');
+      ctx.waitUntil(updateDataTask(env));
     } else {
       console.log('[LOG] 执行溢价监控任务（Cron触发）');
       ctx.waitUntil(smartMonitor(env));
