@@ -13,8 +13,8 @@ export default {
     console.log(`[LOG] UTC时间: ${hour}:${minute}, 星期: ${day}, 北京时间: ${beijingHour}:${minute}, 星期: ${beijingDay}, Cron: ${cron}`);
 
     // ✅ 完全由Cron决定任务类型
-    // 数据更新的Cron特征：包含 "10 0" (8:10) 或 "0 10" (18:00)
-    const isUpdateTask = cron.includes('10 0') || cron.includes('0 10');
+    // 数据更新的Cron特征：包含 "*/10" (每10分钟)
+    const isUpdateTask = cron.includes('*/10');
     
     if (isUpdateTask) {
       console.log('[LOG] 执行数据更新任务（定时触发）');
