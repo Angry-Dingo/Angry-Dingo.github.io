@@ -12,17 +12,10 @@ export default {
     
     console.log(`[LOG] UTC时间: ${hour}:${minute}, 星期: ${day}, 北京时间: ${beijingHour}:${minute}, 星期: ${beijingDay}, Cron: ${cron}`);
 
-    // ✅ 完全由Cron决定任务类型
-    // 数据更新的Cron特征：包含 "*/10" (每10分钟)
-    const isUpdateTask = cron.includes('*/10');
-    
-    if (isUpdateTask) {
-      console.log('[LOG] 执行数据更新任务（定时触发）');
-      ctx.waitUntil(updateDataTask(env));
-    } else {
-      console.log('[LOG] 执行溢价监控任务（Cron触发）');
-      ctx.waitUntil(smartMonitor(env));
-    }
+    // ✅ 只执行溢价监控任务
+    // 数据更新由GitHub Actions负责
+    console.log('[LOG] 执行溢价监控任务（Cron触发）');
+    ctx.waitUntil(smartMonitor(env));
   },
 
   async fetch(request, env, ctx) {
@@ -31,181 +24,10 @@ export default {
       ctx.waitUntil(smartMonitor(env, true));
       return new Response('测试已触发', { status: 200 });
     }
-    if (url.pathname === '/update') {
-      ctx.waitUntil(updateDataTask(env));
-      return new Response('数据更新已触发', { status: 200 });
-    }
     return new Response('LOF 基金监控服务', { status: 200 });
   }
 };
 
-// ==================== 数据更新任务 ====================
-async function updateDataTask(env) {
-  try {
-    console.log('[LOG] === 开始数据更新任务 ===');
-
-    const fundsData = await loadFundsData(env);
-    console.log(`[LOG] 加载 ${fundsData.funds.length} 只基金`);
-
-    const BATCH_SIZE = 3;  // 进一步减少批量大小，避免超过子请求限制
-    const navData = {};
-    const quotaData = {};
-
-    for (let i = 0; i < fundsData.funds.length; i += BATCH_SIZE) {
-      const batch = fundsData.funds.slice(i, i + BATCH_SIZE);
-      console.log(`[LOG] 处理第 ${Math.floor(i/BATCH_SIZE) + 1} 批`);
-
-      const navResults = await Promise.all(batch.map(f => fetchSingleNav(f.code)));
-      const quotaResults = await Promise.all(batch.map(f => fetchSingleQuota(f.code)));
-
-      navResults.forEach((r, idx) => { if (r) navData[batch[idx].code] = r; });
-      quotaResults.forEach((r, idx) => { if (r) quotaData[batch[idx].code] = r; });
-
-      await sleep(1500);  // 增加延迟
-    }
-
-    const quotaChanges = [];
-    const originalQuota = {};
-    fundsData.funds.forEach(fund => {
-      originalQuota[fund.code] = fund.quota;
-    });
-
-    for (const fund of fundsData.funds) {
-      const navInfo = navData[fund.code];
-      if (navInfo && navInfo.nav > 0) {
-        fund.officialNav = navInfo.nav;
-        fund.navDate = navInfo.date;
-      }
-
-      const quotaInfo = quotaData[fund.code];
-      if (quotaInfo) {
-        let newQuota = null;
-        if (quotaInfo.limit === 0) newQuota = '暂停';
-        else if (quotaInfo.limit === null) newQuota = '开放';
-        else if (quotaInfo.limit === -1) newQuota = '限大额';
-        else if (quotaInfo.limit > 0) {
-          if (quotaInfo.limit >= 10000) {
-            const wan = quotaInfo.limit / 10000;
-            newQuota = `限额${wan % 1 === 0 ? wan.toFixed(0) : wan.toFixed(2)}万`;
-          } else {
-            newQuota = `限额${quotaInfo.limit.toFixed(0)}元`;
-          }
-        }
-
-        if (newQuota !== null && newQuota !== originalQuota[fund.code]) {
-          quotaChanges.push({
-            code: fund.code,
-            name: fund.name,
-            oldQuota: originalQuota[fund.code] || '未知',
-            newQuota: newQuota
-          });
-        }
-        fund.quota = newQuota;
-      }
-    }
-
-    fundsData.updatedAt = new Date().toISOString();
-
-    if (env.FUNDS_KV) {
-      await env.FUNDS_KV.put('funds', JSON.stringify(fundsData, null, 2));
-      console.log('[LOG] KV 存储成功');
-    }
-
-    // 同步更新到GitHub（暂时禁用，减少子请求数量）
-    // if (env.GITHUB_TOKEN) {
-    //   try {
-    //     await pushToGitHub(env, fundsData);
-    //     console.log('[LOG] GitHub 推送成功');
-    //   } catch (e) {
-    //     console.error('[ERROR] GitHub 推送失败:', e.message);
-    //   }
-    // }
-
-    await sendQuotaUpdateAlert(env, Object.keys(quotaData).length, quotaChanges);
-    console.log('[LOG] 数据更新任务完成');
-  } catch (error) {
-    console.error('[ERROR] 数据更新任务失败:', error.message);
-  }
-}
-
-async function sendQuotaUpdateAlert(env, totalCount, changes) {
-  if (!env.FEISHU_WEBHOOK) return;
-  const t = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
-  let msg = `📊 申购状态更新完成 (${t})\n\n`;
-  msg += `总计获取: ${totalCount} 只基金\n`;
-  msg += `状态变化: ${changes.length} 只基金\n`;
-  if (changes.length > 0) {
-    msg += '\n📋 变化列表:\n';
-    changes.forEach(({ code, name, oldQuota, newQuota }) => {
-      msg += `• ${code} ${name}: ${oldQuota} → ${newQuota}\n`;
-    });
-  }
-  await fetch(env.FEISHU_WEBHOOK, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ msg_type: 'text', content: { text: msg } })
-  });
-}
-
-async function pushToGitHub(env, fundsData) {
-  const content = JSON.stringify(fundsData, null, 2);
-  const contentBase64 = btoa(unescape(encodeURIComponent(content)));
-
-  const getRes = await fetch('https://api.github.com/repos/Angry-Dingo/Angry-Dingo.github.io/contents/data/funds.json?ref=main', {
-    headers: { 'Authorization': `token ${env.GITHUB_TOKEN}` }
-  });
-  let sha = null;
-  if (getRes.ok) sha = (await getRes.json()).sha;
-
-  const putRes = await fetch('https://api.github.com/repos/Angry-Dingo/Angry-Dingo.github.io/contents/data/funds.json', {
-    method: 'PUT',
-    headers: { 'Authorization': `token ${env.GITHUB_TOKEN}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      message: `Update funds ${new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}`,
-      content: contentBase64,
-      branch: 'main',
-      sha: sha
-    })
-  });
-  if (!putRes.ok) throw new Error((await putRes.json()).message);
-}
-
-async function fetchSingleNav(code) {
-  try {
-    const url = `https://fundgz.1234567.com.cn/js/${code}.js?rt=${Date.now()}`;
-    const res = await fetch(url);
-    const text = await res.text();
-    const match = text.match(/jsonpgz\(([^)]+)\)/);
-    if (match) {
-      const data = JSON.parse(match[1]);
-      const dwjz = data.DWJZ || data.dwjz;
-      if (dwjz > 0) return { nav: parseFloat(dwjz), date: data.FSRQ || data.fsrq };
-    }
-    return null;
-  } catch (e) { return null; }
-}
-
-async function fetchSingleQuota(code) {
-  try {
-    const res = await fetch(`https://fund.eastmoney.com/${code}.html`, {
-      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36', 'Referer': 'http://fund.eastmoney.com/' }
-    });
-    const html = await res.text();
-    let result = null;
-    let m = html.match(/单日累计购买上限\s*([\d,.]+)\s*元(?!万)/);
-    if (m) result = { limit: parseFloat(m[1].replace(/,/g, '')), unit: '元' };
-    if (!result) {
-      m = html.match(/单日累计购买上限\s*([\d,.]+)\s*万元/);
-      if (m) result = { limit: parseFloat(m[1].replace(/,/g, '')) * 10000, unit: '元' };
-    }
-    if (!result && html.match(/限大额|大额限购/)) result = { limit: -1, status: '限大额' };
-    if (!result && html.match(/暂停申购/)) result = { limit: 0 };
-    if (!result && html.match(/开放申购/)) result = { limit: null };
-    return result;
-  } catch (e) { return null; }
-}
-
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 // ==================== 溢价监控 ====================
 const PREMIUM_HISTORY = {};
@@ -323,12 +145,24 @@ function checkDynamicChange(code, premium) {
 }
 
 async function loadFundsData(env) {
-  if (env.FUNDS_KV) {
-    const d = await env.FUNDS_KV.get('funds');
-    if (d) return JSON.parse(d);
+  // 优先从GitHub拉取最新数据，然后更新KV
+  try {
+    const res = await fetch('https://raw.githubusercontent.com/Angry-Dingo/Angry-Dingo.github.io/main/data/funds.json');
+    const data = await res.json();
+    // 更新KV
+    if (env.FUNDS_KV) {
+      await env.FUNDS_KV.put('funds', JSON.stringify(data, null, 2));
+    }
+    return data;
+  } catch (e) {
+    console.error('[ERROR] 从GitHub拉取数据失败，回退到KV:', e.message);
+    // 回退到KV
+    if (env.FUNDS_KV) {
+      const d = await env.FUNDS_KV.get('funds');
+      if (d) return JSON.parse(d);
+    }
+    throw e;
   }
-  const res = await fetch('https://raw.githubusercontent.com/Angry-Dingo/Angry-Dingo.github.io/main/data/funds.json');
-  return await res.json();
 }
 
 async function fetchMarketData(fundsData) {
