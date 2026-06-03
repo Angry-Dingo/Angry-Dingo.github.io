@@ -12,10 +12,17 @@ export default {
     
     console.log(`[LOG] UTC时间: ${hour}:${minute}, 星期: ${day}, 北京时间: ${beijingHour}:${minute}, 星期: ${beijingDay}, Cron: ${cron}`);
 
-    // ✅ 只执行溢价监控任务
-    // 数据更新由GitHub Actions负责
-    console.log('[LOG] 执行溢价监控任务（Cron触发）');
-    ctx.waitUntil(smartMonitor(env));
+    // ✅ 判断任务类型
+    // 北京时间7:00 (UTC 23:00 前一天) 执行数据同步
+    const isSyncTime = (hour === 23 && minute === 0 && day >= 0 && day <= 4); // UTC 23:00 周日-周四 = 北京7:00 周一-周五
+    
+    if (isSyncTime) {
+      console.log('[LOG] 执行数据同步任务（北京时间7:00）');
+      ctx.waitUntil(syncDataFromGitHub(env));
+    } else {
+      console.log('[LOG] 执行溢价监控任务（Cron触发）');
+      ctx.waitUntil(smartMonitor(env));
+    }
   },
 
   async fetch(request, env, ctx) {
@@ -24,9 +31,78 @@ export default {
       ctx.waitUntil(smartMonitor(env, true));
       return new Response('测试已触发', { status: 200 });
     }
+    if (url.pathname === '/sync') {
+      ctx.waitUntil(syncDataFromGitHub(env));
+      return new Response('数据同步已触发', { status: 200 });
+    }
     return new Response('LOF 基金监控服务', { status: 200 });
   }
 };
+
+// ==================== 数据同步任务 ====================
+async function syncDataFromGitHub(env) {
+  try {
+    console.log('[LOG] === 开始数据同步任务 ===');
+    
+    // 从GitHub拉取最新数据
+    const res = await fetch('https://raw.githubusercontent.com/Angry-Dingo/Angry-Dingo.github.io/main/data/funds.json');
+    const fundsData = await res.json();
+    console.log(`[LOG] 从GitHub加载 ${fundsData.funds.length} 只基金`);
+    
+    // 计算申购状态变化
+    let changes = [];
+    if (env.FUNDS_KV) {
+      const oldData = await env.FUNDS_KV.get('funds');
+      if (oldData) {
+        const oldFunds = JSON.parse(oldData);
+        const oldQuotaMap = {};
+        oldFunds.funds.forEach(f => { oldQuotaMap[f.code] = f.quota; });
+        
+        fundsData.funds.forEach(f => {
+          if (f.quota !== oldQuotaMap[f.code]) {
+            changes.push({
+              code: f.code,
+              name: f.name,
+              oldQuota: oldQuotaMap[f.code] || '未知',
+              newQuota: f.quota
+            });
+          }
+        });
+      }
+    }
+    
+    // 写入KV
+    if (env.FUNDS_KV) {
+      await env.FUNDS_KV.put('funds', JSON.stringify(fundsData, null, 2));
+      console.log('[LOG] KV 存储成功');
+    }
+    
+    // 发送飞书通知
+    await sendQuotaUpdateAlert(env, fundsData.funds.length, changes);
+    console.log('[LOG] 数据同步任务完成');
+  } catch (error) {
+    console.error('[ERROR] 数据同步任务失败:', error.message);
+  }
+}
+
+async function sendQuotaUpdateAlert(env, totalCount, changes) {
+  if (!env.FEISHU_WEBHOOK) return;
+  const t = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+  let msg = `📊 申购状态更新完成 (${t})\n\n`;
+  msg += `总计获取: ${totalCount} 只基金\n`;
+  msg += `状态变化: ${changes.length} 只基金\n`;
+  if (changes.length > 0) {
+    msg += '\n📋 变化列表:\n';
+    changes.forEach(({ code, name, oldQuota, newQuota }) => {
+      msg += `• ${code} ${name}: ${oldQuota} → ${newQuota}\n`;
+    });
+  }
+  await fetch(env.FEISHU_WEBHOOK, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ msg_type: 'text', content: { text: msg } })
+  });
+}
 
 
 // ==================== 溢价监控 ====================

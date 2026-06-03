@@ -11,10 +11,11 @@ binding = "FUNDS_KV"
 id = "0d6d2904a8aa4a859e91292d1fd9f1e2"
 
 # Cron triggers are configured manually in Cloudflare Dashboard
-# - Premium monitor: every 5 minutes on trading days (Mon-Fri)
+# - Premium monitor: */5 * * * 1-5 (every 5 minutes on trading days)
+# - Data sync at 7:00 AM: 0 23 * * 0-4 (UTC 23:00 Sun-Thu = Beijing 7:00 Mon-Fri)
 #
 # Data update is handled by GitHub Actions:
-# - 7:00 AM (UTC 23:00 Sun-Thu) and 6:00 PM (UTC 10:00 Mon-Fri)
+# - 4:00 AM (UTC 20:00 Sun-Thu) and 8:00 PM (UTC 12:00 Mon-Fri)
 
 # 敏感变量（通过 wrangler secret 设置）
 # FEISHU_WEBHOOK: 飞书Webhook地址
