@@ -13,11 +13,15 @@ export default {
     console.log(`[LOG] UTC时间: ${hour}:${minute}, 星期: ${day}, 北京时间: ${beijingHour}:${minute}, 星期: ${beijingDay}, Cron: ${cron}`);
 
     // ✅ 判断任务类型
-    // 每10分钟从git拉取数据并写入KV
-    const isSyncTime = (minute % 10 === 0);
+    // 数据同步任务：仅在工作日北京时间 7:00 和 20:00 执行
+    const isWeekday = (beijingDay >= 1 && beijingDay <= 5);
+    const isSyncTime = isWeekday && (
+      (beijingHour === 7 && minute === 0) ||
+      (beijingHour === 20 && minute === 0)
+    );
     
     if (isSyncTime) {
-      console.log('[LOG] 执行数据同步任务（每10分钟）');
+      console.log('[LOG] 执行数据同步任务（工作日定时）');
       ctx.waitUntil(syncDataFromGitHub(env));
     } else {
       console.log('[LOG] 执行溢价监控任务（Cron触发）');
