@@ -86,36 +86,21 @@ async function syncDataFromGitHub(env) {
 }
 
 async function sendQuotaUpdateAlert(env, totalCount, changes) {
-  if (!env.FEISHU_WEBHOOK) return;
+  if (!env.FEISHU_WEBHOOK) {
+    console.log('[LOG] 未配置飞书Webhook，跳过发送');
+    return;
+  }
   
   const now = Date.now();
   
-  // 分布式锁：使用 atomic put 确保只有一个实例能获取锁
-  // 锁有效期5分钟，防止死锁
-  const lockKey = 'quotaAlertLock';
-  const lockValue = 'locked';
-  const lockTtl = 5 * 60; // 5分钟过期
+  // 检查5分钟内是否已发送过
+  const lastSendTime = await env.FUNDS_KV?.get('lastQuotaAlertTime');
+  if (lastSendTime && now - parseInt(lastSendTime) < 5 * 60 * 1000) {
+    console.log('[LOG] 5分钟内已发送过申购状态更新通知，跳过');
+    return;
+  }
   
   try {
-    // 尝试获取锁（只有当键不存在时才写入）
-    const lockAcquired = await env.FUNDS_KV?.put(lockKey, lockValue, {
-      expirationTtl: lockTtl,
-      onlyIf: 'not_exists'
-    });
-    
-    if (!lockAcquired) {
-      console.log('[LOG] 其他实例正在发送通知或5分钟内已发送，跳过');
-      return;
-    }
-    
-    // 获取锁成功，检查上次发送时间（额外保险）
-    const lastSendTime = await env.FUNDS_KV?.get('lastQuotaAlertTime');
-    if (lastSendTime && now - parseInt(lastSendTime) < 5 * 60 * 1000) {
-      console.log('[LOG] 5分钟内已发送过申购状态更新通知，释放锁');
-      await env.FUNDS_KV?.delete(lockKey);
-      return;
-    }
-    
     const t = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
     let msg = `📊 申购状态更新完成 (${t})\n\n`;
     msg += `总计获取: ${totalCount} 只基金\n`;
@@ -127,23 +112,22 @@ async function sendQuotaUpdateAlert(env, totalCount, changes) {
       });
     }
     
-    await fetch(env.FEISHU_WEBHOOK, {
+    const response = await fetch(env.FEISHU_WEBHOOK, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ msg_type: 'text', content: { text: msg } })
     });
     
-    // 更新最后发送时间
-    await env.FUNDS_KV?.put('lastQuotaAlertTime', now.toString());
-    console.log('[LOG] 申购状态更新通知已发送');
-    
-    // 释放锁（可选，锁会自动过期）
-    await env.FUNDS_KV?.delete(lockKey);
+    if (response.ok) {
+      // 发送成功后更新最后发送时间
+      await env.FUNDS_KV?.put('lastQuotaAlertTime', now.toString());
+      console.log('[LOG] 申购状态更新通知已发送');
+    } else {
+      console.error('[ERROR] 飞书通知发送失败:', response.status);
+    }
     
   } catch (error) {
     console.error('[ERROR] 发送申购状态通知失败:', error.message);
-    // 出错时释放锁
-    await env.FUNDS_KV?.delete(lockKey);
   }
 }
 
