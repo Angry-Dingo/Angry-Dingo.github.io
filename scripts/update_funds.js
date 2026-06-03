@@ -111,6 +111,18 @@ async function updateFundsData() {
         });
       }
       fund.quota = newQuota;
+      
+      // 同步更新 purchaseLimit 字段
+      if (quotaInfo.limit === 0) {
+        fund.purchaseLimit = 0;
+      } else if (quotaInfo.limit === null) {
+        fund.purchaseLimit = null;
+      } else if (quotaInfo.limit === -1) {
+        fund.purchaseLimit = -1;
+      } else {
+        fund.purchaseLimit = quotaInfo.limit;
+      }
+      fund.quotaUpdatedAt = new Date().toISOString();
     }
   }
 
