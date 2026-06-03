@@ -47,7 +47,7 @@ async function updateDataTask(env) {
     const fundsData = await loadFundsData(env);
     console.log(`[LOG] 加载 ${fundsData.funds.length} 只基金`);
 
-    const BATCH_SIZE = 5;  // 减少批量大小，避免超过子请求限制
+    const BATCH_SIZE = 3;  // 进一步减少批量大小，避免超过子请求限制
     const navData = {};
     const quotaData = {};
 
@@ -61,7 +61,7 @@ async function updateDataTask(env) {
       navResults.forEach((r, idx) => { if (r) navData[batch[idx].code] = r; });
       quotaResults.forEach((r, idx) => { if (r) quotaData[batch[idx].code] = r; });
 
-      await sleep(1000);  // 增加延迟
+      await sleep(1500);  // 增加延迟
     }
 
     const quotaChanges = [];
@@ -111,15 +111,15 @@ async function updateDataTask(env) {
       console.log('[LOG] KV 存储成功');
     }
 
-    // 同步更新到GitHub
-    if (env.GITHUB_TOKEN) {
-      try {
-        await pushToGitHub(env, fundsData);
-        console.log('[LOG] GitHub 推送成功');
-      } catch (e) {
-        console.error('[ERROR] GitHub 推送失败:', e.message);
-      }
-    }
+    // 同步更新到GitHub（暂时禁用，减少子请求数量）
+    // if (env.GITHUB_TOKEN) {
+    //   try {
+    //     await pushToGitHub(env, fundsData);
+    //     console.log('[LOG] GitHub 推送成功');
+    //   } catch (e) {
+    //     console.error('[ERROR] GitHub 推送失败:', e.message);
+    //   }
+    // }
 
     await sendQuotaUpdateAlert(env, Object.keys(quotaData).length, quotaChanges);
     console.log('[LOG] 数据更新任务完成');
