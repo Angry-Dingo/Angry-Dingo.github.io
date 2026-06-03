@@ -2,14 +2,11 @@ import fetch from 'node-fetch';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = path.join(__dirname, '../data');
 const FUNDS_JSON = path.join(DATA_DIR, 'funds.json');
 const OUTPUT_JSON = path.join(DATA_DIR, 'fund_regression.json');
-
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-
 async function httpGet(url, retries = 3, opts = {}) {
   for (let i = 0; i < retries; i++) {
     try {
@@ -28,7 +25,6 @@ async function httpGet(url, retries = 3, opts = {}) {
   }
   return null;
 }
-
 async function fetchFundNavHistory(code, days = 180) {
   const text = await httpGet(`https://api.fund.eastmoney.com/f10/lsjz?callback=jQuery&fundCode=${code}&pageIndex=1&pageSize=${days}&startDate=&endDate=`, 3, { headers: { Referer: 'https://fund.eastmoney.com/' } });
   if (!text) return [];
@@ -40,7 +36,6 @@ async function fetchFundNavHistory(code, days = 180) {
     return data.Data.LSJZList.map(i => ({ date: i.FSRQ, nav: parseFloat(i.DWJZ) })).filter(d => d.nav > 0).reverse();
   } catch (e) { return []; }
 }
-
 async function fetchTencentKline(symbol, days = 180) {
   const text = await httpGet(`https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=${symbol},day,,,${days},qfq`);
   if (!text) return [];
@@ -56,7 +51,6 @@ async function fetchTencentKline(symbol, days = 180) {
     }).filter(d => d.close > 0);
   } catch (e) { return []; }
 }
-
 async function fetchYahooHistory(symbol, days = 200) {
   const range = Math.ceil(days / 365 * 14);
   const text = await httpGet(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=${range}mo`);
@@ -76,7 +70,6 @@ async function fetchYahooHistory(symbol, days = 200) {
     return rows;
   } catch (e) { return []; }
 }
-
 function solveOLS(y, X) {
   const n = y.length;
   if (n < 5) return null;
@@ -101,7 +94,6 @@ function solveOLS(y, X) {
   for (let i = 0; i < n; i++) { let yh = 0; for (let j = 0; j <= k; j++) yh += betas[j] * Xw[i][j]; ssr += (y[i] - yh) ** 2; sst += (y[i] - ym) ** 2; }
   return { betas, r2: sst > 1e-12 ? 1 - ssr / sst : 0, n };
 }
-
 function alignAndCompute(fundData, indexMap, lagDays = 0) {
   const idxKeys = Object.keys(indexMap);
   if (!idxKeys.length) return [];
@@ -112,17 +104,23 @@ function alignAndCompute(fundData, indexMap, lagDays = 0) {
   if (al.length < 3) return [];
   const ret = [];
   for (let i = 1 + lagDays; i < al.length; i++) {
-    const p = al[i - 1 - lagDays], c = al[i];
-    const fr = (c.fundNav - p.fundNav) / p.fundNav;
+    const fr = (al[i].fundNav - al[i - 1].fundNav) / al[i - 1].fundNav;
     if (!isFinite(fr)) continue;
-    const ir = {}; let valid = true;
-    const ip = al[i - 1];
-    for (const k of idxKeys) { if (ip[k] > 0) { ir[k] = (c[k] - ip[k]) / ip[k]; if (!isFinite(ir[k])) valid = false; } else valid = false; }
-    if (valid) ret.push({ date: c.date, fundRet: fr, idxRet: ir });
+    const ir = {};
+    let valid = true;
+    const ixCurr = al[i - lagDays];
+    const ixPrev = al[i - 1 - lagDays];
+    if (!ixCurr || !ixPrev) continue;
+    for (const k of idxKeys) {
+      if (ixPrev[k] > 0 && ixCurr[k] > 0) {
+        ir[k] = (ixCurr[k] - ixPrev[k]) / ixPrev[k];
+        if (!isFinite(ir[k])) valid = false;
+      } else valid = false;
+    }
+    if (valid) ret.push({ date: al[i].date, fundRet: fr, idxRet: ir });
   }
   return ret;
 }
-
 function getCandidateIndices(fund) {
   const c = [];
   if (Array.isArray(fund.benchmark)) fund.benchmark.forEach(b => c.push(b.tq));
@@ -134,7 +132,6 @@ function getCandidateIndices(fund) {
   if (fund.category === 'cm') c.push('usGLD', 'usSLV', 'usUSO', 'sh518880', 'sh000300');
   return [...new Set(c)];
 }
-
 async function fetchIndexHistory(tq, days = 200) {
   if (tq.startsWith('us')) {
     const yh = { 'usQQQ':'QQQ','usSPY':'SPY','usKWEB':'KWEB','usGLD':'GLD','usSLV':'SLV','usUSO':'USO','usBNO':'BNO','usXBI':'XBI','usXLY':'XLY','usRSPH':'^RSPH','usXLK':'XLK','usINX':'^GSPC','usAGG':'AGG','usRWR':'RWR','usSMH':'SMH','usSGOL':'SGOL','usGLDM':'GLDM','usCPER':'CPER','usXOP':'XOP','usXLE':'XLE','usIXC':'IXC','usIAU':'IAU','usAAAU':'AAAU','usBCI':'BCI','usCOMT':'COMT','usINDA':'INDA' };
@@ -151,12 +148,10 @@ async function fetchIndexHistory(tq, days = 200) {
   }
   return [];
 }
-
 async function analyzeFunds(fundsData) {
   const fundList = fundsData.funds;
   const indexNames = fundsData.indexNames || {};
   console.log(`[LOG] 分析 ${fundList.length} 只基金\n`);
-
   console.log('='.repeat(60));
   console.log('Step 1: 获取基金历史净值');
   console.log('='.repeat(60));
@@ -169,7 +164,6 @@ async function analyzeFunds(fundsData) {
     else { process.stdout.write(` ❌ 失败\n`); }
     if (i % 5 === 4) await sleep(2000);
   }
-
   console.log('\n' + '='.repeat(60));
   console.log('Step 2: 构建指数池并获取历史数据');
   console.log('='.repeat(60));
@@ -177,7 +171,6 @@ async function analyzeFunds(fundsData) {
   for (const f of fundList) getCandidateIndices(f).forEach(c => allIndexTqs.add(c));
   ['sh000300','sh000905','sh000016','sh000688','hkHSI','hkHSCEI','hkHSTECH','usQQQ','usSPY','usGLD','usSLV','usUSO','usKWEB'].forEach(c => allIndexTqs.add(c));
   console.log(`[LOG] 共 ${allIndexTqs.size} 个候选指数`);
-
   const indexDataMap = {};
   let idxCount = 0;
   for (const tq of allIndexTqs) {
@@ -187,12 +180,10 @@ async function analyzeFunds(fundsData) {
     else { process.stdout.write(` 不可用\n`); }
     if (idxCount % 8 === 0) await sleep(1000);
   }
-
   console.log('\n' + '='.repeat(60));
-  console.log('Step 3: 回归分析（含滞后期优化）');
+  console.log('Step 3: 回归分析');
   console.log('='.repeat(60));
   const results = [];
-
   for (let i = 0; i < fundList.length; i++) {
     const f = fundList[i];
     const navData = allNavData[f.code];
@@ -208,9 +199,8 @@ async function analyzeFunds(fundsData) {
       continue;
     }
     const sub = {}; avIdx.forEach(tq => { sub[tq] = indexDataMap[tq]; });
-    const lags = f.category === 'cn' ? [0] : [0, 1, 2];
+    const lags = f.category === 'us' ? [1, 0] : [0];
     let best = null;
-
     for (const lag of lags) {
       const ret = alignAndCompute(navData, sub, lag);
       if (ret.length < 5) continue;
@@ -220,8 +210,7 @@ async function analyzeFunds(fundsData) {
       for (const k of keys) { const r2 = solveOLS(y, ret.map(r => [r.idxRet[k]])); if (r2) sr.push({ key: k, r2: r2.r2, beta: r2.betas[1] }); }
       if (!sr.length) continue;
       sr.sort((a, b) => b.r2 - a.r2);
-      const cur = { lag, n: ret.length, bestSingleR2: sr[0].r2, bestIndex: sr[0].key, bestBeta: sr[0].beta, multiR2: 0, multiResult: null };
-
+      const cur = { lag, n: ret.length, bestSingleR2: sr[0].r2, bestIndex: sr[0].key, bestBeta: sr[0].beta, multiR2: 0 };
       if (sr.length >= 2) {
         const mk = [sr[0].key, sr[1].key];
         const r2 = solveOLS(y, ret.map(r => mk.map(k => r.idxRet[k])));
@@ -229,46 +218,39 @@ async function analyzeFunds(fundsData) {
       }
       if (!best || cur.bestSingleR2 > best.bestSingleR2) best = cur;
     }
-
     if (!best || best.n < 5) {
       console.log(`  [${i+1}/${fundList.length}] ${f.code} ${f.name} ❌ 回归失败`);
       results.push({ code: f.code, name: f.name, category: f.category, status: 'failed' });
       continue;
     }
-
     const tag = best.bestSingleR2 > 0.8 ? '✅' : best.bestSingleR2 > 0.6 ? '👍' : best.bestSingleR2 > 0.4 ? '⚠️' : best.bestSingleR2 > 0.2 ? '🔶' : '❌';
-    console.log(`  [${i+1}/${fundList.length}] ${f.code} ${f.name} ${tag} R²=${(best.bestSingleR2*100).toFixed(1)}% 滞后=${best.lag}天 指数=${indexNames[best.bestIndex]||best.bestIndex}`);
+    console.log(`  [${i+1}/${fundList.length}] ${f.code} ${f.name} ${tag} R²=${(best.bestSingleR2*100).toFixed(1)}% 滞后${best.lag}天 β=${best.bestBeta.toFixed(4)} 指数=${indexNames[best.bestIndex]||best.bestIndex}`);
     results.push({ code: f.code, name: f.name, category: f.category, status: 'done', lag: best.lag, samples: best.n, bestSingleR2: best.bestSingleR2, bestIndex: best.bestIndex, bestIndexName: indexNames[best.bestIndex] || best.bestIndex, bestBeta: best.bestBeta, multiR2: best.multiR2 });
     await sleep(500);
   }
   return results;
 }
-
 async function main() {
   console.log('='.repeat(60));
-  console.log('  LOF基金 — 多因子回归验证分析 (全量)');
+  console.log('  LOF基金 — 多因子回归验证分析 (修复滞后算法)');
   console.log(`  运行: ${new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}`);
   console.log('='.repeat(60));
-
   const fundsData = JSON.parse(fs.readFileSync(FUNDS_JSON, 'utf-8'));
   console.log(`[LOG] 加载 ${fundsData.funds.length} 只基金`);
-
   const results = await analyzeFunds(fundsData);
   const output = { updatedAt: new Date().toISOString(), fundCount: fundsData.funds.length, summary: { total: results.length, done: results.filter(r => r.status === 'done').length, skipped: results.filter(r => r.status === 'skipped').length, failed: results.filter(r => r.status === 'failed').length }, results };
   fs.mkdirSync(DATA_DIR, { recursive: true });
   fs.writeFileSync(OUTPUT_JSON, JSON.stringify(output, null, 2), 'utf-8');
   console.log(`\n[LOG] 结果已保存到 ${OUTPUT_JSON}`);
-
   console.log('\n' + '='.repeat(60));
   console.log('  回归分析汇总');
   console.log('='.repeat(60));
   const sorted = results.filter(r => r.status === 'done').sort((a, b) => b.bestSingleR2 - a.bestSingleR2);
-  sorted.filter(r => r.bestSingleR2 > 0.8).forEach(r => console.log(`  ✅ ${r.code} ${r.name}: R²=${(r.bestSingleR2*100).toFixed(1)}% 滞后${r.lag}天 ${r.bestIndexName}`));
-  sorted.filter(r => r.bestSingleR2 > 0.6 && r.bestSingleR2 <= 0.8).forEach(r => console.log(`  👍 ${r.code} ${r.name}: R²=${(r.bestSingleR2*100).toFixed(1)}% 滞后${r.lag}天 ${r.bestIndexName}`));
-  sorted.filter(r => r.bestSingleR2 > 0.4 && r.bestSingleR2 <= 0.6).forEach(r => console.log(`  ⚠️ ${r.code} ${r.name}: R²=${(r.bestSingleR2*100).toFixed(1)}% 滞后${r.lag}天 ${r.bestIndexName}`));
-  sorted.filter(r => r.bestSingleR2 > 0.2 && r.bestSingleR2 <= 0.4).forEach(r => console.log(`  🔶 ${r.code} ${r.name}: R²=${(r.bestSingleR2*100).toFixed(1)}% 滞后${r.lag}天 ${r.bestIndexName}`));
-  sorted.filter(r => r.bestSingleR2 <= 0.2).forEach(r => console.log(`  ❌ ${r.code} ${r.name}: R²=${(r.bestSingleR2*100).toFixed(2)}% 滞后${r.lag}天 ${r.bestIndexName}`));
+  sorted.filter(r => r.bestSingleR2 > 0.8).forEach(r => console.log(`  ✅ ${r.code} ${r.name}: R²=${(r.bestSingleR2*100).toFixed(1)}% 滞后${r.lag}天 β=${r.bestBeta.toFixed(4)} ${r.bestIndexName}`));
+  sorted.filter(r => r.bestSingleR2 > 0.6 && r.bestSingleR2 <= 0.8).forEach(r => console.log(`  👍 ${r.code} ${r.name}: R²=${(r.bestSingleR2*100).toFixed(1)}% 滞后${r.lag}天 β=${r.bestBeta.toFixed(4)} ${r.bestIndexName}`));
+  sorted.filter(r => r.bestSingleR2 > 0.4 && r.bestSingleR2 <= 0.6).forEach(r => console.log(`  ⚠️ ${r.code} ${r.name}: R²=${(r.bestSingleR2*100).toFixed(1)}% 滞后${r.lag}天 β=${r.bestBeta.toFixed(4)} ${r.bestIndexName}`));
+  sorted.filter(r => r.bestSingleR2 > 0.2 && r.bestSingleR2 <= 0.4).forEach(r => console.log(`  🔶 ${r.code} ${r.name}: R²=${(r.bestSingleR2*100).toFixed(1)}% 滞后${r.lag}天 β=${r.bestBeta.toFixed(4)} ${r.bestIndexName}`));
+  sorted.filter(r => r.bestSingleR2 <= 0.2).forEach(r => console.log(`  ❌ ${r.code} ${r.name}: R²=${(r.bestSingleR2*100).toFixed(2)}% 滞后${r.lag}天 β=${r.bestBeta.toFixed(4)} ${r.bestIndexName}`));
   console.log(`\n总结: 共${sorted.length}只完成 ✅优秀${sorted.filter(r => r.bestSingleR2 > 0.8).length}  👍良好${sorted.filter(r => r.bestSingleR2 > 0.6).length}  ⚠️偏低${sorted.filter(r => r.bestSingleR2 <= 0.6).length}`);
 }
-
 main().catch(e => { console.error('[FATAL]', e); process.exit(1); });
