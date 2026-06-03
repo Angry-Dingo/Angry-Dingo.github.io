@@ -329,7 +329,10 @@ async function fetchMarketData(fundsData) {
 }
 
 async function sendGlobalAlert(env, funds) {
-  if (!env.FEISHU_WEBHOOK) return;
+  if (!env.FEISHU_WEBHOOK) {
+    console.log('[LOG] 未配置飞书Webhook，跳过发送');
+    return;
+  }
   
   // 全局提醒去重：相同分钟只发一次
   const now = new Date();
@@ -337,16 +340,14 @@ async function sendGlobalAlert(env, funds) {
   const lockKey = `globalAlertLock_${timeKey}`;
   
   try {
-    const lockAcquired = await env.FUNDS_KV?.put(lockKey, 'locked', {
-      expirationTtl: 2 * 60, // 2分钟过期
-      onlyIf: 'not_exists'
-    });
-    
-    if (!lockAcquired) {
+    // 检查是否已经发送过
+    const existingLock = await env.FUNDS_KV?.get(lockKey);
+    if (existingLock) {
       console.log('[LOG] 相同时间已发送过全局提醒，跳过');
       return;
     }
     
+    // 发送飞书通知
     const t = now.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
     let msg = `📈 溢价提醒 - 全局汇总\n检测时间: ${t}\n\n`;
     funds.forEach(({ fund, premiumRate }) => {
@@ -354,36 +355,42 @@ async function sendGlobalAlert(env, funds) {
       msg += `• ${fund.code} ${fund.name}: ${p} (${fund.quota || '未知'})\n`;
     });
     
-    await fetch(env.FEISHU_WEBHOOK, { 
+    const response = await fetch(env.FEISHU_WEBHOOK, { 
       method: 'POST', 
       headers: { 'Content-Type': 'application/json' }, 
       body: JSON.stringify({ msg_type: 'text', content: { text: msg } }) 
     });
     
-    console.log('[LOG] 全局溢价提醒已发送');
+    if (response.ok) {
+      // 发送成功后写入锁（2分钟过期）
+      await env.FUNDS_KV?.put(lockKey, '1', { expirationTtl: 120 });
+      console.log('[LOG] 全局溢价提醒已发送');
+    } else {
+      console.error('[ERROR] 飞书通知发送失败:', response.status);
+    }
   } catch (error) {
     console.error('[ERROR] 发送全局溢价提醒失败:', error.message);
   }
 }
 
 async function sendDynamicAlerts(env, alerts, fundsData) {
-  if (!env.FEISHU_WEBHOOK) return;
+  if (!env.FEISHU_WEBHOOK) {
+    console.log('[LOG] 未配置飞书Webhook，跳过发送');
+    return;
+  }
   
   // 动态提醒去重：2分钟内只发一次
-  const now = Date.now();
   const lockKey = 'dynamicAlertLock';
   
   try {
-    const lockAcquired = await env.FUNDS_KV?.put(lockKey, 'locked', {
-      expirationTtl: 2 * 60, // 2分钟过期
-      onlyIf: 'not_exists'
-    });
-    
-    if (!lockAcquired) {
+    // 检查是否已经发送过
+    const existingLock = await env.FUNDS_KV?.get(lockKey);
+    if (existingLock) {
       console.log('[LOG] 2分钟内已发送过动态提醒，跳过');
       return;
     }
     
+    // 发送飞书通知
     const t = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
     let msg = `📊 溢价提醒 - 动态变化\n检测时间: ${t}\n\n`;
     alerts.forEach(a => {
@@ -391,13 +398,19 @@ async function sendDynamicAlerts(env, alerts, fundsData) {
       msg += `• ${a.fundCode} ${f?.name || a.fundCode}: ${a.type}\n  当前: ${a.premium.toFixed(2)}%  变化: ${a.change.toFixed(2)}%  ${f?.quota || '未知'}\n`;
     });
     
-    await fetch(env.FEISHU_WEBHOOK, { 
+    const response = await fetch(env.FEISHU_WEBHOOK, { 
       method: 'POST', 
       headers: { 'Content-Type': 'application/json' }, 
       body: JSON.stringify({ msg_type: 'text', content: { text: msg } }) 
     });
     
-    console.log('[LOG] 动态溢价提醒已发送');
+    if (response.ok) {
+      // 发送成功后写入锁（2分钟过期）
+      await env.FUNDS_KV?.put(lockKey, '1', { expirationTtl: 120 });
+      console.log('[LOG] 动态溢价提醒已发送');
+    } else {
+      console.error('[ERROR] 飞书通知发送失败:', response.status);
+    }
   } catch (error) {
     console.error('[ERROR] 发送动态溢价提醒失败:', error.message);
   }
