@@ -5,6 +5,3 @@ node_modules/
 .wrangler/
 dist/
 build/
-
-# 基金数据文件由 GitHub Actions 自动更新，不纳入版本控制
-data/funds.json
