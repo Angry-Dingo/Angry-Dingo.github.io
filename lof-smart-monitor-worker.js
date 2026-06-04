@@ -6,25 +6,22 @@ export default {
     const day = now.getUTCDay();
     const cron = event.cron;
 
-    // 转换为北京时间
     const beijingHour = (hour + 8) % 24;
     const beijingDay = (hour + 8 >= 24) ? (day + 1) % 7 : day;
-    
-    console.log(`[LOG] UTC时间: ${hour}:${minute}, 星期: ${day}, 北京时间: ${beijingHour}:${minute}, 星期: ${beijingDay}, Cron: ${cron}`);
 
-    // ✅ 判断任务类型
-    // 数据同步任务：仅在工作日北京时间 7:00 和 20:00 执行
+    console.log(`[LOG] UTC: ${hour}:${minute}, 星期: ${day}, 北京: ${beijingHour}:${minute}, 星期: ${beijingDay}, Cron: ${cron}`);
+
     const isWeekday = (beijingDay >= 1 && beijingDay <= 5);
     const isSyncTime = isWeekday && (
       (beijingHour === 7 && minute === 0) ||
       (beijingHour === 20 && minute === 0)
     );
-    
+
     if (isSyncTime) {
-      console.log('[LOG] 执行数据同步任务（工作日定时）');
+      console.log('[LOG] 执行数据同步任务');
       ctx.waitUntil(syncDataFromGitHub(env));
     } else {
-      console.log('[LOG] 执行溢价监控任务（Cron触发）');
+      console.log('[LOG] 执行溢价监控任务');
       ctx.waitUntil(smartMonitor(env));
     }
   },
@@ -43,17 +40,22 @@ export default {
   }
 };
 
+function quotaIcon(quota) {
+  if (!quota) return '⚪';
+  if (quota === '暂停') return '🔴';
+  if (quota === '开放') return '🟢';
+  return '🟠';
+}
+
 // ==================== 数据同步任务 ====================
 async function syncDataFromGitHub(env) {
   try {
     console.log('[LOG] === 开始数据同步任务 ===');
-    
-    // 从GitHub拉取最新数据
+
     const res = await fetch('https://raw.githubusercontent.com/Angry-Dingo/Angry-Dingo.github.io/main/data/funds.json');
     const fundsData = await res.json();
     console.log(`[LOG] 从GitHub加载 ${fundsData.funds.length} 只基金`);
-    
-    // 计算申购状态变化
+
     let changes = [];
     if (env.FUNDS_KV) {
       const oldData = await env.FUNDS_KV.get('funds');
@@ -61,7 +63,7 @@ async function syncDataFromGitHub(env) {
         const oldFunds = JSON.parse(oldData);
         const oldQuotaMap = {};
         oldFunds.funds.forEach(f => { oldQuotaMap[f.code] = f.quota; });
-        
+
         fundsData.funds.forEach(f => {
           if (f.quota !== oldQuotaMap[f.code]) {
             changes.push({
@@ -74,14 +76,12 @@ async function syncDataFromGitHub(env) {
         });
       }
     }
-    
-    // 写入KV
+
     if (env.FUNDS_KV) {
       await env.FUNDS_KV.put('funds', JSON.stringify(fundsData, null, 2));
       console.log('[LOG] KV 存储成功');
     }
-    
-    // 发送飞书通知
+
     await sendQuotaUpdateAlert(env, fundsData.funds.length, changes);
     console.log('[LOG] 数据同步任务完成');
   } catch (error) {
@@ -94,16 +94,15 @@ async function sendQuotaUpdateAlert(env, totalCount, changes) {
     console.log('[LOG] 未配置飞书Webhook，跳过发送');
     return;
   }
-  
+
   const now = Date.now();
-  
-  // 检查5分钟内是否已发送过
+
   const lastSendTime = await env.FUNDS_KV?.get('lastQuotaAlertTime');
   if (lastSendTime && now - parseInt(lastSendTime) < 5 * 60 * 1000) {
     console.log('[LOG] 5分钟内已发送过申购状态更新通知，跳过');
     return;
   }
-  
+
   try {
     const t = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
     let msg = `📊 申购状态更新完成 (${t})\n\n`;
@@ -112,29 +111,29 @@ async function sendQuotaUpdateAlert(env, totalCount, changes) {
     if (changes.length > 0) {
       msg += '\n📋 变化列表:\n';
       changes.forEach(({ code, name, oldQuota, newQuota }) => {
-        msg += `• ${code} ${name}: ${oldQuota} → ${newQuota}\n`;
+        const oldIcon = quotaIcon(oldQuota);
+        const newIcon = quotaIcon(newQuota);
+        msg += `• ${code} ${name}: ${oldIcon}${oldQuota} → ${newIcon}${newQuota}\n`;
       });
     }
-    
+
     const response = await fetch(env.FEISHU_WEBHOOK, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ msg_type: 'text', content: { text: msg } })
     });
-    
+
     if (response.ok) {
-      // 发送成功后更新最后发送时间
       await env.FUNDS_KV?.put('lastQuotaAlertTime', now.toString());
       console.log('[LOG] 申购状态更新通知已发送');
     } else {
       console.error('[ERROR] 飞书通知发送失败:', response.status);
     }
-    
+
   } catch (error) {
     console.error('[ERROR] 发送申购状态通知失败:', error.message);
   }
 }
-
 
 // ==================== 溢价监控 ====================
 const PREMIUM_HISTORY = {};
@@ -146,8 +145,7 @@ async function smartMonitor(env, isTestMode = false) {
     const hour = now.getUTCHours();
     const m = now.getUTCMinutes();
     const day = now.getUTCDay();
-    
-    // 转换为北京时间
+
     const h = (hour + 8) % 24;
     const d = (hour + 8 >= 24) ? (day + 1) % 7 : day;
 
@@ -207,8 +205,7 @@ async function smartMonitor(env, isTestMode = false) {
     }
 
     console.log(`[LOG] 异常基金数量: ${allAbnormalFunds.length}`);
-    
-    // 调试日志：打印所有基金的溢价情况
+
     if (allAbnormalFunds.length > 0) {
       console.log('[LOG] 异常基金详情:');
       allAbnormalFunds.forEach(({ fund, premiumRate }) => {
@@ -269,18 +266,15 @@ function checkDynamicChange(code, premium) {
 }
 
 async function loadFundsData(env) {
-  // 优先从GitHub拉取最新数据，然后更新KV
   try {
     const res = await fetch('https://raw.githubusercontent.com/Angry-Dingo/Angry-Dingo.github.io/main/data/funds.json');
     const data = await res.json();
-    // 更新KV
     if (env.FUNDS_KV) {
       await env.FUNDS_KV.put('funds', JSON.stringify(data, null, 2));
     }
     return data;
   } catch (e) {
     console.error('[ERROR] 从GitHub拉取数据失败，回退到KV:', e.message);
-    // 回退到KV
     if (env.FUNDS_KV) {
       const d = await env.FUNDS_KV.get('funds');
       if (d) return JSON.parse(d);
@@ -321,36 +315,35 @@ async function sendGlobalAlert(env, funds) {
     console.log('[LOG] 未配置飞书Webhook，跳过发送');
     return;
   }
-  
-  // 全局提醒去重：相同分钟只发一次
+
   const now = new Date();
   const timeKey = `${now.getHours()}:${now.getMinutes()}`;
   const lockKey = `globalAlertLock_${timeKey}`;
-  
+
   try {
-    // 检查是否已经发送过
     const existingLock = await env.FUNDS_KV?.get(lockKey);
     if (existingLock) {
       console.log('[LOG] 相同时间已发送过全局提醒，跳过');
       return;
     }
-    
-    // 发送飞书通知
+
+    const sorted = [...funds].sort((a, b) => b.premiumRate - a.premiumRate);
+
     const t = now.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
     let msg = `📈 溢价提醒 - 全局汇总\n检测时间: ${t}\n\n`;
-    funds.forEach(({ fund, premiumRate }) => {
+    sorted.forEach(({ fund, premiumRate }) => {
       const p = premiumRate >= 0 ? `+${premiumRate.toFixed(2)}%` : `${premiumRate.toFixed(2)}%`;
-      msg += `• ${fund.code} ${fund.name}: ${p} (${fund.quota || '未知'})\n`;
+      const icon = quotaIcon(fund.quota);
+      msg += `• ${fund.code} ${fund.name}: ${p}  ${icon}${fund.quota || '未知'}\n`;
     });
-    
-    const response = await fetch(env.FEISHU_WEBHOOK, { 
-      method: 'POST', 
-      headers: { 'Content-Type': 'application/json' }, 
-      body: JSON.stringify({ msg_type: 'text', content: { text: msg } }) 
+
+    const response = await fetch(env.FEISHU_WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ msg_type: 'text', content: { text: msg } })
     });
-    
+
     if (response.ok) {
-      // 发送成功后写入锁（2分钟过期）
       await env.FUNDS_KV?.put(lockKey, '1', { expirationTtl: 120 });
       console.log('[LOG] 全局溢价提醒已发送');
     } else {
@@ -366,34 +359,31 @@ async function sendDynamicAlerts(env, alerts, fundsData) {
     console.log('[LOG] 未配置飞书Webhook，跳过发送');
     return;
   }
-  
-  // 动态提醒去重：2分钟内只发一次
+
   const lockKey = 'dynamicAlertLock';
-  
+
   try {
-    // 检查是否已经发送过
     const existingLock = await env.FUNDS_KV?.get(lockKey);
     if (existingLock) {
       console.log('[LOG] 2分钟内已发送过动态提醒，跳过');
       return;
     }
-    
-    // 发送飞书通知
+
     const t = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
     let msg = `📊 溢价提醒 - 动态变化\n检测时间: ${t}\n\n`;
     alerts.forEach(a => {
       const f = fundsData.funds.find(x => x.code === a.fundCode);
-      msg += `• ${a.fundCode} ${f?.name || a.fundCode}: ${a.type}\n  当前: ${a.premium.toFixed(2)}%  变化: ${a.change.toFixed(2)}%  ${f?.quota || '未知'}\n`;
+      const icon = quotaIcon(f?.quota);
+      msg += `• ${a.fundCode} ${f?.name || a.fundCode}: ${a.type}\n  当前: ${a.premium.toFixed(2)}%  变化: ${a.change.toFixed(2)}%  ${icon}${f?.quota || '未知'}\n`;
     });
-    
-    const response = await fetch(env.FEISHU_WEBHOOK, { 
-      method: 'POST', 
-      headers: { 'Content-Type': 'application/json' }, 
-      body: JSON.stringify({ msg_type: 'text', content: { text: msg } }) 
+
+    const response = await fetch(env.FEISHU_WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ msg_type: 'text', content: { text: msg } })
     });
-    
+
     if (response.ok) {
-      // 发送成功后写入锁（2分钟过期）
       await env.FUNDS_KV?.put(lockKey, '1', { expirationTtl: 120 });
       console.log('[LOG] 动态溢价提醒已发送');
     } else {
