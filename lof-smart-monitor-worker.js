@@ -9,7 +9,7 @@ export default {
     const beijingHour = (hour + 8) % 24;
     const beijingDay = (hour + 8 >= 24) ? (day + 1) % 7 : day;
 
-    console.log(`[LOG] UTC: ${hour}:${minute}, 星期: ${day}, 北京: ${beijingHour}:${minute}, 星期: ${beijingDay}, Cron: ${cron}`);
+    console.log(`[LOG] UTC: ${hour}:${minute}, 鏄熸湡: ${day}, 鍖椾含: ${beijingHour}:${minute}, 鏄熸湡: ${beijingDay}, Cron: ${cron}`);
 
     const isWeekday = (beijingDay >= 1 && beijingDay <= 5);
     const isSyncTime = isWeekday && (
@@ -18,10 +18,10 @@ export default {
     );
 
     if (isSyncTime) {
-      console.log('[LOG] 执行数据同步任务');
+      console.log('[LOG] 鎵ц鏁版嵁鍚屾浠诲姟');
       ctx.waitUntil(syncDataFromGitHub(env));
     } else {
-      console.log('[LOG] 执行溢价监控任务');
+      console.log('[LOG] 鎵ц婧环鐩戞帶浠诲姟');
       ctx.waitUntil(smartMonitor(env));
     }
   },
@@ -30,31 +30,31 @@ export default {
     const url = new URL(request.url);
     if (url.pathname === '/test') {
       ctx.waitUntil(smartMonitor(env, true));
-      return new Response('测试已触发', { status: 200 });
+      return new Response('娴嬭瘯宸茶Е鍙?, { status: 200 });
     }
     if (url.pathname === '/sync') {
       ctx.waitUntil(syncDataFromGitHub(env));
-      return new Response('数据同步已触发', { status: 200 });
+      return new Response('鏁版嵁鍚屾宸茶Е鍙?, { status: 200 });
     }
-    return new Response('LOF 基金监控服务', { status: 200 });
+    return new Response('LOF 鍩洪噾鐩戞帶鏈嶅姟', { status: 200 });
   }
 };
 
 function quotaIcon(quota) {
-  if (!quota) return '⚪';
-  if (quota === '暂停') return '🔴';
-  if (quota === '开放') return '🟢';
-  return '🟠';
+  if (!quota) return '鈿?;
+  if (quota === '鏆傚仠') return '馃敶';
+  if (quota === '寮€鏀?) return '馃煝';
+  return '馃煚';
 }
 
-// ==================== 数据同步任务 ====================
+// ==================== 鏁版嵁鍚屾浠诲姟 ====================
 async function syncDataFromGitHub(env) {
   try {
-    console.log('[LOG] === 开始数据同步任务 ===');
+    console.log('[LOG] === 寮€濮嬫暟鎹悓姝ヤ换鍔?===');
 
     const res = await fetch('https://raw.githubusercontent.com/Angry-Dingo/Angry-Dingo.github.io/main/data/funds.json');
     const fundsData = await res.json();
-    console.log(`[LOG] 从GitHub加载 ${fundsData.funds.length} 只基金`);
+    console.log(`[LOG] 浠嶨itHub鍔犺浇 ${fundsData.funds.length} 鍙熀閲慲);
 
     let changes = [];
     if (env.FUNDS_KV) {
@@ -69,7 +69,7 @@ async function syncDataFromGitHub(env) {
             changes.push({
               code: f.code,
               name: f.name,
-              oldQuota: oldQuotaMap[f.code] || '未知',
+              oldQuota: oldQuotaMap[f.code] || '鏈煡',
               newQuota: f.quota
             });
           }
@@ -79,19 +79,19 @@ async function syncDataFromGitHub(env) {
 
     if (env.FUNDS_KV) {
       await env.FUNDS_KV.put('funds', JSON.stringify(fundsData, null, 2));
-      console.log('[LOG] KV 存储成功');
+      console.log('[LOG] KV 瀛樺偍鎴愬姛');
     }
 
     await sendQuotaUpdateAlert(env, fundsData.funds.length, changes);
-    console.log('[LOG] 数据同步任务完成');
+    console.log('[LOG] 鏁版嵁鍚屾浠诲姟瀹屾垚');
   } catch (error) {
-    console.error('[ERROR] 数据同步任务失败:', error.message);
+    console.error('[ERROR] 鏁版嵁鍚屾浠诲姟澶辫触:', error.message);
   }
 }
 
 async function sendQuotaUpdateAlert(env, totalCount, changes) {
   if (!env.FEISHU_WEBHOOK) {
-    console.log('[LOG] 未配置飞书Webhook，跳过发送');
+    console.log('[LOG] 鏈厤缃涔ebhook锛岃烦杩囧彂閫?);
     return;
   }
 
@@ -99,21 +99,21 @@ async function sendQuotaUpdateAlert(env, totalCount, changes) {
 
   const lastSendTime = await env.FUNDS_KV?.get('lastQuotaAlertTime');
   if (lastSendTime && now - parseInt(lastSendTime) < 5 * 60 * 1000) {
-    console.log('[LOG] 5分钟内已发送过申购状态更新通知，跳过');
+    console.log('[LOG] 5鍒嗛挓鍐呭凡鍙戦€佽繃鐢宠喘鐘舵€佹洿鏂伴€氱煡锛岃烦杩?);
     return;
   }
 
   try {
     const t = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
-    let msg = `📊 申购状态更新完成 (${t})\n\n`;
-    msg += `总计获取: ${totalCount} 只基金\n`;
-    msg += `状态变化: ${changes.length} 只基金\n`;
+    let msg = `馃搳 鐢宠喘鐘舵€佹洿鏂板畬鎴?(${t})\n\n`;
+    msg += `鎬昏鑾峰彇: ${totalCount} 鍙熀閲慭n`;
+    msg += `鐘舵€佸彉鍖? ${changes.length} 鍙熀閲慭n`;
     if (changes.length > 0) {
-      msg += '\n📋 变化列表:\n';
+      msg += '\n馃搵 鍙樺寲鍒楄〃:\n';
       changes.forEach(({ code, name, oldQuota, newQuota }) => {
         const oldIcon = quotaIcon(oldQuota);
         const newIcon = quotaIcon(newQuota);
-        msg += `• ${code} ${name}: ${oldIcon}${oldQuota} → ${newIcon}${newQuota}\n`;
+        msg += `鈥?${code} ${name}: ${oldIcon}${oldQuota} 鈫?${newIcon}${newQuota}\n`;
       });
     }
 
@@ -125,17 +125,17 @@ async function sendQuotaUpdateAlert(env, totalCount, changes) {
 
     if (response.ok) {
       await env.FUNDS_KV?.put('lastQuotaAlertTime', now.toString());
-      console.log('[LOG] 申购状态更新通知已发送');
+      console.log('[LOG] 鐢宠喘鐘舵€佹洿鏂伴€氱煡宸插彂閫?);
     } else {
-      console.error('[ERROR] 飞书通知发送失败:', response.status);
+      console.error('[ERROR] 椋炰功閫氱煡鍙戦€佸け璐?', response.status);
     }
 
   } catch (error) {
-    console.error('[ERROR] 发送申购状态通知失败:', error.message);
+    console.error('[ERROR] 鍙戦€佺敵璐姸鎬侀€氱煡澶辫触:', error.message);
   }
 }
 
-// ==================== 溢价监控 ====================
+// ==================== 婧环鐩戞帶 ====================
 const PREMIUM_HISTORY = {};
 const LAST_ALERT_TIME = {};
 
@@ -149,7 +149,7 @@ async function smartMonitor(env, isTestMode = false) {
     const h = (hour + 8) % 24;
     const d = (hour + 8 >= 24) ? (day + 1) % 7 : day;
 
-    console.log(`[LOG] smartMonitor - 北京时间: ${h}:${m}, 星期: ${d}`);
+    console.log(`[LOG] smartMonitor - 鍖椾含鏃堕棿: ${h}:${m}, 鏄熸湡: ${d}`);
 
     const isTrading = isTestMode || (
       (d >= 1 && d <= 5) && (
@@ -163,7 +163,7 @@ async function smartMonitor(env, isTestMode = false) {
     );
 
     if (!isTrading) {
-      console.log('[LOG] 不在交易时间，跳过');
+      console.log('[LOG] 涓嶅湪浜ゆ槗鏃堕棿锛岃烦杩?);
       return;
     }
 
@@ -204,34 +204,34 @@ async function smartMonitor(env, isTestMode = false) {
       }
     }
 
-    console.log(`[LOG] 异常基金数量: ${allAbnormalFunds.length}`);
+    console.log(`[LOG] 寮傚父鍩洪噾鏁伴噺: ${allAbnormalFunds.length}`);
 
     if (allAbnormalFunds.length > 0) {
-      console.log('[LOG] 异常基金详情:');
+      console.log('[LOG] 寮傚父鍩洪噾璇︽儏:');
       allAbnormalFunds.forEach(({ fund, premiumRate }) => {
         console.log(`[LOG]   ${fund.code} ${fund.name}: ${premiumRate.toFixed(2)}%`);
       });
     } else {
-      console.log('[LOG] 没有异常基金，不会发送提醒');
+      console.log('[LOG] 娌℃湁寮傚父鍩洪噾锛屼笉浼氬彂閫佹彁閱?);
     }
 
     if (isGlobalAlert) {
       if (allAbnormalFunds.length > 0) {
-        console.log('[LOG] 发送全局提醒');
+        console.log('[LOG] 鍙戦€佸叏灞€鎻愰啋');
         await sendGlobalAlert(env, allAbnormalFunds);
       } else {
-        console.log('[LOG] 全局提醒时间但无异常基金，不发送');
+        console.log('[LOG] 鍏ㄥ眬鎻愰啋鏃堕棿浣嗘棤寮傚父鍩洪噾锛屼笉鍙戦€?);
       }
     } else {
       if (alerts.length > 0) {
-        console.log('[LOG] 发送动态提醒');
+        console.log('[LOG] 鍙戦€佸姩鎬佹彁閱?);
         await sendDynamicAlerts(env, alerts, fundsData);
       } else {
-        console.log('[LOG] 动态提醒时间但无符合条件的基金，不发送');
+        console.log('[LOG] 鍔ㄦ€佹彁閱掓椂闂翠絾鏃犵鍚堟潯浠剁殑鍩洪噾锛屼笉鍙戦€?);
       }
     }
   } catch (e) {
-    console.error('[ERROR] 监控失败:', e);
+    console.error('[ERROR] 鐩戞帶澶辫触:', e);
   }
 }
 
@@ -260,7 +260,7 @@ function checkDynamicChange(code, premium) {
 
   if (Math.abs(change) >= 1.5 && Math.abs(premium) >= 3 && (now - (LAST_ALERT_TIME[code] || 0) > 10 * 60 * 1000)) {
     LAST_ALERT_TIME[code] = now;
-    return { fundCode: code, premium, change, type: change > 0 ? '溢价上升' : '折价加深' };
+    return { fundCode: code, premium, change, type: change > 0 ? '婧环涓婂崌' : '鎶樹环鍔犳繁' };
   }
   return null;
 }
@@ -274,7 +274,7 @@ async function loadFundsData(env) {
     }
     return data;
   } catch (e) {
-    console.error('[ERROR] 从GitHub拉取数据失败，回退到KV:', e.message);
+    console.error('[ERROR] 浠嶨itHub鎷夊彇鏁版嵁澶辫触锛屽洖閫€鍒癒V:', e.message);
     if (env.FUNDS_KV) {
       const d = await env.FUNDS_KV.get('funds');
       if (d) return JSON.parse(d);
@@ -307,12 +307,32 @@ async function fetchMarketData(fundsData) {
       else indexData[m[1]] = chg;
     }
   });
+
+  // 琛ュ厖涓滄柟璐㈠瘜鏁版嵁婧愶紙鑵捐qt涓嶆敮鎸佺殑鎸囨暟锛氫腑璇佽嚜瀹氫箟鎸囨暟銆佸€哄埜鎸囨暟绛夛級
+  const EM_CODES = [
+    ['csi930917', '2.930917'],
+    ['csi930914', '2.930914'],
+    ['csi930792', '2.930792'],
+    ['sh000985',  '1.000985'],
+    ['sh000066',  '1.000066'],
+    ['sh000945',  '1.000945'],
+  ];
+  await Promise.all(EM_CODES.map(async ([tq, secid]) => {
+    try {
+      const r = await fetch(`https://push2.eastmoney.com/api/qt/stock/get?secid=${secid}&fields=f43,f170&_=${Date.now()}`);
+      const d = await r.json();
+      if (d.data && d.data.f43 > 0 && d.data.f170 !== undefined) {
+        indexData[tq] = d.data.f170 / 100;
+      }
+    } catch (e) {}
+  }));
+
   return { fundMarketData, indexData };
 }
 
 async function sendGlobalAlert(env, funds) {
   if (!env.FEISHU_WEBHOOK) {
-    console.log('[LOG] 未配置飞书Webhook，跳过发送');
+    console.log('[LOG] 鏈厤缃涔ebhook锛岃烦杩囧彂閫?);
     return;
   }
 
@@ -323,18 +343,18 @@ async function sendGlobalAlert(env, funds) {
   try {
     const existingLock = await env.FUNDS_KV?.get(lockKey);
     if (existingLock) {
-      console.log('[LOG] 相同时间已发送过全局提醒，跳过');
+      console.log('[LOG] 鐩稿悓鏃堕棿宸插彂閫佽繃鍏ㄥ眬鎻愰啋锛岃烦杩?);
       return;
     }
 
     const sorted = [...funds].sort((a, b) => b.premiumRate - a.premiumRate);
 
     const t = now.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
-    let msg = `📈 溢价提醒 - 全局汇总\n检测时间: ${t}\n\n`;
+    let msg = `馃搱 婧环鎻愰啋 - 鍏ㄥ眬姹囨€籠n妫€娴嬫椂闂? ${t}\n\n`;
     sorted.forEach(({ fund, premiumRate }) => {
       const p = premiumRate >= 0 ? `+${premiumRate.toFixed(2)}%` : `${premiumRate.toFixed(2)}%`;
       const icon = quotaIcon(fund.quota);
-      msg += `• ${fund.code} ${fund.name}: ${p}  ${icon}${fund.quota || '未知'}\n`;
+      msg += `鈥?${fund.code} ${fund.name}: ${p}  ${icon}${fund.quota || '鏈煡'}\n`;
     });
 
     const response = await fetch(env.FEISHU_WEBHOOK, {
@@ -345,18 +365,18 @@ async function sendGlobalAlert(env, funds) {
 
     if (response.ok) {
       await env.FUNDS_KV?.put(lockKey, '1', { expirationTtl: 120 });
-      console.log('[LOG] 全局溢价提醒已发送');
+      console.log('[LOG] 鍏ㄥ眬婧环鎻愰啋宸插彂閫?);
     } else {
-      console.error('[ERROR] 飞书通知发送失败:', response.status);
+      console.error('[ERROR] 椋炰功閫氱煡鍙戦€佸け璐?', response.status);
     }
   } catch (error) {
-    console.error('[ERROR] 发送全局溢价提醒失败:', error.message);
+    console.error('[ERROR] 鍙戦€佸叏灞€婧环鎻愰啋澶辫触:', error.message);
   }
 }
 
 async function sendDynamicAlerts(env, alerts, fundsData) {
   if (!env.FEISHU_WEBHOOK) {
-    console.log('[LOG] 未配置飞书Webhook，跳过发送');
+    console.log('[LOG] 鏈厤缃涔ebhook锛岃烦杩囧彂閫?);
     return;
   }
 
@@ -365,16 +385,16 @@ async function sendDynamicAlerts(env, alerts, fundsData) {
   try {
     const existingLock = await env.FUNDS_KV?.get(lockKey);
     if (existingLock) {
-      console.log('[LOG] 2分钟内已发送过动态提醒，跳过');
+      console.log('[LOG] 2鍒嗛挓鍐呭凡鍙戦€佽繃鍔ㄦ€佹彁閱掞紝璺宠繃');
       return;
     }
 
     const t = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
-    let msg = `📊 溢价提醒 - 动态变化\n检测时间: ${t}\n\n`;
+    let msg = `馃搳 婧环鎻愰啋 - 鍔ㄦ€佸彉鍖朶n妫€娴嬫椂闂? ${t}\n\n`;
     alerts.forEach(a => {
       const f = fundsData.funds.find(x => x.code === a.fundCode);
       const icon = quotaIcon(f?.quota);
-      msg += `• ${a.fundCode} ${f?.name || a.fundCode}: ${a.type}\n  当前: ${a.premium.toFixed(2)}%  变化: ${a.change.toFixed(2)}%  ${icon}${f?.quota || '未知'}\n`;
+      msg += `鈥?${a.fundCode} ${f?.name || a.fundCode}: ${a.type}\n  褰撳墠: ${a.premium.toFixed(2)}%  鍙樺寲: ${a.change.toFixed(2)}%  ${icon}${f?.quota || '鏈煡'}\n`;
     });
 
     const response = await fetch(env.FEISHU_WEBHOOK, {
@@ -385,11 +405,11 @@ async function sendDynamicAlerts(env, alerts, fundsData) {
 
     if (response.ok) {
       await env.FUNDS_KV?.put(lockKey, '1', { expirationTtl: 120 });
-      console.log('[LOG] 动态溢价提醒已发送');
+      console.log('[LOG] 鍔ㄦ€佹孩浠锋彁閱掑凡鍙戦€?);
     } else {
-      console.error('[ERROR] 飞书通知发送失败:', response.status);
+      console.error('[ERROR] 椋炰功閫氱煡鍙戦€佸け璐?', response.status);
     }
   } catch (error) {
-    console.error('[ERROR] 发送动态溢价提醒失败:', error.message);
+    console.error('[ERROR] 鍙戦€佸姩鎬佹孩浠锋彁閱掑け璐?', error.message);
   }
 }
