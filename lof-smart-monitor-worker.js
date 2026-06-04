@@ -327,6 +327,14 @@ async function fetchMarketData(fundsData) {
     } catch (e) {}
   }));
 
+  // 鎸囨暟闄嶇骇锛氳吘璁垨涓滄柟璐㈠瘜鏌ヤ笉鍒扮殑鎸囨暟锛岀敤鐩歌繎鎸囨暟鏇夸唬
+  if (indexData['hkHSMI'] == null || indexData['hkHSMI'] === 0) {
+    if (indexData['hkHSI'] != null) indexData['hkHSMI'] = indexData['hkHSI'];
+  }
+  if (indexData['hkHSCI'] == null || indexData['hkHSCI'] === 0) {
+    if (indexData['hkHSI'] != null) indexData['hkHSCI'] = indexData['hkHSI'];
+  }
+
   return { fundMarketData, indexData };
 }
 
