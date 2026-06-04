@@ -11,13 +11,9 @@ export default {
 
     console.log(`[LOG] UTC: ${hour}:${minute}, 星期: ${day}, 北京: ${beijingHour}:${minute}, 星期: ${beijingDay}, Cron: ${cron}`);
 
-    const isWeekday = (beijingDay >= 1 && beijingDay <= 5);
-    const isSyncTime = isWeekday && (
-      (beijingHour === 7 && minute === 0) ||
-      (beijingHour === 20 && minute === 0)
-    );
-
-    if (isSyncTime) {
+    // 精确匹配专用同步cron，避免与 */5 监控cron同时触发导致重复推送
+    // 同步cron: 0 23 * * 0-4 (UTC 23:00 = 北京 7:00) / 0 12 * * 1-5 (UTC 12:00 = 北京 20:00)
+    if (cron === '0 23 * * 0-4' || cron === '0 12 * * 1-5') {
       console.log('[LOG] 执行数据同步任务');
       ctx.waitUntil(syncDataFromGitHub(env));
     } else {
