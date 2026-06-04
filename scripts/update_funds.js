@@ -11,11 +11,10 @@ const FUNDS_JSON_PATH = path.join(__dirname, '../data/funds.json');
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 async function fetchSingleNav(code) {
-  // 鏂规1: fundgz瀹炴椂浼扮畻鍑€鍊硷紙浜ゆ槗鏃舵鏈夋晥锛孮DII甯镐负绌猴級
   try {
     const url = `https://fundgz.1234567.com.cn/js/${code}.js?rt=${Date.now()}`;
     const text = await httpGet(url);
-    
+
     if (text && text.trim() !== '') {
       const match = text.match(/jsonpgz\(([^)]+)\)/);
       if (match && match[1]) {
@@ -28,7 +27,6 @@ async function fetchSingleNav(code) {
     }
   } catch (e) {}
 
-  // 鏂规2: 澶╁ぉ鍩洪噾鍘嗗彶鍑€鍊糀PI锛坒allback锛屽QDII鏈夋晥锛?
   try {
     const text = await httpGet(`https://api.fund.eastmoney.com/f10/lsjz?callback=jQuery&fundCode=${code}&pageIndex=1&pageSize=5&startDate=&endDate=`, { Referer: 'https://fund.eastmoney.com/' });
     if (text) {
@@ -70,49 +68,49 @@ async function fetchSingleQuota(code) {
     const html = await httpGet(url);
     if (!html) return null;
 
-    if (html.match(/鏆傚仠鐢宠喘|鏆傚仠澶ч鐢宠喘|鏆傚仠澶ч|澶ч鏆傚仠/)) {
+    if (html.match(/暂停申购|暂停大额申购|暂停大额|大额暂停/)) {
       return { limit: 0 };
     }
 
-    let limitMatch = html.match(/鐢宠喘闄愰[锛?]\s*([\d.]+)\s*涓囧厓?/);
+    let limitMatch = html.match(/申购限额[：:]\s*([\d.]+)\s*万元?/);
     if (limitMatch && limitMatch[1]) {
       const limit = parseFloat(limitMatch[1]);
       if (limit > 0) return { limit: limit * 10000 };
     }
 
-    limitMatch = html.match(/鍗曠瑪闄愰\s*([\d.]+)\s*涓囧厓?/);
+    limitMatch = html.match(/单笔限额\s*([\d.]+)\s*万元?/);
     if (limitMatch && limitMatch[1]) {
       const limit = parseFloat(limitMatch[1]);
       if (limit > 0) return { limit: limit * 10000 };
     }
 
-    limitMatch = html.match(/鍗曟棩绱鐢宠喘涓婇檺\s*([\d.]+)\s*涓囧厓?/);
+    limitMatch = html.match(/单日累计申购上限\s*([\d.]+)\s*万元?/);
     if (limitMatch && limitMatch[1]) {
       const limit = parseFloat(limitMatch[1]);
       if (limit > 0) return { limit: limit * 10000 };
     }
 
-    limitMatch = html.match(/鍗曟棩绱璐拱涓婇檺\s*([\d.]+)\s*涓囧厓?/);
+    limitMatch = html.match(/单日累计购买上限\s*([\d.]+)\s*万元?/);
     if (limitMatch && limitMatch[1]) {
       const limit = parseFloat(limitMatch[1]);
       if (limit > 0) return { limit: limit * 10000 };
     }
 
-    limitMatch = html.match(/鍗曚釜鎶曡祫鑰呭崟鏃ョ疮璁＄敵璐噾棰濅笂闄愪负[^<]*?([\d.]+)\s*涓囧厓?/);
+    limitMatch = html.match(/单个投资者单日累计申购金额上限为[^<]*?([\d.]+)\s*万元?/);
     if (limitMatch && limitMatch[1]) {
       const limit = parseFloat(limitMatch[1]);
       if (limit > 0) return { limit: limit * 10000 };
     }
 
-    limitMatch = html.match(/鍗曟棩绱璐拱涓婇檺\s*([\d,.]+)\s*鍏??!涓?/);
+    limitMatch = html.match(/单日累计购买上限\s*([\d,.]+)\s*元(?!万)/);
     if (limitMatch && limitMatch[1]) {
       const limit = parseFloat(limitMatch[1].replace(/,/g, ''));
       if (limit > 0) return { limit };
     }
 
-    if (html.match(/闄愬ぇ棰潀澶ч闄愯喘/)) return { limit: -1 };
+    if (html.match(/限大额|大额限购/)) return { limit: -1 };
 
-    if (html.match(/寮€鏀剧敵璐?)) return { limit: null };
+    if (html.match(/开放申购/)) return { limit: null };
 
   } catch (e) {
     console.log(`Detail page request failed for ${code}: ${e.message}`);
@@ -121,38 +119,38 @@ async function fetchSingleQuota(code) {
 }
 
 function formatQuotaText(limit) {
-  if (limit === 0) return '鏆傚仠';
-  if (limit === null) return '寮€鏀?;
-  if (limit === -1) return '闄愬ぇ棰?;
-  if (limit >= 100000000) return `闄?{(limit / 100000000).toFixed(0)}浜縛;
-  if (limit >= 10000) return `闄?{(limit / 10000).toFixed(0)}涓嘸;
-  if (limit >= 1000) return `闄?{(limit / 1000).toFixed(0)}鍗僠;
-  return `闄?{limit}`;
+  if (limit === 0) return '暂停';
+  if (limit === null) return '开放';
+  if (limit === -1) return '限大额';
+  if (limit >= 100000000) return `限${(limit / 100000000).toFixed(0)}亿`;
+  if (limit >= 10000) return `限${(limit / 10000).toFixed(0)}万`;
+  if (limit >= 1000) return `限${(limit / 1000).toFixed(0)}千`;
+  return `限${limit}`;
 }
 
 function formatQuotaNumber(quotaText) {
-  if (!quotaText || quotaText === '寮€鏀?) return null;
-  if (quotaText === '鏆傚仠') return 0;
-  if (quotaText === '闄愬ぇ棰?) return -1;
+  if (!quotaText || quotaText === '开放') return null;
+  if (quotaText === '暂停') return 0;
+  if (quotaText === '限大额') return -1;
 
-  const match = quotaText.match(/闄?[\d.]+)(浜縷涓噟鍗??/);
+  const match = quotaText.match(/限([\d.]+)(亿|万|千)?/);
   if (!match) return null;
 
   let limit = parseFloat(match[1]);
   const unit = match[2];
 
-  if (unit === '浜?) return limit * 100000000;
-  if (unit === '涓?) return limit * 10000;
-  if (unit === '鍗?) return limit * 1000;
+  if (unit === '亿') return limit * 100000000;
+  if (unit === '万') return limit * 10000;
+  if (unit === '千') return limit * 1000;
   return limit;
 }
 
 async function updateFundsData() {
-  console.log('[LOG] === 寮€濮嬫暟鎹洿鏂颁换鍔?===');
+  console.log('[LOG] === 开始数据更新任务 ===');
 
   const dataContent = fs.readFileSync(FUNDS_JSON_PATH, 'utf-8');
   const fundsData = JSON.parse(dataContent);
-  console.log(`[LOG] 鍔犺浇 ${fundsData.funds.length} 鍙熀閲慲);
+  console.log(`[LOG] 加载 ${fundsData.funds.length} 只基金`);
 
   const BATCH_SIZE = 3;
   const navData = {};
@@ -160,7 +158,7 @@ async function updateFundsData() {
 
   for (let i = 0; i < fundsData.funds.length; i += BATCH_SIZE) {
     const batch = fundsData.funds.slice(i, i + BATCH_SIZE);
-    console.log(`[LOG] 澶勭悊绗?${Math.floor(i/BATCH_SIZE) + 1} 鎵筦);
+    console.log(`[LOG] 处理第 ${Math.floor(i/BATCH_SIZE) + 1} 批`);
 
     const navResults = await Promise.all(batch.map(f => fetchSingleNav(f.code)));
     const quotaResults = await Promise.all(batch.map(f => fetchSingleQuota(f.code)));
@@ -192,7 +190,7 @@ async function updateFundsData() {
         quotaChanges.push({
           code: fund.code,
           name: fund.name,
-          oldQuota: originalQuota[fund.code] || '鏈煡',
+          oldQuota: originalQuota[fund.code] || '未知',
           newQuota: newQuota
         });
       }
@@ -205,15 +203,15 @@ async function updateFundsData() {
   fundsData.updatedAt = new Date().toISOString();
 
   fs.writeFileSync(FUNDS_JSON_PATH, JSON.stringify(fundsData, null, 2), 'utf-8');
-  console.log('[LOG] funds.json 宸叉洿鏂?);
+  console.log('[LOG] funds.json 已更新');
 
-  console.log(`[LOG] 鎬昏鑾峰彇 ${Object.keys(quotaData).length} 鍙熀閲戠敵璐姸鎬乣);
-  console.log(`[LOG] 鐘舵€佸彉鍖?${quotaChanges.length} 鍙熀閲慲);
+  console.log(`[LOG] 总计获取 ${Object.keys(quotaData).length} 只基金申购状态`);
+  console.log(`[LOG] 状态变化 ${quotaChanges.length} 只基金`);
 
   if (quotaChanges.length > 0) {
-    console.log('\n[LOG] 鐘舵€佸彉鍖栬鎯?');
+    console.log('\n[LOG] 状态变化详情:');
     quotaChanges.forEach(f => {
-      console.log(`  ${f.name} (${f.code}): ${f.oldQuota} 鈫?${f.newQuota}`);
+      console.log(`  ${f.name} (${f.code}): ${f.oldQuota} → ${f.newQuota}`);
     });
   }
 
