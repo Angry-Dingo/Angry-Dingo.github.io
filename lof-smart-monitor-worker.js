@@ -202,8 +202,12 @@ async function smartMonitor(env, isTestMode = false) {
       if (isTestMode || Math.abs(premium) >= threshold) {
         allAbnormalFunds.push({ fund, premiumRate: premium });
         if (!isTestMode) {
-          const alert = checkDynamicChange(fund.code, premium);
-          if (alert) alerts.push(alert);
+          // 5分钟动态比较，阈值1%
+          const alert5min = checkDynamicChange(fund.code, premium, 5, 1);
+          if (alert5min) alerts.push(alert5min);
+          // 30分钟动态比较，阈值3%
+          const alert30min = checkDynamicChange(fund.code, premium, 30, 3);
+          if (alert30min) alerts.push(alert30min);
         }
       }
     }
@@ -250,21 +254,24 @@ function calculateBenchChgPct(bench, indexData) {
   return 0;
 }
 
-function checkDynamicChange(code, premium) {
+function checkDynamicChange(code, premium, windowMinutes, threshold) {
   const now = Date.now();
+  const windowMs = windowMinutes * 60 * 1000;
+
   if (!PREMIUM_HISTORY[code]) PREMIUM_HISTORY[code] = [];
   PREMIUM_HISTORY[code].push({ t: now, p: premium });
-  if (PREMIUM_HISTORY[code].length > 10) PREMIUM_HISTORY[code].shift();
+  if (PREMIUM_HISTORY[code].length > 20) PREMIUM_HISTORY[code].shift();
 
-  const recent = PREMIUM_HISTORY[code].filter(h => h.t > now - 5 * 60 * 1000);
+  const recent = PREMIUM_HISTORY[code].filter(h => h.t > now - windowMs);
   if (recent.length < 2) return null;
 
   const avg = recent.reduce((s, h) => s + h.p, 0) / recent.length;
   const change = premium - avg;
 
-  if (Math.abs(change) >= 1 && Math.abs(premium) >= 2 && (now - (LAST_ALERT_TIME[code] || 0) > 10 * 60 * 1000)) {
-    LAST_ALERT_TIME[code] = now;
-    return { fundCode: code, premium, change, type: change > 0 ? '溢价上升' : '折价加深' };
+  const alertKey = `${code}_${windowMinutes}min`;
+  if (Math.abs(change) >= threshold && Math.abs(premium) >= 2 && (now - (LAST_ALERT_TIME[alertKey] || 0) > 10 * 60 * 1000)) {
+    LAST_ALERT_TIME[alertKey] = now;
+    return { fundCode: code, premium, change, type: change > 0 ? '溢价上升' : '折价加深', windowMinutes };
   }
   return null;
 }
@@ -406,7 +413,8 @@ async function sendDynamicAlerts(env, alerts, fundsData) {
     alerts.forEach(a => {
       const f = fundsData.funds.find(x => x.code === a.fundCode);
       const icon = quotaIcon(f?.quota);
-      msg += `• ${a.fundCode} ${f?.name || a.fundCode}: ${a.type}\n  当前: ${a.premium.toFixed(2)}%  变化: ${a.change.toFixed(2)}%  ${icon}${f?.quota || '未知'}\n`;
+      const windowLabel = `过去${a.windowMinutes}分钟涨跌幅`;
+      msg += `• ${a.fundCode} ${f?.name || a.fundCode}: ${a.type}\n  当前: ${a.premium.toFixed(2)}%  ${windowLabel}: ${a.change.toFixed(2)}%  ${icon}${f?.quota || '未知'}\n`;
     });
 
     const response = await fetch(env.FEISHU_WEBHOOK, {
