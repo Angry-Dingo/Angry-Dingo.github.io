@@ -90,9 +90,9 @@ export async function fetchStockHistory(tq, days = 120) {
   return [];
 }
 
-// Ridge回归（L2正则化），解决p>>n场景的过拟合
-// lambda: 正则化强度，默认0.5（针对18个样本+10~40只股票场景调优）
-function solveRidge(y, X, lambda = 0.5) {
+// Ridge回归（L2正则化），使用小lambda防止过强正则化破坏拟合
+// lambda: 正则化强度，默认0.05（针对18个样本+10~40只股票场景）
+function solveRidge(y, X, lambda = 0.05) {
   const n = y.length;
   if (n < 5) return null;
   const k = X[0].length;
@@ -121,7 +121,7 @@ function solveRidge(y, X, lambda = 0.5) {
 
 // 非负最小二乘（NNLS）— 坐标下降法，直接约束权重≥0
 // 内置L2正则化，不包含截距项（权重直接归一化到1）
-function solveNNLS(y, X, lambda = 0.3, maxIter = 5000, tol = 1e-8) {
+function solveNNLS(y, X, lambda = 0.03, maxIter = 5000, tol = 1e-8) {
   const n = y.length, k = X[0].length;
   if (n < 3 || k < 1) return null;
 
