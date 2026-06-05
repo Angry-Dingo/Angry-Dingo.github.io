@@ -12,8 +12,8 @@ export default {
     console.log(`[LOG] UTC: ${hour}:${minute}, 星期: ${day}, 北京: ${beijingHour}:${minute}, 星期: ${beijingDay}, Cron: ${cron}`);
 
     // 精确匹配专用同步cron，避免与 */5 监控cron同时触发导致重复推送
-    // 同步cron: 0 23 * * 7,1,2,3,4 (UTC 23:00 = 北京 7:00) / 0 12 * * 1-5 (UTC 12:00 = 北京 20:00)
-    if (cron === '0 23 * * 7,1,2,3,4' || cron === '0 12 * * 1-5') {
+    // 同步cron已去掉星期限制（由代码按北京时间判断），* * * * * 统一匹配即可
+    if (cron === '0 23 * * *' || cron === '0 12 * * *') {
       console.log('[LOG] 执行数据同步任务');
       ctx.waitUntil(syncDataFromGitHub(env));
     } else {
@@ -46,6 +46,14 @@ function quotaIcon(quota) {
 // ==================== 数据同步任务 ====================
 async function syncDataFromGitHub(env) {
   try {
+    // cron为每日触发，由代码按北京时间判断是否工作日
+    const now = new Date();
+    const beijingDay = (now.getUTCHours() + 8 >= 24) ? (now.getUTCDay() + 1) % 7 : now.getUTCDay();
+    if (beijingDay === 0 || beijingDay === 6) {
+      console.log('[LOG] 北京时间为周末，跳过同步');
+      return;
+    }
+
     console.log('[LOG] === 开始数据同步任务 ===');
 
     const res = await fetch('https://raw.githubusercontent.com/Angry-Dingo/Angry-Dingo.github.io/main/data/funds.json');
@@ -411,7 +419,7 @@ async function sendDynamicAlerts(env, alerts, fundsData) {
       await env.FUNDS_KV?.put(lockKey, '1', { expirationTtl: 120 });
       console.log('[LOG] 动态溢价提醒已发送');
     } else {
-      console.error('[ERROR] 发送动态溢价提醒失败:', error.message);
+      console.error('[ERROR] 飞书通知发送失败:', response.status);
     }
   } catch (error) {
     console.error('[ERROR] 发送动态溢价提醒失败:', error.message);
