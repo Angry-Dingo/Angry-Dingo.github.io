@@ -12,8 +12,8 @@ export default {
     console.log(`[LOG] UTC: ${hour}:${minute}, 星期: ${day}, 北京: ${beijingHour}:${minute}, 星期: ${beijingDay}, Cron: ${cron}`);
 
     // 精确匹配专用同步cron，避免与 */5 监控cron同时触发导致重复推送
-    // 同步cron: 0 23 * * 0-4 (UTC 23:00 = 北京 7:00) / 0 12 * * 1-5 (UTC 12:00 = 北京 20:00)
-    if (cron === '0 23 * * 0-4' || cron === '0 12 * * 1-5') {
+    // 同步cron: 0 23 * * 7,1,2,3,4 (UTC 23:00 = 北京 7:00) / 0 12 * * 1-5 (UTC 12:00 = 北京 20:00)
+    if (cron === '0 23 * * 7,1,2,3,4' || cron === '0 12 * * 1-5') {
       console.log('[LOG] 执行数据同步任务');
       ctx.waitUntil(syncDataFromGitHub(env));
     } else {
@@ -411,7 +411,7 @@ async function sendDynamicAlerts(env, alerts, fundsData) {
       await env.FUNDS_KV?.put(lockKey, '1', { expirationTtl: 120 });
       console.log('[LOG] 动态溢价提醒已发送');
     } else {
-      console.error('[ERROR] 飞书通知发送失败:', response.status);
+      console.error('[ERROR] 发送动态溢价提醒失败:', error.message);
     }
   } catch (error) {
     console.error('[ERROR] 发送动态溢价提醒失败:', error.message);
