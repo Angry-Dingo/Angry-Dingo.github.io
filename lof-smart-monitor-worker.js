@@ -13,7 +13,7 @@ export default {
 
     // 精确匹配专用同步cron，避免与 */5 监控cron同时触发导致重复推送
     // 同步cron已去掉星期限制（由代码按北京时间判断），* * * * * 统一匹配即可
-    if (cron === '0 23 * * *' || cron === '0 12 * * *') {
+    if (cron === '0 23 * * *' || cron === '10 13 * * *') {
       console.log('[LOG] 执行数据同步任务');
       ctx.waitUntil(syncDataFromGitHub(env));
     } else {
@@ -46,14 +46,6 @@ function quotaIcon(quota) {
 // ==================== 数据同步任务 ====================
 async function syncDataFromGitHub(env) {
   try {
-    // cron为每日触发，由代码按北京时间判断是否工作日
-    const now = new Date();
-    const beijingDay = (now.getUTCHours() + 8 >= 24) ? (now.getUTCDay() + 1) % 7 : now.getUTCDay();
-    if (beijingDay === 0 || beijingDay === 6) {
-      console.log('[LOG] 北京时间为周末，跳过同步');
-      return;
-    }
-
     console.log('[LOG] === 开始数据同步任务 ===');
 
     const res = await fetch('https://raw.githubusercontent.com/Angry-Dingo/Angry-Dingo.github.io/main/data/funds.json');
@@ -202,12 +194,8 @@ async function smartMonitor(env, isTestMode = false) {
       if (isTestMode || Math.abs(premium) >= threshold) {
         allAbnormalFunds.push({ fund, premiumRate: premium });
         if (!isTestMode) {
-          // 5分钟动态比较，阈值1%
-          const alert5min = checkDynamicChange(fund.code, premium, 5, 1);
-          if (alert5min) alerts.push(alert5min);
-          // 30分钟动态比较，阈值3%
-          const alert30min = checkDynamicChange(fund.code, premium, 30, 3);
-          if (alert30min) alerts.push(alert30min);
+          const alert = checkDynamicChange(fund.code, premium);
+          if (alert) alerts.push(alert);
         }
       }
     }
@@ -254,24 +242,21 @@ function calculateBenchChgPct(bench, indexData) {
   return 0;
 }
 
-function checkDynamicChange(code, premium, windowMinutes, threshold) {
+function checkDynamicChange(code, premium) {
   const now = Date.now();
-  const windowMs = windowMinutes * 60 * 1000;
-
   if (!PREMIUM_HISTORY[code]) PREMIUM_HISTORY[code] = [];
   PREMIUM_HISTORY[code].push({ t: now, p: premium });
-  if (PREMIUM_HISTORY[code].length > 20) PREMIUM_HISTORY[code].shift();
+  if (PREMIUM_HISTORY[code].length > 10) PREMIUM_HISTORY[code].shift();
 
-  const recent = PREMIUM_HISTORY[code].filter(h => h.t > now - windowMs);
+  const recent = PREMIUM_HISTORY[code].filter(h => h.t > now - 5 * 60 * 1000);
   if (recent.length < 2) return null;
 
   const avg = recent.reduce((s, h) => s + h.p, 0) / recent.length;
   const change = premium - avg;
 
-  const alertKey = `${code}_${windowMinutes}min`;
-  if (Math.abs(change) >= threshold && Math.abs(premium) >= 2 && (now - (LAST_ALERT_TIME[alertKey] || 0) > 10 * 60 * 1000)) {
-    LAST_ALERT_TIME[alertKey] = now;
-    return { fundCode: code, premium, change, type: change > 0 ? '溢价上升' : '折价加深', windowMinutes };
+  if (Math.abs(change) >= 1.5 && Math.abs(premium) >= 2 && (now - (LAST_ALERT_TIME[code] || 0) > 10 * 60 * 1000)) {
+    LAST_ALERT_TIME[code] = now;
+    return { fundCode: code, premium, change, type: change > 0 ? '溢价上升' : '折价加深' };
   }
   return null;
 }
@@ -413,8 +398,7 @@ async function sendDynamicAlerts(env, alerts, fundsData) {
     alerts.forEach(a => {
       const f = fundsData.funds.find(x => x.code === a.fundCode);
       const icon = quotaIcon(f?.quota);
-      const windowLabel = `过去${a.windowMinutes}分钟涨跌幅`;
-      msg += `• ${a.fundCode} ${f?.name || a.fundCode}: ${a.type}\n  当前: ${a.premium.toFixed(2)}%  ${windowLabel}: ${a.change.toFixed(2)}%  ${icon}${f?.quota || '未知'}\n`;
+      msg += `• ${a.fundCode} ${f?.name || a.fundCode}: ${a.type}\n  当前: ${a.premium.toFixed(2)}%  变化: ${a.change.toFixed(2)}%  ${icon}${f?.quota || '未知'}\n`;
     });
 
     const response = await fetch(env.FEISHU_WEBHOOK, {
