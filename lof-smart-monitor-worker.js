@@ -11,9 +11,8 @@ export default {
 
     console.log(`[LOG] UTC: ${hour}:${minute}, 星期: ${day}, 北京: ${beijingHour}:${minute}, 星期: ${beijingDay}, Cron: ${cron}`);
 
-    // 精确匹配专用同步cron，避免与 */5 监控cron同时触发导致重复推送
-    // 同步cron已去掉星期限制（由代码按北京时间判断），* * * * * 统一匹配即可
-    if (cron === '0 23 * * *' || cron === '10 13 * * *') {
+    // 使用 startsWith 前缀匹配，兼容 Dashboard 上的各种 cron 变体（如 0 23 * * 0-4 / 0 23 * * *）
+    if (cron.startsWith('0 23') || cron.startsWith('10 13')) {
       console.log('[LOG] 执行数据同步任务');
       ctx.waitUntil(syncDataFromGitHub(env));
     } else {
@@ -169,14 +168,13 @@ async function smartMonitor(env, isTestMode = false) {
     const alerts = [];
     const allAbnormalFunds = [];
 
+    // CF cron 触发时间有 ±1 分钟漂移，用范围匹配代替精确匹配
     const isGlobalAlert = isTestMode || (
-      (h === 9 && m === 25) ||
-      (h === 10 && (m === 0 || m === 30)) ||
-      (h === 11 && (m === 0 || m === 30)) ||
-      (h === 13 && m === 0) ||
-      (h === 13 && m === 30) ||
-      (h === 14 && m === 0) ||
-      (h === 14 && m === 30)
+      (h === 9 && m >= 25 && m <= 26) ||
+      (h === 10 && (m <= 1 || (m >= 30 && m <= 31))) ||
+      (h === 11 && (m <= 1 || (m >= 30 && m <= 31))) ||
+      (h === 13 && (m <= 1 || (m >= 30 && m <= 31))) ||
+      (h === 14 && (m <= 1 || (m >= 30 && m <= 31)))
     );
 
     console.log(`[LOG] isGlobalAlert: ${isGlobalAlert}`);
