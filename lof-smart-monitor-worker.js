@@ -15,9 +15,11 @@ export default {
     if (cron.startsWith('0 23') || cron.startsWith('10 13')) {
       console.log('[LOG] 执行数据同步任务');
       ctx.waitUntil(syncDataFromGitHub(env));
-    } else {
+    } else if (isBeijingTradingHour(beijingHour, minute, beijingDay)) {
       console.log('[LOG] 执行溢价监控任务');
       ctx.waitUntil(smartMonitor(env));
+    } else {
+      console.log(`[LOG] 非交易时段（北京 ${beijingHour}:${String(minute).padStart(2,'0')} 星期${beijingDay}），跳过监控`);
     }
   },
 
@@ -40,6 +42,18 @@ function quotaIcon(quota) {
   if (quota === '暂停') return '🔴';
   if (quota === '开放') return '🟢';
   return '🟠';
+}
+
+// 判断北京时间是否在交易时段（交易日 9:25-11:30、13:00-15:00）
+function isBeijingTradingHour(h, m, d) {
+  return (d >= 1 && d <= 5) && (
+    (h === 9 && m >= 25) ||
+    (h === 10) ||
+    (h === 11 && m <= 30) ||
+    (h === 13 && m >= 0) ||
+    (h === 14) ||
+    (h === 15 && m <= 0)
+  );
 }
 
 // ==================== 数据同步任务 ====================
@@ -302,7 +316,7 @@ async function fetchMarketData(fundsData) {
     }
   });
 
-  // 补充东方财富数据源（腾讯qt不支持的指数：中证自定义指数、债券指数等）
+  // 补充东方财富数据源（腾讯qt不支持的指数）
   const EM_CODES = [
     ['csi930917', '2.930917'],
     ['csi930914', '2.930914'],
@@ -321,7 +335,7 @@ async function fetchMarketData(fundsData) {
     } catch (e) {}
   }));
 
-  // 指数降级：腾讯或东方财富查不到的指数，用相近指数替代
+  // 指数降级
   if (indexData['hkHSMI'] == null || indexData['hkHSMI'] === 0) {
     if (indexData['hkHSI'] != null) indexData['hkHSMI'] = indexData['hkHSI'];
   }
