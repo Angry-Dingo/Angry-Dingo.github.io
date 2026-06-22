@@ -26,15 +26,23 @@ async function httpGet(url, retries = 3, opts = {}) {
   return null;
 }
 async function fetchFundNavHistory(code, days = 180) {
-  const text = await httpGet(`https://api.fund.eastmoney.com/f10/lsjz?callback=jQuery&fundCode=${code}&pageIndex=1&pageSize=${days}&startDate=&endDate=`, 3, { headers: { Referer: 'https://fund.eastmoney.com/' } });
-  if (!text) return [];
-  const m = text.match(/jQuery[^(]*\(([\s\S]+)\)/);
-  if (!m) return [];
-  try {
-    const data = JSON.parse(m[1]);
-    if (!data.Data?.LSJZList) return [];
-    return data.Data.LSJZList.map(i => ({ date: i.FSRQ, nav: parseFloat(i.DWJZ) })).filter(d => d.nav > 0).reverse();
-  } catch (e) { return []; }
+  const PAGE_SIZE = 20;
+  const pages = Math.ceil(days / PAGE_SIZE);
+  let allData = [];
+  for (let p = 1; p <= pages; p++) {
+    const text = await httpGet(`https://api.fund.eastmoney.com/f10/lsjz?callback=jQuery&fundCode=${code}&pageIndex=${p}&pageSize=${PAGE_SIZE}&startDate=&endDate=`, 3, { headers: { Referer: 'https://fund.eastmoney.com/' } });
+    if (!text) break;
+    const m = text.match(/jQuery[^(]*\(([\s\S]+)\)/);
+    if (!m) break;
+    try {
+      const data = JSON.parse(m[1]);
+      if (!data.Data?.LSJZList) break;
+      const items = data.Data.LSJZList.map(i => ({ date: i.FSRQ, nav: parseFloat(i.DWJZ) })).filter(d => d.nav > 0);
+      allData = allData.concat(items);
+      if (items.length < PAGE_SIZE) break;
+    } catch (e) { break; }
+  }
+  return allData.reverse();
 }
 async function fetchTencentKline(symbol, days = 180) {
   const text = await httpGet(`https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=${symbol},day,,,${days},qfq`);
