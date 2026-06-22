@@ -127,14 +127,31 @@ function getCandidateIndices(fund) {
   else if (fund.benchmark?.tq) c.push(fund.benchmark.tq);
   else if (fund.benchmark) c.push(fund.benchmark);
   if (fund.category === 'us') c.push('usQQQ', 'usSPY', 'usKWEB', 'usGLD');
-  if (fund.category === 'hk') c.push('hkHSI', 'hkHSCEI', 'hkHSTECH');
+  if (fund.category === 'hk') c.push('hkHSI', 'hkHSCEI', 'hkHSTECH', 'usFXI', 'usMCHI', 'usEWH');
   if (fund.category === 'cn') c.push('sh000300', 'sh000905', 'sh000016', 'sh000688');
   if (fund.category === 'cm') c.push('usGLD', 'usSLV', 'usUSO', 'sh518880', 'sh000300');
   return [...new Set(c)];
 }
+
+// 东方财富 K线数据（CSI指数专用）
+async function fetchEastMoneyKline(secid, days = 200) {
+  try {
+    const url = `https://push2his.eastmoney.com/api/qt/stock/kline/get?secid=${secid}&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=101&fqt=1&lmt=${days}&_=${Date.now()}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (!data?.data?.klines?.length) return [];
+    return data.data.klines.map(line => {
+      const p = line.split(',');
+      return { date: p[0], close: parseFloat(p[2]) };
+    }).filter(d => d.close > 0);
+  } catch (e) {
+    return [];
+  }
+}
+
 async function fetchIndexHistory(tq, days = 200) {
   if (tq.startsWith('us')) {
-    const yh = { 'usQQQ':'QQQ','usSPY':'SPY','usKWEB':'KWEB','usGLD':'GLD','usSLV':'SLV','usUSO':'USO','usBNO':'BNO','usXBI':'XBI','usXLY':'XLY','usRSPH':'^RSPH','usXLK':'XLK','usINX':'^GSPC','usAGG':'AGG','usRWR':'RWR','usSMH':'SMH','usSGOL':'SGOL','usGLDM':'GLDM','usCPER':'CPER','usXOP':'XOP','usXLE':'XLE','usIXC':'IXC','usIAU':'IAU','usAAAU':'AAAU','usBCI':'BCI','usCOMT':'COMT','usINDA':'INDA' };
+    const yh = { 'usQQQ':'QQQ','usSPY':'SPY','usKWEB':'KWEB','usGLD':'GLD','usSLV':'SLV','usUSO':'USO','usBNO':'BNO','usXBI':'XBI','usXLY':'XLY','usRSPH':'^RSPH','usXLK':'XLK','usINX':'^GSPC','usAGG':'AGG','usRWR':'RWR','usSMH':'SMH','usSGOL':'SGOL','usGLDM':'GLDM','usCPER':'CPER','usXOP':'XOP','usXLE':'XLE','usIXC':'IXC','usIAU':'IAU','usAAAU':'AAAU','usBCI':'BCI','usCOMT':'COMT','usINDA':'INDA','usFXI':'FXI','usMCHI':'MCHI','usEWH':'EWH' };
     const sym = yh[tq];
     return sym ? await fetchYahooHistory(sym, days) : [];
   }
@@ -142,9 +159,15 @@ async function fetchIndexHistory(tq, days = 200) {
     const tm = { 'hkHSI':'hkHSI','hkHSCEI':'hkHSCEI','hkHSTECH':'hkHSTECH','hkHSMI':'hkHSMI','hkHSSI':'hkHSSI','hkHSCI':'hkHSCI' };
     return await fetchTencentKline(tm[tq] || tq, days);
   }
-  if (tq.startsWith('sh') || tq.startsWith('sz') || tq.startsWith('csi') || tq.startsWith('nf')) {
-    if (tq === 'nf_AG0' || tq.startsWith('csi')) return [];
+  if (tq.startsWith('sh') || tq.startsWith('sz') || tq.startsWith('nf')) {
+    if (tq === 'nf_AG0') return [];
     return await fetchTencentKline(tq, days);
+  }
+  // CSI 指数走东方财富K线（腾讯不支持）
+  if (tq.startsWith('csi')) {
+    const em = { 'csi930917':'2.930917','csi930914':'2.930914','csi930792':'2.930792','csi930839':'2.930839','csi931573':'2.931573' };
+    const secid = em[tq];
+    return secid ? await fetchEastMoneyKline(secid, days) : [];
   }
   return [];
 }
@@ -169,7 +192,7 @@ async function analyzeFunds(fundsData) {
   console.log('='.repeat(60));
   const allIndexTqs = new Set();
   for (const f of fundList) getCandidateIndices(f).forEach(c => allIndexTqs.add(c));
-  ['sh000300','sh000905','sh000016','sh000688','hkHSI','hkHSCEI','hkHSTECH','usQQQ','usSPY','usGLD','usSLV','usUSO','usKWEB'].forEach(c => allIndexTqs.add(c));
+  ['sh000300','sh000905','sh000016','sh000688','hkHSI','hkHSCEI','hkHSTECH','usQQQ','usSPY','usGLD','usSLV','usUSO','usKWEB','usFXI','usMCHI','usEWH'].forEach(c => allIndexTqs.add(c));
   console.log(`[LOG] 共 ${allIndexTqs.size} 个候选指数`);
   const indexDataMap = {};
   let idxCount = 0;
