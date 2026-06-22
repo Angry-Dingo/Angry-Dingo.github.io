@@ -1,5 +1,7 @@
 name: Regression Analysis (Fund Benchmark)
 on:
+  push:
+    branches: [ dev ]
   schedule:
     - cron: '0 22 * * 5'
   workflow_dispatch:
