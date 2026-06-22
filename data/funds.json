@@ -84,7 +84,7 @@
       "quotaUpdatedAt": "2026-06-17T22:09:38.329Z",
       "fee": "1.50%",
       "rfee": "1.50%",
-      "benchmark": "usEWH",
+      "benchmark": "usMCHI",
       "officialNav": 2.0986,
       "navDate": "2026-06-16"
     },
@@ -613,7 +613,7 @@
       "quotaUpdatedAt": "2026-06-17T22:09:38.329Z",
       "fee": "1.20%",
       "rfee": "0.95%",
-      "benchmark": "usFXI",
+      "benchmark": "usMCHI",
       "officialNav": 0.7022,
       "navDate": "2026-06-17"
     },
@@ -643,7 +643,7 @@
       "quotaUpdatedAt": "2026-06-17T22:09:38.329Z",
       "fee": "1.20%",
       "rfee": "0.90%",
-      "benchmark": "usFXI",
+      "benchmark": "usMCHI",
       "officialNav": 1.1863,
       "navDate": "2026-06-17"
     },
@@ -673,7 +673,7 @@
       "quotaUpdatedAt": "2026-06-17T22:09:38.329Z",
       "fee": "1.20%",
       "rfee": "1.20%",
-      "benchmark": "usFXI",
+      "benchmark": "usMCHI",
       "officialNav": 0.7076,
       "navDate": "2026-06-17"
     },
