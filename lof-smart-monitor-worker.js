@@ -328,6 +328,9 @@ async function fetchMarketData(fundsData) {
   if (indexData['hkHSCI'] == null || indexData['hkHSCI'] === 0) {
     if (indexData['hkHSI'] != null) indexData['hkHSCI'] = indexData['hkHSI'];
   }
+  if (indexData['hkHSSI'] == null || indexData['hkHSSI'] === 0) {
+    if (indexData['hkHSI'] != null) indexData['hkHSSI'] = indexData['hkHSI'];
+  }
 
   return { fundMarketData, indexData };
 }

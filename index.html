@@ -1895,6 +1895,12 @@ async function refreshData() {
       indexData['hkHSCI'] = indexData['hkHSI'];
     }
   }
+  // hkHSSI降级：恒生综合小型股指数（161124基准），腾讯不支持此代码，回落到hkHSI近似
+  if (indexData['hkHSSI'] == null || indexData['hkHSSI'] === 0) {
+    if (indexData['hkHSI'] != null) {
+      indexData['hkHSSI'] = indexData['hkHSI'];
+    }
+  }
   
   // 更新基金数据
   fundData.forEach(fund => {
