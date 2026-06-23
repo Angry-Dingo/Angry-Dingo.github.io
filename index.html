@@ -1706,6 +1706,9 @@ function fetchEastmoney() {
     'sh000985':  '1.000985',  // 中证综合债券指数（501312海外科技LOF业绩基准10%分量）
     'sh000066':  '1.000066',  // 上证大宗商品股票指数（161715招商中证大宗商品股票指数基金基准，更及时更新）
     'sh000945':  '1.000945',  // 中证上游资源产业指数（161217国投瑞银中证上游资源产业指数基金基准）
+    'hkHSMI':    '124.HSMI',  // 恒生综合中型股指数（501303恒生中型股LOF基准，腾讯无数据，由东方财富补充）
+    'hkHSSI':    '124.HSSI',  // 恒生综合小型股指数（161124港股小盘LOF基准，腾讯无数据，由东方财富补充）
+    'hkHSCI':    '124.HSCI',  // 恒生综合指数（160322港股精选LOF基准，腾讯无数据，由东方财富补充）
   };
   return Promise.all(Object.entries(EM_CODES).map(([key, secid]) =>
     fetch(`https://push2.eastmoney.com/api/qt/stock/get?secid=${secid}&fields=f43,f169,f170,f3,f14&_=${Date.now()}`)

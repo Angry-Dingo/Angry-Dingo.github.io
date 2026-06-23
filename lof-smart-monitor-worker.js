@@ -310,6 +310,9 @@ async function fetchMarketData(fundsData) {
     ['sh000985',  '1.000985'],
     ['sh000066',  '1.000066'],
     ['sh000945',  '1.000945'],
+    ['hkHSMI',    '124.HSMI'],    // 恒生综合中型股指数（501303恒生中型股LOF基准，腾讯无数据）
+    ['hkHSSI',    '124.HSSI'],    // 恒生综合小型股指数（161124港股小盘LOF基准，腾讯无数据）
+    ['hkHSCI',    '124.HSCI'],    // 恒生综合指数（160322港股精选LOF基准，腾讯无数据）
   ];
   await Promise.all(EM_CODES.map(async ([tq, secid]) => {
     try {
