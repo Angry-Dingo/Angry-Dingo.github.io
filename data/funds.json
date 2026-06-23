@@ -84,7 +84,7 @@
       "quotaUpdatedAt": "2026-06-17T22:09:38.329Z",
       "fee": "1.50%",
       "rfee": "1.50%",
-      "benchmark": "hkHSI",
+      "benchmark": "usMCHI",
       "officialNav": 2.0986,
       "navDate": "2026-06-16"
     },
@@ -538,7 +538,7 @@
       "quotaUpdatedAt": "2026-06-17T22:09:38.329Z",
       "fee": "1.20%",
       "rfee": "1.20%",
-      "benchmark": "hkHSI",
+      "benchmark": "usMCHI",
       "officialNav": 1.3201,
       "navDate": "2026-06-17"
     },
@@ -553,7 +553,7 @@
       "quotaUpdatedAt": "2026-06-17T22:09:38.329Z",
       "fee": "1.20%",
       "rfee": "0.90%",
-      "benchmark": "hkHSCEI",
+      "benchmark": "usFXI",
       "officialNav": 1.3435,
       "navDate": "2026-06-17"
     },
@@ -568,7 +568,7 @@
       "quotaUpdatedAt": "2026-06-17T22:09:38.329Z",
       "fee": "1.20%",
       "rfee": "0.60%",
-      "benchmark": "hkHSI",
+      "benchmark": "usMCHI",
       "officialNav": 1.1056,
       "navDate": "2026-06-17"
     },
@@ -583,7 +583,7 @@
       "quotaUpdatedAt": "2026-06-17T22:09:38.329Z",
       "fee": "1.00%",
       "rfee": "0.68%",
-      "benchmark": "csi930917",
+      "benchmark": "usFXI",
       "officialNav": 1.2345,
       "navDate": "2026-06-16"
     },
@@ -598,7 +598,7 @@
       "quotaUpdatedAt": "2026-06-17T22:09:38.329Z",
       "fee": "0.00%",
       "rfee": "0.60%",
-      "benchmark": "csi930914",
+      "benchmark": "usFXI",
       "officialNav": 1.2368,
       "navDate": "2026-06-16"
     },
@@ -613,7 +613,7 @@
       "quotaUpdatedAt": "2026-06-17T22:09:38.329Z",
       "fee": "1.20%",
       "rfee": "0.95%",
-      "benchmark": "hkHSCEI",
+      "benchmark": "usMCHI",
       "officialNav": 0.7022,
       "navDate": "2026-06-17"
     },
@@ -628,7 +628,7 @@
       "quotaUpdatedAt": "2026-06-17T22:09:38.329Z",
       "fee": "1.20%",
       "rfee": "0.90%",
-      "benchmark": "hkHSI",
+      "benchmark": "usMCHI",
       "officialNav": 0.9041,
       "navDate": "2026-06-16"
     },
@@ -643,7 +643,7 @@
       "quotaUpdatedAt": "2026-06-17T22:09:38.329Z",
       "fee": "1.20%",
       "rfee": "0.90%",
-      "benchmark": "hkHSCEI",
+      "benchmark": "usMCHI",
       "officialNav": 1.1863,
       "navDate": "2026-06-17"
     },
@@ -658,7 +658,7 @@
       "quotaUpdatedAt": "2026-06-17T22:09:38.329Z",
       "fee": "1.20%",
       "rfee": "1.00%",
-      "benchmark": "hkHSI",
+      "benchmark": "usMCHI",
       "officialNav": 1.0939,
       "navDate": "2026-06-17"
     },
@@ -673,7 +673,7 @@
       "quotaUpdatedAt": "2026-06-17T22:09:38.329Z",
       "fee": "1.20%",
       "rfee": "1.20%",
-      "benchmark": "hkHSCEI",
+      "benchmark": "usMCHI",
       "officialNav": 0.7076,
       "navDate": "2026-06-17"
     },
@@ -688,7 +688,7 @@
       "quotaUpdatedAt": "2026-06-17T22:09:38.329Z",
       "fee": "1.20%",
       "rfee": "0.60%",
-      "benchmark": "csi930914",
+      "benchmark": "usFXI",
       "officialNav": 1.2809,
       "navDate": "2026-06-16"
     },
@@ -703,7 +703,7 @@
       "quotaUpdatedAt": "2026-06-17T22:09:38.329Z",
       "fee": "1.20%",
       "rfee": "1.20%",
-      "benchmark": "hkHSI",
+      "benchmark": "usMCHI",
       "officialNav": 0.9703,
       "navDate": "2026-06-17"
     },
@@ -718,7 +718,7 @@
       "quotaUpdatedAt": "2026-06-17T22:09:38.329Z",
       "fee": "1.20%",
       "rfee": "0.90%",
-      "benchmark": "csi930792",
+      "benchmark": "usFXI",
       "officialNav": 1.7752,
       "navDate": "2026-06-17"
     },
@@ -850,4 +850,4 @@
     "csi930839": "港股通高股息精选"
   },
   "updatedAt": "2026-06-17T22:09:38.329Z"
-}
+8.329Z\",\n      \"fee\": \"1.20%\",\n      \"rfee\": \"0.60%\",\n      \"benchmark\": \"usFXI\",\n      \"officialNav\": 1.2809,\n      \"navDate\": \"2026-06-16\"\n    },\n    {\n      \"code\": \"160924\",\n      \"ocode\": \"160924\",\n      \"name\": \"恒生指数LOF\",\n      \"tq\": \"sz160924\",\n      \"category\": \"hk\",\n      \"quota\": \"暂停\",\n      \"purchaseLimit\": 0,\n      \"quotaUpdatedAt\": \"2026-06-17T22:09:38.329Z\",\n      \"fee\": \"1.20%\",\n      \"rfee\": \"1.20%\",\n      \"benchmark\": \"usMCHI\",\n      \"officialNav\": 0.9703,\n      \"navDate\": \"2026-06-17\"\n    },\n    {\n      \"code\": \"501025\",\n      \"ocode\": \"501025\",\n      \"name\": \"香港银行LOF\",\n      \"tq\": \"sh501025\",\n      \"category\": \"hk\",\n      \"quota\": \"开放\",\n      \"purchaseLimit\": null,\n      \"quotaUpdatedAt\": \"2026-06-17T22:09:38.329Z\",\n      \"fee\": \"1.20%\",\n      \"rfee\": \"0.90%\",\n      \"benchmark\": \"usFXI\",\n      \"officialNav\": 1.7752,\n      \"navDate\": \"2026-06-17\"\n    },\n    {\n      \"code\": \"161226\",\n      \"ocode\": \"161226\",\n      \"name\": \"国投白银LOF\",\n      \"tq\": \"sz161226\",\n      \"category\": \"cm\",\n      \"quota\": \"暂停\",\n      \"purchaseLimit\": 0,\n      \"quotaUpdatedAt\": \"2026-06-17T22:09:38.329Z\",\n      \"fee\": \"1.50%\",\n      \"rfee\": \"0.50%\",\n      \"benchmark\": \"nf_AG0\",\n      \"officialNav\": 1.907,\n      \"navDate\": \"2026-06-17\"\n    },\n    {\n      \"code\": \"161217\",\n      \"ocode\": \"161217\",\n      \"name\": \"国投瑞银中证上游资源产业指数证券投资基金(LOF)\",\n      \"tq\": \"sz161217\",\n      \"category\": \"cm\",\n      \"quota\": \"开放\",\n      \"purchaseLimit\": null,\n      \"quotaUpdatedAt\": \"2026-06-17T22:09:38.329Z\",\n      \"fee\": \"1.50%\",\n      \"rfee\": \"0.50%\",\n      \"benchmark\": \"sh000945\",\n      \"officialNav\": 2.3499,\n      \"navDate\": \"2026-06-17\"\n    },\n    {\n      \"code\": \"161715\",\n      \"ocode\": \"161715\",\n      \"name\": \"招商中证大宗商品股票指数证券投资基金(LOF)\",\n      \"tq\": \"sz161715\",\n      \"category\": \"cm\",\n      \"quota\": \"开放\",\n      \"purchaseLimit\": null,\n      \"quotaUpdatedAt\": \"2026-06-17T22:09:38.329Z\",\n      \"fee\": \"1.50%\",\n      \"rfee\": \"0.50%\",\n      \"benchmark\": \"sh000066\",\n      \"officialNav\": 2.3657,\n      \"navDate\": \"2026-06-17\"\n    },\n    {\n      \"code\": \"161725\",\n      \"ocode\": \"161725\",\n      \"name\": \"招商中证白酒LOF\",\n      \"tq\": \"sz161725\",\n      \"category\": \"cn\",\n      \"quota\": \"限50万\",\n      \"purchaseLimit\": 500000,\n      \"quotaUpdatedAt\": \"2026-06-17T22:09:38.329Z\",\n      \"fee\": \"1.50%\",\n      \"rfee\": \"0.50%\",\n      \"benchmark\": \"sh000852\",\n      \"officialNav\": 0.535,\n      \"navDate\": \"2026-06-17\"\n    },\n    {\n      \"code\": \"161032\",\n      \"ocode\": \"161032\",\n      \"name\": \"富国中证煤炭指数LOF\",\n      \"tq\": \"sz161032\",\n      \"category\": \"cn\",\n      \"quota\": \"开放\",\n      \"purchaseLimit\": null,\n      \"quotaUpdatedAt\": \"2026-06-17T22:09:38.329Z\",\n      \"fee\": \"1.50%\",\n      \"rfee\": \"0.50%\",\n      \"benchmark\": \"sz399998\",\n      \"officialNav\": 2.173,\n      \"navDate\": \"2026-06-17\"\n    }\n  ],\n  \"indexNames\": {\n    \"usXBI\": \"标普生物科技\",\n    \"usKWEB\": \"中概互联网\",\n    \"usQQQ\": \"纳斯达克100\",\n    \"hkHSTECH\": \"恒生科技\",\n    \"sh000985\": \"中证综合债券\",\n    \"usINDA\": \"印度ETF\",\n    \"usXLY\": \"美国消费\",\n    \"usRSPH\": \"标普医疗保健等权重\",\n    \"usXLK\": \"标普信息科技\",\n    \"usINX\": \"标普500\",\n    \"usAGG\": \"美国综合债券\",\n    \"usRWR\": \"美国REIT\",\n    \"usSMH\": \"半导体ETF\",\n    \"usSGOL\": \"白银ETF\",\n    \"usGLD\": \"黄金ETF\",\n    \"usGLDM\": \"黄金ETF\",\n    \"usUSO\": \"原油ETF\",\n    \"usSLV\": \"白银ETF\",\n    \"usCPER\": \"铜ETF\",\n    \"usXOP\": \"石油天然气上游\",\n    \"sh518880\": \"黄金ETF\",\n    \"usIAU\": \"黄金ETF\",\n    \"usAAAU\": \"黄金ETF\",\n    \"usBCI\": \"商品ETF\",\n    \"usCOMT\": \"商品ETF\",\n    \"usBNO\": \"布伦特原油\",\n    \"usXLE\": \"能源ETF\",\n    \"usIXC\": \"全球能源ETF\",\n    \"hkHSMI\": \"恒生综合中型股\",\n    \"hkHSI\": \"恒生指数\",\n    \"hkHSCI\": \"恒生综合指数\",\n    \"sh000300\": \"沪深300\",\n    \"hkHSCEI\": \"恒生国企指数\",\n    \"csi930917\": \"中证沪港深高股息\",\n    \"csi930914\": \"中证港股通高股息\",\n    \"csi930792\": \"中证港股通香港银行\",\n    \"nf_AG0\": \"沪银主连\",\n    \"sh000807\": \"中证食品饮料\",\n    \"sz399975\": \"中证全指证券\",\n    \"sz399998\": \"中证煤炭\",\n    \"sh000852\": \"中证白酒\",\n    \"sh000066\": \"上证大宗商品股票指数\",\n    \"sh000945\": \"中证上游资源产业指数\",\n    \"hkHSNF\": \"恒生金融分类指数\",\n    \"usFXI\": \"中国大盘股ETF\",\n    \"usMCHI\": \"MSCI中国ETF\",\n    \"usEWH\": \"MSCI香港ETF\",\n    \"csi931573\": \"港股通科技指数\",\n    \"csi930839\": \"港股通高股息精选\"\n  },\n  \"updatedAt\": \"2026-06-17T22:09:38.329Z\"\n}"}]
