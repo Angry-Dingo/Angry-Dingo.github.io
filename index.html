@@ -1076,15 +1076,49 @@ async function loadNavs() {
   navLoaded = true;
 }
 
-// 通过 CF Worker 代理获取东方财富指数数据（浏览器端无法直连 eastmoney，CORS限制）
-async function fetchEastmoney() {
-  try {
-    const res = await fetch('/api/indices?_=' + Date.now());
-    if (!res.ok) return { data: {}, times: {} };
-    return await res.json();
-  } catch (e) {
-    return { data: {}, times: {} };
-  }
+// 通过 JSONP script 标签获取东方财富指数数据（浏览器端 fetch 被 CORS 拦截，JSONP 可绕过）
+function fetchEastmoney() {
+  const EM_CODES = {
+    'csi930917': '2.930917',  // 中证沪港深高股息指数 CSI930917（501307银河高股息）
+    'csi930914': '2.930914',  // 中证港股通高股息投资指数 CSI930914（501305/501306）
+    'csi930792': '2.930792',  // 中证港股通香港银行指数 CSI930792（501025香港银行）
+    'sh000985':  '1.000985',  // 中证综合债券指数（501312海外科技LOF业绩基准10%分量）
+    'sh000066':  '1.000066',  // 上证大宗商品股票指数（161715招商中证大宗商品）
+    'sh000945':  '1.000945',  // 中证上游资源产业指数（161217国投瑞银上游资源）
+    'hkHSMI':    '124.HSMI',  // 恒生综合中型股指数（501303恒生中型股LOF）
+    'hkHSSI':    '124.HSSI',  // 恒生综合小型股指数（161124港股小盘LOF）
+    'hkHSCI':    '124.HSCI',  // 恒生综合指数（160322港股精选LOF）
+    'nf_AG0':    '8.AG888',   // 沪银主连（161226国投白银LOF）- 上期所白银期货主力合约
+  };
+  const prefix = '_em_' + Date.now();
+  let pending = Object.keys(EM_CODES).length;
+  const out = {};
+  const times = {};
+  return new Promise(resolve => {
+    Object.entries(EM_CODES).forEach(([key, secid]) => {
+      const cb = prefix + '_' + key;
+      const timer = setTimeout(() => {
+        if (window[cb]) { delete window[cb]; pending--; if (pending <= 0) resolve({ data: out, times }); }
+      }, 8000);
+      window[cb] = function(d) {
+        clearTimeout(timer);
+        delete window[cb];
+        if (d && d.data) {
+          // f3=涨跌幅百分比（如-0.02表示-0.02%），f170=涨跌点数（需除以100）
+          const chg = d.data.f3 !== undefined ? d.data.f3 : ((d.data.f170 || 0) / (d.data.f43 || 100) * 100);
+          const time = d.data.f14 || '';
+          out[key] = chg;
+          times[key] = time;
+        }
+        pending--;
+        if (pending <= 0) resolve({ data: out, times });
+      };
+      const s = document.createElement('script');
+      s.src = `https://push2.eastmoney.com/api/qt/stock/get?secid=${secid}&fields=f43,f169,f170,f3,f14&cb=${cb}&_=${Date.now()}`;
+      s.onerror = function() { clearTimeout(timer); if (window[cb]) delete window[cb]; pending--; if (pending <= 0) resolve({ data: out, times }); };
+      document.head.appendChild(s);
+    });
+  });
 }
 
 // 从腾讯财经获取实时行情数据
