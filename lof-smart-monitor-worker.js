@@ -316,10 +316,10 @@ async function fetchMarketData(fundsData) {
   ];
   await Promise.all(EM_CODES.map(async ([tq, secid]) => {
     try {
-      const r = await fetch(`https://push2.eastmoney.com/api/qt/stock/get?secid=${secid}&fields=f43,f170&_=${Date.now()}`);
+      const r = await fetch(`https://push2.eastmoney.com/api/qt/stock/get?secid=${secid}&fields=f43,f170,f3&_=${Date.now()}`);
       const d = await r.json();
-      if (d.data && d.data.f43 > 0 && d.data.f170 !== undefined) {
-        indexData[tq] = d.data.f170 / 100;
+      if (d.data) {
+        indexData[tq] = d.data.f3 !== undefined ? d.data.f3 : ((d.data.f170 || 0) / 100);
       }
     } catch (e) {}
   }));

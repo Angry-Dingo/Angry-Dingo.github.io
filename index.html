@@ -1094,8 +1094,8 @@ function fetchEastmoney() {
     fetch(`https://push2.eastmoney.com/api/qt/stock/get?secid=${secid}&fields=f43,f169,f170,f3,f14&_=${Date.now()}`)
       .then(r => r.json())
       .then(d => {
-        if (d.data && d.data.f43 > 0) {
-          const chg = (d.data.f170 || 0) / 100;
+        if (d.data) {
+          const chg = d.data.f3 !== undefined ? d.data.f3 : ((d.data.f170 || 0) / 100);
           const time = d.data.f14 || ''; // 获取时间信息
           return [key, chg, time];
         }
