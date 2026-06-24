@@ -31,6 +31,38 @@ export default {
       ctx.waitUntil(syncDataFromGitHub(env));
       return new Response('数据同步已触发', { status: 200 });
     }
+    // 指数数据代理：浏览器端通过此端点获取东方财富指数数据（服务端无CORS限制）
+    if (url.pathname === '/api/indices') {
+      const EM_CODES = [
+        ['csi930917', '2.930917'],
+        ['csi930914', '2.930914'],
+        ['csi930792', '2.930792'],
+        ['sh000985',  '1.000985'],
+        ['sh000066',  '1.000066'],
+        ['sh000945',  '1.000945'],
+        ['hkHSMI',    '124.HSMI'],
+        ['hkHSSI',    '124.HSSI'],
+        ['hkHSCI',    '124.HSCI'],
+        ['nf_AG0',    '8.AG888'],
+      ];
+      const results = {};
+      const times = {};
+      await Promise.all(EM_CODES.map(async ([key, secid]) => {
+        try {
+          const r = await fetch(`https://push2.eastmoney.com/api/qt/stock/get?secid=${secid}&fields=f43,f169,f170,f3,f14&_=${Date.now()}`);
+          const d = await r.json();
+          if (d.data) {
+            const chg = d.data.f3 !== undefined ? d.data.f3 : ((d.data.f170 || 0) / 100);
+            const time = d.data.f14 || '';
+            results[key] = chg;
+            times[key] = time;
+          }
+        } catch (e) {}
+      }));
+      return new Response(JSON.stringify({ data: results, times }), {
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+      });
+    }
     return new Response('LOF 基金监控服务', { status: 200 });
   }
 };
