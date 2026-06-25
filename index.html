@@ -1088,7 +1088,7 @@ function fetchEastmoney() {
     'hkHSMI':    '124.HSMI',  // 恒生综合中型股指数（501303恒生中型股LOF）
     'hkHSSI':    '124.HSSI',  // 恒生综合小型股指数（161124港股小盘LOF）
     'hkHSCI':    '124.HSCI',  // 恒生综合指数（160322港股精选LOF）
-    // 注意：nf_AG0沪银主连通过 Pages Function /api/futures 服务端代理获取（东财stock API不支持期货）
+    'nf_AG0':    '113.agm',   // 沪银主连（上期所market=113，注意前一次用8.AG888是错误代码）
   };
   const prefix = '_em_' + Date.now();
   let pending = Object.keys(EM_CODES).length;
