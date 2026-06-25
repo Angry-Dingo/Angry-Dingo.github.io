@@ -482,7 +482,10 @@ let ALL_TQ_CODES = [];
 
 async function loadFundsData() {
   try {
-    const response = await fetch('./data/funds.json?' + Date.now());
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+    const response = await fetch('./data/funds.json?' + Date.now(), { signal: controller.signal });
+    clearTimeout(timeout);
     const data = await response.json();
     
     FUNDS = data.funds || [];
@@ -1235,8 +1238,8 @@ async function refreshData() {
   // 更新数据时间戳
   dataTimestamp = new Date();
   
-  // 每次刷新都重新加载净值数据，确保数据是最新的
-  await loadNavs();
+  // 净值加载不阻塞市场数据获取，后台异步运行
+  const navPromise = loadNavs().catch(e => console.log('净值加载异常:', e));
   
   // 并行获取腾讯财经、东方财富（JSONP）和期货代理数据
   const [tencentData, emResult, futuresResult] = await Promise.all([fetchTencentData(), fetchEastmoney(), fetchFuturesFromProxy()]);
@@ -1362,13 +1365,39 @@ async function refreshData() {
     }
   });
   
-  // 渲染表格
+  // 立即渲染表格（市场数据已到，净值数据后台加载中）
   renderTable();
-  
-  // 更新生成时间
   updateGenerateTime();
   
-  // 解锁，允许下一次刷新
+  // 等待净值数据加载完成（最多15秒），然后重新渲染
+  Promise.race([
+    navPromise,
+    new Promise(r => setTimeout(r, 15000))
+  ]).then(() => {
+    // 净值数据就绪后重新计算溢价率并渲染
+    fundData.forEach(fund => {
+      const marketData = fund.price ? { price: fund.price, prevClose: fund.prevClose } : null;
+      if (marketData) {
+        const baseNav = fund.officialNav || fund.prevClose;
+        const benchDef = BENCH[fund.code];
+        let benchChgPct = 0;
+        if (Array.isArray(benchDef)) {
+          let totalW = 0;
+          benchDef.forEach(b => { const chg = indexData[b.tq] || 0; benchChgPct += chg * b.w; totalW += b.w; });
+          if (totalW > 0) benchChgPct /= totalW;
+        } else if (benchDef) { benchChgPct = indexData[benchDef] || 0; }
+        if (baseNav > 0) {
+          fund.nav = baseNav * (1 + benchChgPct / 100);
+          fund.navChange = benchChgPct;
+          fund.premium = (fund.price - fund.nav) / fund.nav * 100;
+        }
+      }
+    });
+    renderTable();
+    updateGenerateTime();
+  });
+  
+  // 解锁刷新锁（市场数据渲染完成即解锁）
   isRefreshing = false;
 }
 
