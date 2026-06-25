@@ -1,1 +1,1685 @@
-此处content过长，需要完整文件
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer-when-downgrade">
+<title>LOF Monitor</title>
+<style>
+/* ===== Reset & Base ===== */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px;scroll-behavior:smooth}
+
+:root {
+  --bg-primary: #0b0f1a;
+  --bg-secondary: #111827;
+  --bg-card: #1a2236;
+  --bg-hover: #1e2a45;
+  --bg-active: #243056;
+  --border-color: #2a3456;
+  --border-light: #38406a;
+  --text-primary: #e8ecf4;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --gray: #64748b;
+  --accent-blue: #3b82f6;
+  --accent-blue-hover: #60a5fa;
+  --accent-blue-dim: rgba(59,130,246,0.12);
+  --up: #22c55e;
+  --up-bg: rgba(34,197,94,0.1);
+  --up-border: rgba(34,197,94,0.25);
+  --down: #ef4444;
+  --down-bg: rgba(239,68,68,0.1);
+  --down-border: rgba(239,68,68,0.25);
+  --warning: #f59e0b;
+  --warning-bg: rgba(245,158,11,0.1);
+  --warning-border: rgba(245,158,11,0.25);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --shadow-card: 0 4px 20px rgba(0,0,0,0.3);
+  --transition: all 0.2s ease;
+  --sidebar-width: 210px;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg-secondary)}
+::-webkit-scrollbar-thumb{background:var(--border-color);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--border-light)}
+
+/* ===== Layout ===== */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ===== Sidebar ===== */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  overflow-y: auto;
+}
+
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 16px 14px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-logo .logo-icon {
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(135deg, var(--accent-blue), #6366f1);
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.sidebar-logo .logo-text {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.sidebar-logo .logo-text span { color: var(--accent-blue); }
+
+/* Sidebar Stats */
+.sidebar-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 14px 14px 10px;
+}
+
+.sidebar-stat {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  text-align: center;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.sidebar-stat:hover {
+  border-color: var(--border-light);
+}
+
+.sidebar-stat .stat-num {
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+.sidebar-stat .stat-num.up{color:var(--up)}
+.sidebar-stat .stat-num.down{color:var(--down)}
+.sidebar-stat .stat-num.neutral{color:var(--text-primary)}
+.sidebar-stat .stat-num.accent{color:var(--accent-blue)}
+
+.sidebar-stat .stat-label {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-top: 2px;
+}
+
+/* Sidebar Section */
+.sidebar-section {
+  padding: 10px 14px 4px;
+}
+
+.sidebar-section-title {
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  padding: 0 4px;
+}
+
+.sidebar-nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.filter-tab {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+  outline: none;
+  font-weight: 500;
+  font-family: var(--font);
+  text-align: left;
+}
+
+.filter-tab:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.filter-tab.active {
+  background: var(--accent-blue-dim);
+  color: var(--accent-blue);
+  border-left: 3px solid var(--accent-blue);
+  font-weight: 600;
+}
+
+.sidebar-divider {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 8px 14px;
+}
+
+/* ===== Content Area ===== */
+.content-area {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 16px 24px 0;
+  gap: 12px;
+}
+
+.generate-time {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  background: var(--bg-card);
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.main-container {
+  max-width: 100%;
+  padding: 16px 24px 24px;
+}
+
+/* ===== Table ===== */
+.fund-table-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
+
+.fund-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.fund-table th {
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  padding: 12px 10px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.73rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: var(--transition);
+  vertical-align: middle;
+  border-bottom: 2px solid var(--border-color);
+  font-family: var(--font);
+  white-space: nowrap;
+  user-select: none;
+  position: relative;
+}
+
+.fund-table th:hover {
+  color: var(--text-secondary);
+  background: var(--bg-hover);
+}
+
+.fund-table th.sorted {
+  color: var(--accent-blue);
+  background: var(--accent-blue-dim);
+}
+
+.fund-table th.sorted::after {
+  content: ' \25B2';
+  font-size: 0.6rem;
+  opacity: 0.7;
+}
+
+.fund-table td {
+  padding: 10px 10px;
+  border-bottom: 1px solid rgba(42,52,86,0.5);
+  font-size: 0.82rem;
+  text-align: center;
+  vertical-align: middle;
+  color: var(--text-primary);
+  font-family: var(--font);
+  transition: background 0.15s ease;
+}
+
+.fund-table tr:last-child td { border-bottom: none; }
+.fund-table tr:hover td { background: rgba(59,130,246,0.04); }
+
+.fund-table th:nth-child(1), .fund-table td:nth-child(1) { width: 44px; min-width: 44px; }
+.fund-table th:nth-child(2), .fund-table td:nth-child(2) { min-width: 110px; }
+.fund-table th:nth-child(3), .fund-table td:nth-child(3) { min-width: 90px; }
+.fund-table th:nth-child(4), .fund-table td:nth-child(4) { min-width: 80px; }
+.fund-table th:nth-child(5), .fund-table td:nth-child(5) { min-width: 95px; }
+.fund-table th:nth-child(6), .fund-table td:nth-child(6) { min-width: 82px; }
+.fund-table th:nth-child(7), .fund-table td:nth-child(7) { max-width: 165px; white-space: normal; word-wrap: break-word; font-size: 0.7rem; line-height: 1.3; }
+.fund-table th:nth-child(8), .fund-table td:nth-child(8) { min-width: 95px; }
+.fund-table th:nth-child(9), .fund-table td:nth-child(9) { min-width: 75px; }
+
+/* ===== Code Cell ===== */
+.code-cell { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.code-cell .fund-name { font-weight: 500; color: var(--text-primary); font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px; }
+.code-cell .fund-code { font-size: 0.65rem; color: var(--text-muted); font-family: 'SF Mono', 'Cascadia Code', 'JetBrains Mono', monospace; letter-spacing: 0.3px; }
+
+/* ===== Price & Premium Colors ===== */
+.price-change { font-weight: 600; font-size: 0.78rem; margin-top: 2px; }
+.price-change.red, .premium-rate.red { color: var(--down); }
+.price-change.green, .premium-rate.green { color: var(--up); }
+.premium-rate { display: block; font-weight: 700; font-size: 0.9rem; }
+.premium-rate.red { color: var(--down); }
+.premium-rate.green { color: var(--up); }
+
+/* ===== Quota Badges ===== */
+.quota-status { display: inline-block; padding: 3px 12px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.2px; }
+.quota-status.open { background: var(--up-bg); color: var(--up); border: 1px solid var(--up-border); }
+.quota-status.limited { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning-border); }
+.quota-status.suspended { background: var(--down-bg); color: var(--down); border: 1px solid var(--down-border); }
+
+/* ===== Zero Change ===== */
+.zero-change { display: inline-block; padding: 3px 12px; border-radius: 12px; background: rgba(100,116,139,0.08); color: var(--text-muted); border: 1px solid rgba(100,116,139,0.15); font-weight: 500; font-size: 0.78rem; }
+
+/* ===== Loading ===== */
+.loading { display: flex; align-items: center; justify-content: center; padding: 60px 20px; color: var(--text-muted); font-size: 0.9rem; font-weight: 500; gap: 14px; }
+.loading::after { content: ''; width: 20px; height: 20px; border: 2px solid var(--border-color); border-top-color: var(--accent-blue); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===== Footer ===== */
+.footer { margin-top: 0; border-top: 1px solid var(--border-color); background: var(--bg-secondary); }
+.footer-content { max-width: 100%; margin: 0 auto; padding: 16px 24px; display: flex; align-items: center; justify-content: center; text-align: center; }
+.footer-info { font-size: 0.7rem; color: var(--text-muted); line-height: 1.8; }
+
+/* ===== Responsive ===== */
+@media (max-width: 900px) {
+  .sidebar { width: 48px; }
+  .sidebar-logo .logo-text, .sidebar-stat .stat-label, .sidebar-section-title, .filter-tab { display: none; }
+  .sidebar-stat { padding: 6px; }
+  .sidebar-stat .stat-num { font-size: 0.85rem; }
+  .sidebar-logo { justify-content: center; padding: 12px 0; }
+  .sidebar-section { padding: 6px 4px; }
+  .filter-tab { padding: 10px 0; text-align: center; }
+  .filter-tab.active { border-left: 3px solid var(--accent-blue); }
+  .content-area { margin-left: 48px; }
+  .top-bar { padding: 12px 14px 0; }
+  .main-container { padding: 12px 14px 16px; }
+  .fund-table-container { overflow-x: auto; }
+  .fund-table { min-width: 780px; }
+  .fund-table th, .fund-table td { padding: 8px 6px; font-size: 0.72rem; }
+}
+
+@media (max-width: 680px) {
+  .sidebar { width: 44px; }
+  .content-area { margin-left: 44px; }
+  .top-bar { padding: 10px 10px 0; }
+  .main-container { padding: 10px 10px 12px; }
+  .fund-table th, .fund-table td { padding: 8px 5px; font-size: 0.7rem; }
+  .generate-time { font-size: 0.65rem; padding: 4px 8px; }
+}
+
+@media (max-width: 480px) {
+  .fund-table th, .fund-table td { padding: 6px 4px; font-size: 0.65rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="app-layout">
+
+<!-- ===== Left Sidebar ===== -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">LF</div>
+    <div class="logo-text"><span>LOF</span> Monitor</div>
+  </div>
+
+  <div class="sidebar-stats">
+    <div class="sidebar-stat" onclick="setFilter('all')">
+      <div class="stat-num neutral" id="statTotal">-</div>
+      <div class="stat-label">全部</div>
+    </div>
+    <div class="sidebar-stat" onclick="setFilter('premium')">
+      <div class="stat-num up" id="statPremium">-</div>
+      <div class="stat-label">溢价</div>
+    </div>
+    <div class="sidebar-stat" onclick="setFilter('discount')">
+      <div class="stat-num down" id="statDiscount">-</div>
+      <div class="stat-label">折价</div>
+    </div>
+    <div class="sidebar-stat" onclick="setFilter('arbitrage')">
+      <div class="stat-num accent" id="statArbitrage">-</div>
+      <div class="stat-label">套利</div>
+    </div>
+  </div>
+
+  <hr class="sidebar-divider">
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">类型筛选</div>
+    <div class="sidebar-nav-group">
+      <button class="filter-tab active" onclick="setFilter('all')">全部</button>
+      <button class="filter-tab" onclick="setFilter('arbitrage')">套利机会</button>
+      <button class="filter-tab" onclick="setFilter('premium')">溢价基金</button>
+      <button class="filter-tab" onclick="setFilter('discount')">折价基金</button>
+    </div>
+  </div>
+
+  <hr class="sidebar-divider">
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">类别筛选</div>
+    <div class="sidebar-nav-group">
+      <button class="filter-tab active" onclick="setCategory('all')">全类别</button>
+      <button class="filter-tab" onclick="setCategory('us')">美股</button>
+      <button class="filter-tab" onclick="setCategory('hk')">港股</button>
+      <button class="filter-tab" onclick="setCategory('cm')">商品</button>
+      <button class="filter-tab" onclick="setCategory('cn')">A股</button>
+    </div>
+  </div>
+</aside>
+
+<!-- ===== Right Content ===== -->
+<div class="content-area">
+
+  <div class="top-bar">
+    <div id="generate-time" class="generate-time">数据加载中...</div>
+  </div>
+
+  <main class="main-container">
+    <div class="fund-table-container">
+      <table class="fund-table desktop-table">
+        <thead>
+          <tr>
+            <th onclick="sortTable('index')">#</th>
+            <th onclick="sortTable('code')">代码</th>
+            <th onclick="sortTable('price')">场内价格</th>
+            <th onclick="sortTable('nav')">预估净值</th>
+            <th onclick="sortTable('officialNav')">T-1净值</th>
+            <th onclick="sortTable('premium')" class="sorted">溢价率</th>
+            <th>基金参考指数</th>
+            <th>指数涨跌幅</th>
+            <th onclick="sortTable('quota')">申购限额</th>
+          </tr>
+        </thead>
+        <tbody id="fundTableBodyDesktop">
+          <tr>
+            <td colspan="9" class="loading">加载中...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-info">
+        LOF Monitor · 实时溢价监控 · 数据来源：腾讯财经 · 天天基金 · 东方财富 · &copy; 2026
+      </div>
+    </div>
+  </footer>
+
+</div>
+</div>
+
+<script>
+let FUNDS = [];
+let BENCH = {};
+let INDEX_NAMES = {};
+let ALL_TQ_CODES = [];
+
+async function loadFundsData() {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+    const response = await fetch('./data/funds.json?' + Date.now(), { signal: controller.signal });
+    clearTimeout(timeout);
+    const data = await response.json();
+    
+    FUNDS = data.funds || [];
+    INDEX_NAMES = data.indexNames || {};
+    
+    BENCH = {};
+    FUNDS.forEach(fund => {
+      if (fund.benchmark) {
+        BENCH[fund.code] = fund.benchmark;
+      }
+    });
+    
+    ALL_TQ_CODES = [
+      ...FUNDS.map(f => f.tq),
+      ...Object.values(BENCH).flatMap(b => Array.isArray(b) ? b.map(x => x.tq) : [b]),
+    ];
+    
+    console.log(`成功加载 ${FUNDS.length} 只基金数据`);
+    return true;
+  } catch (error) {
+    console.error('加载基金数据失败:', error);
+    return false;
+  }
+}
+
+function getAllTqCodes() {
+  return [
+    ...FUNDS.map(f => f.tq),
+    ...Object.values(BENCH).flatMap(b => Array.isArray(b) ? b.map(x => x.tq) : [b]),
+  ];
+}
+
+const Cache = {
+  get(key) {
+    try {
+      const item = localStorage.getItem(key);
+      if (!item) return null;
+      const parsed = JSON.parse(item);
+      if (parsed.expiry && Date.now() > parsed.expiry) {
+        localStorage.removeItem(key);
+        return null;
+      }
+      return parsed.data;
+    } catch (e) {
+      return null;
+    }
+  },
+  set(key, data, expiryHours = 1) {
+    try {
+      const item = {
+        data,
+        expiry: Date.now() + (expiryHours * 60 * 60 * 1000)
+      };
+      localStorage.setItem(key, JSON.stringify(item));
+    } catch (e) {
+    }
+  },
+  remove(key) {
+    try {
+      localStorage.removeItem(key);
+    } catch (e) {
+    }
+  }
+};
+
+// 全局变量
+let fundData = [];
+let running = false;
+let refreshInterval = 15000; // 默认15秒
+let refreshTimer = null;
+let currentFilter = 'all';
+let currentCategory = 'all';
+let sortColumn = 'premium';
+let sortDirection = 'desc';
+let indexData = {};
+let indexTimes = {}; // 指数时间信息
+let navLoaded = false;
+let dataTimestamp = new Date(); // 数据时间戳
+let isRefreshing = false; // 刷新锁，防止并发
+
+// DOM 元素
+const fundTableBodyDesktop = document.getElementById('fundTableBodyDesktop');
+const desktopTable = document.querySelector('.desktop-table');
+
+// 初始化
+function init() {
+  // 初始化基金数据
+  fundData = FUNDS.map(fund => ({
+    ...fund,
+    price: null,
+    prevClose: null,
+    change: null,
+    volume: 0,
+    nav: null,
+    navChange: null,
+    premium: null,
+    officialNav: null,
+    navDate: ''
+  }));
+  
+  // 渲染空表格
+  renderTable();
+  
+  // 添加滚动效果
+  window.addEventListener('scroll', handleScroll);
+  
+
+  
+  // 自动开始监控
+  running = true;
+  refreshData();
+  startRefreshTimer();
+}
+
+// 处理滚动效果
+function handleScroll() {
+  const header = document.getElementById('mainHeader');
+  if (header) {
+    if (window.scrollY > 50) {
+      header.classList.add('scrolled');
+    } else {
+      header.classList.remove('scrolled');
+    }
+  }
+}
+
+// 设置刷新率
+function setRefreshRate(value) {
+  refreshInterval = parseInt(value);
+  startRefreshTimer();
+  localStorage.setItem('refreshRate', refreshInterval);
+}
+
+
+
+// 开始刷新计时器
+function startRefreshTimer() {
+  stopRefreshTimer();
+  refreshTimer = setInterval(refreshData, refreshInterval);
+}
+
+// 停止刷新计时器
+function stopRefreshTimer() {
+  if (refreshTimer) {
+    clearInterval(refreshTimer);
+    refreshTimer = null;
+  }
+}
+
+// 设置筛选类型
+function setFilter(filter) {
+  currentFilter = filter;
+  
+  // 更新标签状态
+  document.querySelectorAll('.filter-tab').forEach(tab => {
+    if (tab.onclick.toString().includes(`setFilter('${filter}')`)) {
+      tab.classList.add('active');
+    } else if (tab.onclick.toString().includes('setFilter(')) {
+      tab.classList.remove('active');
+    }
+  });
+  
+  renderTable();
+}
+
+// 设置基金类别
+function setCategory(category) {
+  currentCategory = category;
+  
+  // 更新标签状态
+  document.querySelectorAll('.filter-tab').forEach(tab => {
+    if (tab.onclick.toString().includes(`setCategory('${category}')`)) {
+      tab.classList.add('active');
+    } else if (tab.onclick.toString().includes('setCategory(')) {
+      tab.classList.remove('active');
+    }
+  });
+  
+  renderTable();
+}
+
+// 降级基金：fundgz接口无实时估值，三接口竞速
+const NO_GSZ_FUNDS = new Set([
+  // 原有：fundgz无实时估值
+  '164906','164824','501300','501225','160216','164701','160719','163208','501018','161129','160723','501021','501310','161226',
+  // 新增：fundgz dwjz净值滞后，改用pingzhongdata+lsjz双接口取最新
+  '161125','161126','161127','161128','161130','162415','160140','160644',
+  '160717','160924','164705','161831','160322','161124',
+  '501303','501301','501302','501305','501306','501307','501311','501025',
+  '161815','165513','161116',
+  // 新增：石油/油气类净值同样滞后
+  '501312','162719','162411','160416',
+]);
+
+// 时间戳转北京日期字符串（东方财富时间戳是北京时间午夜，UTC会少一天）
+function toBeijingDate(ts) {
+  const d = new Date(ts);
+  const offset = 8 * 60 * 60 * 1000; // UTC+8
+  return new Date(d.getTime() + offset).toISOString().slice(0, 10);
+}
+
+// 接口① pingzhongdata.js —— 东方财富JS文件（允许跨域，第三方广泛使用）
+function fetchNavFromPingzhong(fund) {
+  return new Promise(resolve => {
+    const cb = 'pzd' + Date.now() + '_' + fund.code;
+    let done = false;
+    const timer = setTimeout(() => {
+      if (!done) {
+        done = true;
+        delete window[cb];
+        resolve(null);
+      }
+    }, 8000);
+    // pingzhongdata 不是jsonp，直接执行JS并赋值全局变量
+    // 需要用script标签加载后读取全局 Data_netWorthTrend
+    const s = document.createElement('script');
+    s.onload = () => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      try {
+        // 优先读 Data_netWorthTrend（单位净值）
+        // 若y值异常偏大（>50），说明该字段存的不是单位净值，改读 Data_ACWorthTrend
+        let nav = null, dt = '';
+        const arr = window['Data_netWorthTrend'];
+        if (arr && arr.length > 0) {
+          const last = arr[arr.length - 1];
+          const v = parseFloat(last.y || last[1]);
+          if (v > 0 && v <= 50) {
+            nav = v;
+            dt = last.x ? toBeijingDate(last.x) : '';
+          }
+        }
+        // Data_netWorthTrend异常时，读 Data_ACWorthTrend（累计净值，对白银/商品LOF等同单位净值）
+        if (!nav) {
+          const arr2 = window['Data_ACWorthTrend'];
+          if (arr2 && arr2.length > 0) {
+            const last2 = arr2[arr2.length - 1];
+            // 格式：[时间戳, 净值] 数组
+            const v2 = parseFloat(Array.isArray(last2) ? last2[1] : last2.y);
+            const ts = Array.isArray(last2) ? last2[0] : last2.x;
+            dt = ts ? toBeijingDate(ts) : '';
+            if (v2 > 0) {
+              nav = v2;
+            }
+          }
+        }
+        if (nav) {
+          resolve({ nav, date: dt });
+        } else {
+          resolve(null);
+        }
+      } catch (e) {
+        resolve(null);
+      } finally {
+        s.remove();
+        delete window['Data_netWorthTrend'];
+        delete window['Data_ACWorthTrend'];
+      }
+    };
+    s.onerror = () => {
+      if (!done) {
+        done = true;
+        clearTimeout(timer);
+        s.remove();
+        resolve(null);
+      }
+    };
+    s.src = `https://fund.eastmoney.com/pingzhongdata/${fund.code}.js?v=${Date.now()}`;
+    document.head.appendChild(s);
+  });
+}
+
+// 接口② lsjz历史净值API（原方案保留）
+function fetchNavFromLsjz(fund) {
+  return new Promise(resolve => {
+    const cb = 'jq' + Date.now() + '_' + fund.code;
+    const s = document.createElement('script');
+    let done = false;
+    const timer = setTimeout(() => {
+      if (!done) {
+        done = true;
+        delete window[cb];
+        s.remove();
+        resolve(null);
+      }
+    }, 8000);
+    window[cb] = function(d) {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      delete window[cb];
+      s.remove();
+      try {
+        const item = d && d.Data && d.Data.LSJZList && d.Data.LSJZList[0];
+        if (item && item.DWJZ) {
+          resolve({ nav: parseFloat(item.DWJZ), date: item.FSRQ || '' });
+        } else {
+          resolve(null);
+        }
+      } catch (e) {
+        resolve(null);
+      }
+    };
+    s.onerror = () => {
+      if (!done) {
+        done = true;
+        clearTimeout(timer);
+        delete window[cb];
+        resolve(null);
+      }
+    };
+    s.src = `https://api.fund.eastmoney.com/f10/lsjz?fundCode=${fund.code}&pageIndex=1&pageSize=1&callback=${cb}&_=${Date.now()}`;
+    document.head.appendChild(s);
+  });
+}
+
+// 并行跑两个接口，取日期较新的净值
+async function fetchNavFromEM(fund) {
+  // 先检查缓存
+  const cached = Cache.get(`nav_${fund.ocode}`);
+  
+  const [r1, r2] = await Promise.all([fetchNavFromPingzhong(fund), fetchNavFromLsjz(fund)]);
+  if (!r1 && !r2) {
+    return cached || null;
+  }
+  
+  let bestResult;
+  if (!r1) {
+    bestResult = r2;
+  } else if (!r2) {
+    bestResult = r1;
+  } else {
+    // 两个都有数据，取日期较新的
+    const d1 = r1.date || '', d2 = r2.date || '';
+    if (d2 > d1) {
+      bestResult = r2;
+    } else {
+      bestResult = r1; // 日期相同或pingzhongdata更新，用r1
+    }
+  }
+  
+  // 比较新数据与缓存数据的日期，如果新数据更新则使用新数据
+  if (cached) {
+    const cachedDate = cached.date || '';
+    const newDate = bestResult.date || '';
+    if (newDate > cachedDate) {
+      // 新数据日期更新，使用新数据并更新缓存
+      Cache.set(`nav_${fund.ocode}`, bestResult);
+      return bestResult;
+    } else {
+      // 缓存数据日期更新，使用缓存数据
+      return cached;
+    }
+  } else {
+    // 没有缓存数据，使用新数据并缓存
+    Cache.set(`nav_${fund.ocode}`, bestResult);
+    return bestResult;
+  }
+}
+
+// 从天天基金获取场外基金最新净值
+function fetchNav(fund) {
+  return new Promise(resolve => {
+    // 先检查缓存
+    const cached = Cache.get(`nav_${fund.ocode}`);
+
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'display:none;width:0;height:0;border:0';
+    document.body.appendChild(iframe);
+    
+    let done = false;
+    const cleanup = () => {
+      try {
+        document.body.removeChild(iframe);
+      } catch (e) {}
+    };
+    
+    const timer = setTimeout(() => {
+      if (!done) {
+        done = true;
+        cleanup();
+        // 降级到东方财富接口
+        fetchNavFromEM(fund).then(result => {
+          if (result && result.nav > 0) {
+            // 比较新数据与缓存数据的日期
+            if (cached) {
+              const cachedDate = cached.date || '';
+              const newDate = result.date || '';
+              if (newDate > cachedDate) {
+                // 新数据日期更新，使用新数据并更新缓存
+                Cache.set(`nav_${fund.ocode}`, result);
+                resolve(result);
+              } else {
+                // 缓存数据日期更新，使用缓存数据
+                resolve(cached);
+              }
+            } else {
+              // 没有缓存数据，使用新数据并缓存
+              Cache.set(`nav_${fund.ocode}`, result);
+              resolve(result);
+            }
+          } else {
+            // 获取失败，使用缓存数据（如果有）
+            resolve(cached || null);
+          }
+        });
+      }
+    }, 7000);
+    
+    try {
+      const iw = iframe.contentWindow;
+      iw.jsonpgz = function(d) {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        
+        if (!d) {
+          cleanup();
+          // 降级到东方财富接口
+          fetchNavFromEM(fund).then(result => {
+            if (result && result.nav > 0) {
+              // 比较新数据与缓存数据的日期
+              if (cached) {
+                const cachedDate = cached.date || '';
+                const newDate = result.date || '';
+                if (newDate > cachedDate) {
+                  // 新数据日期更新，使用新数据并更新缓存
+                  Cache.set(`nav_${fund.ocode}`, result);
+                  resolve(result);
+                } else {
+                  // 缓存数据日期更新，使用缓存数据
+                  resolve(cached);
+                }
+              } else {
+                // 没有缓存数据，使用新数据并缓存
+                Cache.set(`nav_${fund.ocode}`, result);
+                resolve(result);
+              }
+            } else {
+              // 获取失败，使用缓存数据（如果有）
+              resolve(cached || null);
+            }
+          });
+          return;
+        }
+        
+        const dwjz = parseFloat(d.dwjz);
+        const gsz = parseFloat(d.gsz);
+        
+        // 同时获取东方财富的数据，比较日期
+        fetchNavFromEM(fund).then(emResult => {
+          let bestResult = null;
+          
+          // 处理天天基金数据
+          if (dwjz > 0) {
+            bestResult = { nav: dwjz, date: d.jzrq || '' };
+          } else if (gsz > 0) {
+            // dwjz缺失时用实时估值gsz，日期用gztime前10位
+            const dt = (d.gztime || '').slice(0, 10);
+            bestResult = { nav: gsz, date: dt };
+          }
+          
+          // 比较东方财富数据，如果日期更新则使用
+          if (emResult && emResult.nav > 0) {
+            if (!bestResult || (emResult.date && (!bestResult.date || emResult.date > bestResult.date))) {
+              bestResult = emResult;
+            }
+          }
+          
+          if (bestResult) {
+            // 比较新数据与缓存数据的日期
+            if (cached) {
+              const cachedDate = cached.date || '';
+              const newDate = bestResult.date || '';
+              if (newDate > cachedDate) {
+                // 新数据日期更新，使用新数据并更新缓存
+                Cache.set(`nav_${fund.ocode}`, bestResult);
+                resolve(bestResult);
+              } else {
+                // 缓存数据日期更新，使用缓存数据
+                resolve(cached);
+              }
+            } else {
+              // 没有缓存数据，使用新数据并缓存
+              Cache.set(`nav_${fund.ocode}`, bestResult);
+              resolve(bestResult);
+            }
+          } else {
+            // 获取失败，使用缓存数据（如果有）
+            resolve(cached || null);
+          }
+          
+          cleanup();
+        });
+      };
+      
+      const script = iw.document.createElement('script');
+      script.onerror = () => {
+        if (!done) {
+          done = true;
+          clearTimeout(timer);
+          cleanup();
+          // 降级到东方财富接口
+          fetchNavFromEM(fund).then(result => {
+            if (result && result.nav > 0) {
+              // 比较新数据与缓存数据的日期
+              if (cached) {
+                const cachedDate = cached.date || '';
+                const newDate = result.date || '';
+                if (newDate > cachedDate) {
+                  // 新数据日期更新，使用新数据并更新缓存
+                  Cache.set(`nav_${fund.ocode}`, result);
+                  resolve(result);
+                } else {
+                  // 缓存数据日期更新，使用缓存数据
+                  resolve(cached);
+                }
+              } else {
+                // 没有缓存数据，使用新数据并缓存
+                Cache.set(`nav_${fund.ocode}`, result);
+                resolve(result);
+              }
+            } else {
+              // 获取失败，使用缓存数据（如果有）
+              resolve(cached || null);
+            }
+          });
+        }
+      };
+      script.src = `https://fundgz.1234567.com.cn/js/${fund.ocode}.js?rt=${Date.now()}`;
+      iw.document.head.appendChild(script);
+    } catch (e) {
+      clearTimeout(timer);
+      cleanup();
+      // 降级到东方财富接口
+      fetchNavFromEM(fund).then(result => {
+        if (result && result.nav > 0) {
+          // 比较新数据与缓存数据的日期
+          if (cached) {
+            const cachedDate = cached.date || '';
+            const newDate = result.date || '';
+            if (newDate > cachedDate) {
+              // 新数据日期更新，使用新数据并更新缓存
+              Cache.set(`nav_${fund.ocode}`, result);
+              resolve(result);
+            } else {
+              // 缓存数据日期更新，使用缓存数据
+              resolve(cached);
+            }
+          } else {
+            // 没有缓存数据，使用新数据并缓存
+            Cache.set(`nav_${fund.ocode}`, result);
+            resolve(result);
+          }
+        } else {
+          // 获取失败，使用缓存数据（如果有）
+          resolve(cached || null);
+        }
+      });
+    }
+  });
+}
+
+// 加载所有基金的净值数据
+async function loadNavs() {
+  const BATCH_SIZE = 15;
+  let loaded = 0;
+  
+  for (let i = 0; i < fundData.length; i += BATCH_SIZE) {
+    const batch = fundData.slice(i, i + BATCH_SIZE);
+    const results = await Promise.all(batch.map(fund => {
+      // 对降级基金使用东方财富接口
+      if (NO_GSZ_FUNDS.has(fund.code)) {
+        return fetchNavFromEM(fund);
+      } else {
+        return fetchNav(fund);
+      }
+    }));
+    
+    results.forEach((result, index) => {
+      const fund = batch[index];
+      if (result && result.nav > 0) {
+        fund.officialNav = result.nav;
+        fund.navDate = result.date;
+        loaded++;
+      }
+    });
+  }
+  
+  navLoaded = true;
+}
+
+// 通过 JSONP script 标签获取东方财富指数数据（浏览器端 fetch 被 CORS 拦截，JSONP 可绕过）
+function fetchEastmoney() {
+  const EM_CODES = {
+    'csi930917': '2.930917',  // 中证沪港深高股息指数 CSI930917（501307银河高股息）
+    'csi930914': '2.930914',  // 中证港股通高股息投资指数 CSI930914（501305/501306）
+    'csi930792': '2.930792',  // 中证港股通香港银行指数 CSI930792（501025香港银行）
+    'sh000985':  '1.000985',  // 中证综合债券指数（501312海外科技LOF业绩基准10%分量）
+    'sh000066':  '1.000066',  // 上证大宗商品股票指数（161715招商中证大宗商品）
+    'sh000945':  '1.000945',  // 中证上游资源产业指数（161217国投瑞银上游资源）
+    'hkHSMI':    '124.HSMI',  // 恒生综合中型股指数（501303恒生中型股LOF）
+    'hkHSSI':    '124.HSSI',  // 恒生综合小型股指数（161124港股小盘LOF）
+    'hkHSCI':    '124.HSCI',  // 恒生综合指数（160322港股精选LOF）
+    'hkHSI':     '124.HSI',   // 恒生指数（hkHSMI/hkHSSI/hkHSCI降级后备）
+    'nf_AG0':    '113.agm',   // 沪银主连（上期所market=113，注意前一次用8.AG888是错误代码）
+  };
+  const prefix = '_em_' + Date.now();
+  let pending = Object.keys(EM_CODES).length;
+  const out = {};
+  const times = {};
+  return new Promise(resolve => {
+    Object.entries(EM_CODES).forEach(([key, secid]) => {
+      const cb = prefix + '_' + key;
+      const timer = setTimeout(() => {
+        if (window[cb]) { delete window[cb]; pending--; if (pending <= 0) resolve({ data: out, times }); }
+      }, 8000);
+      window[cb] = function(d) {
+        clearTimeout(timer);
+        delete window[cb];
+        if (d && d.data) {
+          // f3=涨跌幅百分比（如-0.02表示-0.02%），f170=涨跌点数（需除以100）
+          const chg = d.data.f3 !== undefined ? d.data.f3 : ((d.data.f170 || 0) / (d.data.f43 || 100) * 100);
+          const time = d.data.f14 || '';
+          out[key] = chg;
+          times[key] = time;
+        }
+        pending--;
+        if (pending <= 0) resolve({ data: out, times });
+      };
+      const s = document.createElement('script');
+      s.src = `https://push2.eastmoney.com/api/qt/stock/get?secid=${secid}&fields=f43,f169,f170,f3,f14&cb=${cb}&_=${Date.now()}`;
+      s.onerror = function() { clearTimeout(timer); if (window[cb]) delete window[cb]; pending--; if (pending <= 0) resolve({ data: out, times }); };
+      document.head.appendChild(s);
+    });
+  });
+}
+
+// 从腾讯财经获取实时行情数据
+function fetchTencentData() {
+  return new Promise(resolve => {
+    const codes = [...new Set(getAllTqCodes())].join(',');
+    const script = document.createElement('script');
+    
+    let done = false;
+    const timer = setTimeout(() => {
+      if (!done) {
+        done = true;
+        console.log('腾讯行情超时');
+        script.remove();
+        resolve({ funds: {}, indices: {} });
+      }
+    }, 8000);
+    
+    script.onload = () => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      
+      const result = { funds: {}, indices: {} };
+      let ok = 0;
+      
+      // 处理基金数据
+      fundData.forEach(fund => {
+        const data = window[`v_${fund.tq}`];
+        if (!data || data.length < 10) return;
+        
+        const parts = data.split('~');
+        const price = parseFloat(parts[3]);
+        const prevClose = parseFloat(parts[4]);
+        const volume = parseFloat(parts[37]) || 0;
+        
+        if (price > 0) {
+          result.funds[fund.code] = {
+            price,
+            prevClose,
+            change: prevClose > 0 ? (price - prevClose) / prevClose * 100 : 0,
+            volume
+          };
+          ok++;
+        }
+      });
+      
+      // 处理指数数据（用于估值计算）
+      const allIdxCodes = [...new Set(Object.values(BENCH).flatMap(b => Array.isArray(b) ? b.map(x => x.tq) : [b]))];
+      allIdxCodes.forEach(indexCode => {
+        const data = window[`v_${indexCode}`];
+        if (!data || data.length < 5) return;
+        
+        const parts = data.split('~');
+        const price = parseFloat(parts[3]);
+        const prevClose = parseFloat(parts[4]);
+        const time = parts[30] || parts[29] || ''; // 尝试获取时间信息
+        
+        if (price > 0) {
+          result.indices[indexCode] = {
+            price,
+            change: prevClose > 0 ? (price - prevClose) / prevClose * 100 : 0,
+            time: time
+          };
+        }
+      });
+      
+      script.remove();
+      resolve(result);
+    };
+    
+    script.onerror = () => {
+      if (!done) {
+        done = true;
+        clearTimeout(timer);
+        console.log('腾讯脚本加载失败');
+        script.remove();
+        resolve({ funds: {}, indices: {} });
+      }
+    };
+    
+    script.src = `https://qt.gtimg.cn/q=${codes}&_=${Date.now()}`;
+    document.head.appendChild(script);
+  });
+}
+
+// 通过 Pages Function 服务端代理获取沪银主连期货数据
+// 浏览器端直接获取期货Data受CORS/Referer限制，服务端无此限制
+async function fetchFuturesFromProxy() {
+  try {
+    const res = await fetch('/api/futures?_=' + Date.now(), { cache: 'no-cache' });
+    if (res.ok) {
+      const data = await res.json();
+      console.log('[期货代理] 响应:', JSON.stringify(data));
+      if (data && data.nf_AG0 !== null && data.nf_AG0 !== undefined) {
+        return { nf_AG0: data.nf_AG0 };
+      }
+      console.warn('[期货代理] 返回null，数据源:', data.source, data.raw_text ? '原始片段:' + data.raw_text.substring(0,100) : '');
+    } else {
+      console.warn('[期货代理] HTTP错误:', res.status);
+    }
+  } catch (e) {
+    console.log('[期货代理] 请求失败:', e);
+  }
+  return {};
+}
+
+// 刷新数据
+async function refreshData() {
+  // 刷新锁，防止并发调用
+  if (isRefreshing) return;
+  isRefreshing = true;
+  
+  // 更新数据时间戳
+  dataTimestamp = new Date();
+  
+  // 净值加载不阻塞市场数据获取，后台异步运行
+  const navPromise = loadNavs().catch(e => console.log('净值加载异常:', e));
+  
+  // 并行获取腾讯财经、东方财富（JSONP）和期货代理数据
+  const [tencentData, emResult, futuresResult] = await Promise.all([fetchTencentData(), fetchEastmoney(), fetchFuturesFromProxy()]);
+  const emIdx = emResult.data;
+  const emTimes = emResult.times;
+  
+  // 缓存外盘指数涨跌幅和时间信息（腾讯qt + 东方财富）
+  indexData = {};
+  indexTimes = {};
+  Object.entries(tencentData.indices).forEach(([code, d]) => {
+    indexData[code] = d.change;
+    indexTimes[code] = d.time || '';
+  });
+  Object.entries(emIdx).forEach(([code, chg]) => {
+    // 仅当东财返回有效涨跌幅时才覆盖腾讯数据（非交易时段东财可能返回null）
+    if (chg != null) {
+      indexData[code] = chg;
+    }
+    if (emTimes[code]) {
+      // 处理东方财富返回的时间格式
+      indexTimes[code] = emTimes[code];
+    } else {
+      // 没有时间信息，使用当前时间
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hour = String(now.getHours()).padStart(2, '0');
+      const minute = String(now.getMinutes()).padStart(2, '0');
+      indexTimes[code] = `${year}-${month}-${day} ${hour}:${minute}`;
+    }
+  });
+  
+  // 合并期货代理数据（nf_AG0沪银主连）
+  Object.entries(futuresResult).forEach(([code, chg]) => {
+    indexData[code] = chg;
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hour = String(now.getHours()).padStart(2, '0');
+    const minute = String(now.getMinutes()).padStart(2, '0');
+    indexTimes[code] = `${year}-${month}-${day} ${hour}:${minute}`;
+  });
+  
+  // 为所有基准指数设置默认时间信息，确保即使获取不到数据也能显示时间
+  Object.values(BENCH).forEach(benchDef => {
+    if (Array.isArray(benchDef)) {
+      benchDef.forEach(b => {
+        if (!indexTimes[b.tq]) {
+          const now = new Date();
+          const year = now.getFullYear();
+          const month = String(now.getMonth() + 1).padStart(2, '0');
+          const day = String(now.getDate()).padStart(2, '0');
+          const hour = String(now.getHours()).padStart(2, '0');
+          const minute = String(now.getMinutes()).padStart(2, '0');
+          indexTimes[b.tq] = `${year}-${month}-${day} ${hour}:${minute}`;
+        }
+      });
+    } else if (benchDef) {
+      if (!indexTimes[benchDef]) {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hour = String(now.getHours()).padStart(2, '0');
+        const minute = String(now.getMinutes()).padStart(2, '0');
+        indexTimes[benchDef] = `${year}-${month}-${day} ${hour}:${minute}`;
+      }
+    }
+  });
+  
+  // 指数降级逻辑（v28新增）
+  // hkHSMI降级：若腾讯返回数据无效则回落到hkHSI（恒生综合中型股指数代码待验证）
+  if (indexData['hkHSMI'] == null || indexData['hkHSMI'] === 0) {
+    if (indexData['hkHSI'] != null) {
+      indexData['hkHSMI'] = indexData['hkHSI'];
+    }
+  }
+  // hkHSCI降级：恒生综合指数（160322基准），若腾讯无此代码则回落到hkHSI近似
+  if (indexData['hkHSCI'] == null || indexData['hkHSCI'] === 0) {
+    if (indexData['hkHSI'] != null) {
+      indexData['hkHSCI'] = indexData['hkHSI'];
+    }
+  }
+  // hkHSSI降级：恒生综合小型股指数（161124基准），腾讯不支持此代码，回落到hkHSI近似
+  if (indexData['hkHSSI'] == null || indexData['hkHSSI'] === 0) {
+    if (indexData['hkHSI'] != null) {
+      indexData['hkHSSI'] = indexData['hkHSI'];
+    }
+  }
+  
+  // 更新基金数据
+  fundData.forEach(fund => {
+    const marketData = tencentData.funds[fund.code];
+    if (marketData) {
+      fund.price = marketData.price;
+      fund.prevClose = marketData.prevClose;
+      fund.change = marketData.change;
+      fund.volume = marketData.volume;
+      
+      // 计算实时估值和溢价率
+      // 支持混合基准：BENCH[code] 可以是字符串或 [{tq,w}] 数组
+      const baseNav = fund.officialNav || fund.prevClose;
+      const benchDef = BENCH[fund.code];
+      let benchChgPct = 0;
+      
+      if (Array.isArray(benchDef)) {
+        // 混合基准：加权平均
+        let totalW = 0;
+        benchDef.forEach(b => {
+          const chg = indexData[b.tq] || 0;
+          benchChgPct += chg * b.w;
+          totalW += b.w;
+        });
+        if (totalW > 0) benchChgPct /= totalW;
+      } else if (benchDef) {
+        benchChgPct = indexData[benchDef] || 0;
+      }
+      
+      if (baseNav > 0) {
+        fund.nav = baseNav * (1 + benchChgPct / 100);
+        fund.navChange = benchChgPct;
+        fund.premium = (fund.price - fund.nav) / fund.nav * 100;
+      }
+    }
+  });
+  
+  // 立即渲染表格（市场数据已到，净值数据后台加载中）
+  renderTable();
+  updateGenerateTime();
+  
+  // 等待净值数据加载完成（最多15秒），然后重新渲染
+  Promise.race([
+    navPromise,
+    new Promise(r => setTimeout(r, 15000))
+  ]).then(() => {
+    // 净值数据就绪后重新计算溢价率并渲染
+    fundData.forEach(fund => {
+      const marketData = fund.price ? { price: fund.price, prevClose: fund.prevClose } : null;
+      if (marketData) {
+        const baseNav = fund.officialNav || fund.prevClose;
+        const benchDef = BENCH[fund.code];
+        let benchChgPct = 0;
+        if (Array.isArray(benchDef)) {
+          let totalW = 0;
+          benchDef.forEach(b => { const chg = indexData[b.tq] || 0; benchChgPct += chg * b.w; totalW += b.w; });
+          if (totalW > 0) benchChgPct /= totalW;
+        } else if (benchDef) { benchChgPct = indexData[benchDef] || 0; }
+        if (baseNav > 0) {
+          fund.nav = baseNav * (1 + benchChgPct / 100);
+          fund.navChange = benchChgPct;
+          fund.premium = (fund.price - fund.nav) / fund.nav * 100;
+        }
+      }
+    });
+    renderTable();
+    updateGenerateTime();
+  });
+  
+  // 解锁刷新锁（市场数据渲染完成即解锁）
+  isRefreshing = false;
+}
+
+// 更新生成时间
+function updateGenerateTime() {
+  const now = new Date().toLocaleString('zh-CN');
+  const generateTimeElement = document.getElementById('generate-time');
+  if (generateTimeElement) {
+    generateTimeElement.textContent = `数据生成时间: ${now}`;
+  }
+}
+
+// 排序表格
+function sortTable(column) {
+  // 移除所有排序标记
+  document.querySelectorAll('th.sorted').forEach(th => th.classList.remove('sorted'));
+  
+  // 设置当前排序列
+  const th = document.querySelector(`th[onclick="sortTable('${column}')"]`);
+  th.classList.add('sorted');
+  
+  // 切换排序方向
+  if (sortColumn === column) {
+    sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortColumn = column;
+    sortDirection = 'desc';
+  }
+  
+  // 渲染表格
+  renderTable();
+}
+
+// 渲染表格
+function renderTable() {
+  // 筛选数据
+  let filteredData = [...fundData];
+  
+  // 按类别筛选
+  if (currentCategory !== 'all') {
+    filteredData = filteredData.filter(fund => fund.category === currentCategory);
+  }
+  
+  // 按状态筛选
+  const threshold = 2; // 固定套利阈值为2%
+  switch (currentFilter) {
+    case 'arbitrage':
+      filteredData = filteredData.filter(fund => {
+        if (fund.premium === null) return false;
+        // 溢价≥2%且未暂停申购
+        if (fund.premium >= threshold && fund.quota !== '暂停') return true;
+        // 折价≥2% 任何基金都算套利机会
+        if (fund.premium <= -threshold) return true;
+        return false;
+      });
+      break;
+    case 'premium':
+      filteredData = filteredData.filter(fund => 
+        fund.premium !== null && fund.premium > 0
+      );
+      break;
+    case 'discount':
+      filteredData = filteredData.filter(fund => 
+        fund.premium !== null && fund.premium < 0
+      );
+      break;
+  }
+  
+  // 电脑版排序
+  const desktopSortedData = filteredData.sort((a, b) => {
+    let valueA, valueB;
+    
+    switch (sortColumn) {
+      case 'index':
+        return sortDirection === 'asc' ? 1 : -1;
+      case 'name':
+        valueA = a.name;
+        valueB = b.name;
+        break;
+      case 'code':
+        valueA = a.code;
+        valueB = b.code;
+        break;
+      case 'category':
+        valueA = a.category;
+        valueB = b.category;
+        break;
+      case 'nav':
+        valueA = a.nav || 0;
+        valueB = b.nav || 0;
+        break;
+      case 'officialNav':
+        valueA = a.officialNav || 0;
+        valueB = b.officialNav || 0;
+        break;
+      case 'price':
+        valueA = a.price || 0;
+        valueB = b.price || 0;
+        break;
+      case 'premium':
+        valueA = a.premium || 0;
+        valueB = b.premium || 0;
+        break;
+      case 'quota':
+        valueA = a.quota;
+        valueB = b.quota;
+        break;
+      default:
+        return 0;
+    }
+    
+    if (typeof valueA === 'string' && typeof valueB === 'string') {
+      return sortDirection === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
+    } else {
+      return sortDirection === 'asc' ? valueA - valueB : valueB - valueA;
+    }
+  });
+  
+  // 渲染电脑版表格
+  renderDesktopTable(desktopSortedData);
+  
+  // 更新统计栏
+  updateStats();
+}
+
+// 更新顶部统计栏
+function updateStats() {
+  const total = fundData.length;
+  const premiumCount = fundData.filter(f => f.premium !== null && f.premium > 0).length;
+  const discountCount = fundData.filter(f => f.premium !== null && f.premium < 0).length;
+  const arbitrageCount = fundData.filter(f => {
+    if (f.premium === null) return false;
+    // 溢价≥2%且未暂停申购
+    if (f.premium >= 2 && f.quota !== '暂停') return true;
+    // 折价≥2% 任何基金都算套利机会
+    if (f.premium <= -2) return true;
+    return false;
+  }).length;
+  
+  const el = id => document.getElementById(id);
+  if (el('statTotal')) el('statTotal').textContent = total;
+  if (el('statPremium')) el('statPremium').textContent = premiumCount;
+  if (el('statDiscount')) el('statDiscount').textContent = discountCount;
+  if (el('statArbitrage')) el('statArbitrage').textContent = arbitrageCount;
+}
+
+// 渲染电脑版表格
+function renderDesktopTable(sortedData) {
+  if (sortedData.length === 0) {
+    fundTableBodyDesktop.innerHTML = `
+      <tr>
+        <td colspan="9" class="loading">暂无数据</td>
+      </tr>
+    `;
+    return;
+  }
+  
+  // 类别映射
+  const categoryMap = {
+    'us': '美股',
+    'hk': '港股',
+    'cm': '商品',
+    'cn': 'A股'
+  };
+  
+  fundTableBodyDesktop.innerHTML = sortedData.map((fund, index) => {
+    const quotaClass = fund.quota === '开放' ? 'open' : 
+                      fund.quota === '暂停' ? 'suspended' : 'limited';
+    
+    // 金融行业通用的红涨绿跌颜色标识规则
+    let premiumClass = '';
+    if (fund.premium > 0) {
+      premiumClass = 'red';
+    } else if (fund.premium < 0) {
+      premiumClass = 'green';
+    }
+    
+    const categoryName = categoryMap[fund.category] || fund.category;
+    
+    return `
+      <tr>
+        <td style="font-weight: 600;">${index + 1}</td>
+        <td>
+          <div class="code-cell">
+            <div class="fund-name">${fund.name}</div>
+            <div class="fund-code">${fund.code}</div>
+          </div>
+        </td>
+        <td>
+          ${fund.price ? fund.price.toFixed(2) : '-'}
+          ${fund.change ? `
+            <div class="price-change ${fund.change >= 0 ? 'red' : 'green'}">
+              ${fund.change >= 0 ? '+' : ''}${fund.change.toFixed(2)}%
+            </div>
+          ` : ''}
+        </td>
+        <td>${fund.nav ? fund.nav.toFixed(2) : '-'}</td>
+        <td>
+          ${fund.officialNav ? fund.officialNav.toFixed(4) : '-'}
+          ${fund.navDate ? `
+            <div style="font-size: 0.65rem; color: var(--gray); margin-top: 0.2rem;">
+              ${fund.navDate}
+            </div>
+          ` : ''}
+        </td>
+        <td>
+          ${fund.premium !== null ? `
+            <span class="premium-rate ${premiumClass}">
+              ${fund.premium >= 0 ? '+' : ''}${fund.premium.toFixed(2)}%
+            </span>
+          ` : '-'}
+        </td>
+        <td>
+          ${(() => {
+            const benchDef = BENCH[fund.code];
+            if (Array.isArray(benchDef)) {
+              return benchDef.map(b => `${INDEX_NAMES[b.tq] || b.tq}(${b.tq})(${b.w})`).join('+');
+            } else if (benchDef) {
+              return `${INDEX_NAMES[benchDef] || benchDef}(${benchDef})`;
+            }
+            return '-';
+          })()}
+        </td>
+        <td>
+          ${(() => {
+            const benchDef = BENCH[fund.code];
+            let changeText = '-';
+            let timeStr = '';
+            let isZeroChange = false;
+            let changeValue = 0;
+            if (Array.isArray(benchDef)) {
+              let totalW = 0;
+              let benchChgPct = 0;
+              let mainIndex = benchDef[0].tq;
+              benchDef.forEach(b => {
+                const chg = indexData[b.tq] || 0;
+                benchChgPct += chg * b.w;
+                totalW += b.w;
+              });
+              if (totalW > 0) benchChgPct /= totalW;
+              changeValue = benchChgPct;
+              isZeroChange = benchChgPct === 0;
+              changeText = `${benchChgPct >= 0 ? '+' : ''}${benchChgPct.toFixed(2)}%`;
+              timeStr = indexTimes[mainIndex] || '';
+            } else if (benchDef) {
+              const chg = indexData[benchDef] || 0;
+              changeValue = chg;
+              isZeroChange = chg === 0;
+              changeText = `${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%`;
+              timeStr = indexTimes[benchDef] || '';
+            }
+            const changeClass = changeValue > 0 ? 'price-change red' : changeValue < 0 ? 'price-change green' : 'zero-change';
+            return `<div class="${changeClass}">${changeText}${timeStr ? `<div style="font-size: 0.65rem; color: var(--gray); margin-top: 0.2rem;">${timeStr}</div>` : ''}</div>`;
+          })()}
+        </td>
+        <td>
+          <span class="quota-status ${quotaClass}">
+            ${fund.quota}
+          </span>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+
+
+// 初始化应用
+async function bootstrap() {
+  const success = await loadFundsData();
+  if (success) {
+    init();
+  } else {
+    console.error('无法加载基金数据，应用初始化失败');
+  }
+}
+
+bootstrap();
+</script>
+</body>
+</html>
