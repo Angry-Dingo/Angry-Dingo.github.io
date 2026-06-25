@@ -15,11 +15,9 @@ export default {
     if (cron.startsWith('0 23') || cron.startsWith('10 13')) {
       console.log('[LOG] 执行数据同步任务');
       ctx.waitUntil(syncDataFromGitHub(env));
-    } else if (isBeijingTradingHour(beijingHour, minute, beijingDay)) {
+    } else {
       console.log('[LOG] 执行溢价监控任务');
       ctx.waitUntil(smartMonitor(env));
-    } else {
-      console.log(`[LOG] 非交易时段（北京 ${beijingHour}:${String(minute).padStart(2,'0')} 星期${beijingDay}），跳过监控`);
     }
   },
 
@@ -33,27 +31,168 @@ export default {
       ctx.waitUntil(syncDataFromGitHub(env));
       return new Response('数据同步已触发', { status: 200 });
     }
+    // 指数数据代理：浏览器端通过此端点获取东方财富指数数据（服务端无CORS限制）
+    if (url.pathname === '/api/indices') {
+      const EM_CODES = [
+        ['csi930917', '2.930917'],
+        ['csi930914', '2.930914'],
+        ['csi930792', '2.930792'],
+        ['sh000985',  '1.000985'],
+        ['sh000066',  '1.000066'],
+        ['sh000945',  '1.000945'],
+        ['hkHSMI',    '124.HSMI'],
+        ['hkHSSI',    '124.HSSI'],
+        ['hkHSCI',    '124.HSCI'],
+        // nf_AG0（沪银主连）通过 /api/futures 端点获取，stock API不支持期货
+      ];
+      const results = {};
+      const times = {};
+      await Promise.all(EM_CODES.map(async ([key, secid]) => {
+        try {
+          const r = await fetch(`https://push2.eastmoney.com/api/qt/stock/get?secid=${secid}&fields=f43,f169,f170,f3,f14&_=${Date.now()}`);
+          const d = await r.json();
+          if (d.data) {
+            const chg = d.data.f3 !== undefined ? d.data.f3 : ((d.data.f170 || 0) / 100);
+            const time = d.data.f14 || '';
+            results[key] = chg;
+            times[key] = time;
+          }
+        } catch (e) {}
+      }));
+      return new Response(JSON.stringify({ data: results, times }), {
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+      });
+    }
+
+    // 期货数据代理：浏览器端通过此端点获取沪银主连数据（服务端无CORS/Referer限制）
+    if (url.pathname === '/api/futures') {
+      return await handleFuturesProxy();
+    }
     return new Response('LOF 基金监控服务', { status: 200 });
   }
 };
 
+// ==================== 期货数据代理 ====================
+// 浏览器端无法直接获取沪银主连数据（东财stock API不支持期货，Sina有Referer限制）
+// 此函数从服务端获取数据，供浏览器端和Worker内部使用
+async function handleFuturesProxy() {
+  const headers = {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    'Cache-Control': 'no-cache'
+  };
+
+  // 数据源1：东方财富stock API（大写secid=113.AGM）
+  try {
+    const emRes = await fetch(
+      `https://push2.eastmoney.com/api/qt/stock/get?secid=113.AGM&fields=f43,f170,f3,f14&_=${Date.now()}`,
+      { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' } }
+    );
+    if (emRes.ok) {
+      const emData = await emRes.json();
+      if (emData && emData.data) {
+        const chg = emData.data.f3;
+        if (chg !== undefined && chg !== null) {
+          return new Response(JSON.stringify({ nf_AG0: chg, source: 'eastmoney_A' }), { headers });
+        }
+      }
+    }
+  } catch (e) {}
+
+  // 数据源2：东方财富stock API（小写secid=113.agm）
+  try {
+    const emRes = await fetch(
+      `https://push2.eastmoney.com/api/qt/stock/get?secid=113.agm&fields=f43,f170,f3,f14&_=${Date.now()}`,
+      { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' } }
+    );
+    if (emRes.ok) {
+      const emData = await emRes.json();
+      if (emData && emData.data) {
+        const chg = emData.data.f3;
+        if (chg !== undefined && chg !== null) {
+          return new Response(JSON.stringify({ nf_AG0: chg, source: 'eastmoney_B' }), { headers });
+        }
+      }
+    }
+  } catch (e) {}
+
+  // 数据源3：新浪财经期货数据（服务端无Referer限制）
+  try {
+    const sinaRes = await fetch('https://hq.sinajs.cn/list=nf_AG0', {
+      headers: { 'Referer': 'https://finance.sina.com.cn', 'User-Agent': 'Mozilla/5.0' }
+    });
+    const text = await sinaRes.text();
+    const match = text.match(/hq_str_nf_AG0="([^"]+)"/);
+    if (match) {
+      const parts = match[1].split(',');
+      const currentPrice = parseFloat(parts[6]);
+      let prevClose = parseFloat(parts[5]);
+      if (!prevClose || prevClose <= 0) prevClose = parseFloat(parts[10]);
+      if (currentPrice > 0 && prevClose > 0) {
+        const chg = (currentPrice - prevClose) / prevClose * 100;
+        return new Response(JSON.stringify({ nf_AG0: parseFloat(chg.toFixed(2)), source: 'sina' }), { headers });
+      }
+    }
+  } catch (e) {}
+
+  return new Response(JSON.stringify({ nf_AG0: null, source: 'none' }), { headers });
+}
+
+// 从新浪获取沪银主连涨跌幅（用于Worker内部监控计算）
+async function fetchFuturesData() {
+  // 尝试东财大写secid
+  try {
+    const emRes = await fetch(
+      `https://push2.eastmoney.com/api/qt/stock/get?secid=113.AGM&fields=f43,f3&_=${Date.now()}`,
+      { headers: { 'User-Agent': 'Mozilla/5.0' } }
+    );
+    if (emRes.ok) {
+      const emData = await emRes.json();
+      if (emData && emData.data && emData.data.f3 !== undefined) {
+        return { 'nf_AG0': emData.data.f3 };
+      }
+    }
+  } catch (e) {}
+  // 尝试东财小写secid
+  try {
+    const emRes = await fetch(
+      `https://push2.eastmoney.com/api/qt/stock/get?secid=113.agm&fields=f43,f3&_=${Date.now()}`,
+      { headers: { 'User-Agent': 'Mozilla/5.0' } }
+    );
+    if (emRes.ok) {
+      const emData = await emRes.json();
+      if (emData && emData.data && emData.data.f3 !== undefined) {
+        return { 'nf_AG0': emData.data.f3 };
+      }
+    }
+  } catch (e) {}
+
+  try {
+    const sinaRes = await fetch('https://hq.sinajs.cn/list=nf_AG0', {
+      headers: { 'Referer': 'https://finance.sina.com.cn' }
+    });
+    const text = await sinaRes.text();
+    const match = text.match(/hq_str_nf_AG0="([^"]+)"/);
+    if (match) {
+      const parts = match[1].split(',');
+      const currentPrice = parseFloat(parts[6]);
+      let prevClose = parseFloat(parts[5]);
+      if (!prevClose || prevClose <= 0) prevClose = parseFloat(parts[10]);
+      if (currentPrice > 0 && prevClose > 0) {
+        const chg = (currentPrice - prevClose) / prevClose * 100;
+        return { 'nf_AG0': parseFloat(chg.toFixed(2)) };
+      }
+    }
+  } catch (e) {}
+  return {};
+}
+
+// ==================== 工具函数 ====================
 function quotaIcon(quota) {
   if (!quota) return '⚪';
   if (quota === '暂停') return '🔴';
   if (quota === '开放') return '🟢';
   return '🟠';
-}
-
-// 判断北京时间是否在交易时段（交易日 9:25-11:30、13:00-15:00）
-function isBeijingTradingHour(h, m, d) {
-  return (d >= 1 && d <= 5) && (
-    (h === 9 && m >= 25) ||
-    (h === 10) ||
-    (h === 11 && m <= 30) ||
-    (h === 13 && m >= 0) ||
-    (h === 14) ||
-    (h === 15 && m <= 0)
-  );
 }
 
 // ==================== 数据同步任务 ====================
@@ -316,7 +455,7 @@ async function fetchMarketData(fundsData) {
     }
   });
 
-  // 补充东方财富数据源（腾讯qt不支持的指数）
+  // 补充东方财富数据源（腾讯qt不支持的指数：中证自定义指数、债券指数等）
   const EM_CODES = [
     ['csi930917', '2.930917'],
     ['csi930914', '2.930914'],
@@ -324,23 +463,37 @@ async function fetchMarketData(fundsData) {
     ['sh000985',  '1.000985'],
     ['sh000066',  '1.000066'],
     ['sh000945',  '1.000945'],
+    ['hkHSMI',    '124.HSMI'],    // 恒生综合中型股指数（501303恒生中型股LOF基准，腾讯无数据）
+    ['hkHSSI',    '124.HSSI'],    // 恒生综合小型股指数（161124港股小盘LOF基准，腾讯无数据）
+    ['hkHSCI',    '124.HSCI'],    // 恒生综合指数（160322港股精选LOF基准，腾讯无数据）
   ];
   await Promise.all(EM_CODES.map(async ([tq, secid]) => {
     try {
-      const r = await fetch(`https://push2.eastmoney.com/api/qt/stock/get?secid=${secid}&fields=f43,f170&_=${Date.now()}`);
+      const r = await fetch(`https://push2.eastmoney.com/api/qt/stock/get?secid=${secid}&fields=f43,f170,f3&_=${Date.now()}`);
       const d = await r.json();
-      if (d.data && d.data.f43 > 0 && d.data.f170 !== undefined) {
-        indexData[tq] = d.data.f170 / 100;
+      if (d.data) {
+        indexData[tq] = d.data.f3 !== undefined ? d.data.f3 : ((d.data.f170 || 0) / 100);
       }
     } catch (e) {}
   }));
 
-  // 指数降级
+  // 补充沪银期货数据（161226 国投白银LOF基准，腾讯qt和东财stock API均不支持）
+  try {
+    const futuresData = await fetchFuturesData();
+    if (futuresData['nf_AG0'] !== undefined && futuresData['nf_AG0'] !== null) {
+      indexData['nf_AG0'] = futuresData['nf_AG0'];
+    }
+  } catch (e) {}
+
+  // 指数降级：腾讯或东方财富查不到的指数，用相近指数替代
   if (indexData['hkHSMI'] == null || indexData['hkHSMI'] === 0) {
     if (indexData['hkHSI'] != null) indexData['hkHSMI'] = indexData['hkHSI'];
   }
   if (indexData['hkHSCI'] == null || indexData['hkHSCI'] === 0) {
     if (indexData['hkHSI'] != null) indexData['hkHSCI'] = indexData['hkHSI'];
+  }
+  if (indexData['hkHSSI'] == null || indexData['hkHSSI'] === 0) {
+    if (indexData['hkHSI'] != null) indexData['hkHSSI'] = indexData['hkHSI'];
   }
 
   return { fundMarketData, indexData };
