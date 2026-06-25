@@ -466,13 +466,16 @@ async function fetchMarketData(fundsData) {
     ['hkHSMI',    '124.HSMI'],    // 恒生综合中型股指数（501303恒生中型股LOF基准，腾讯无数据）
     ['hkHSSI',    '124.HSSI'],    // 恒生综合小型股指数（161124港股小盘LOF基准，腾讯无数据）
     ['hkHSCI',    '124.HSCI'],    // 恒生综合指数（160322港股精选LOF基准，腾讯无数据）
+    ['hkHSI',     '124.HSI'],     // 恒生指数（hkHSMI/hkHSSI/hkHSCI降级后备）
   ];
   await Promise.all(EM_CODES.map(async ([tq, secid]) => {
     try {
       const r = await fetch(`https://push2.eastmoney.com/api/qt/stock/get?secid=${secid}&fields=f43,f170,f3&_=${Date.now()}`);
       const d = await r.json();
       if (d.data) {
-        indexData[tq] = d.data.f3 !== undefined ? d.data.f3 : ((d.data.f170 || 0) / 100);
+        // f3=涨跌幅百分比，f170=涨跌点数→需除以当前价得到百分比
+        const chg = d.data.f3 !== undefined ? d.data.f3 : ((d.data.f170 || 0) / (d.data.f43 || 100) * 100);
+        if (chg != null) indexData[tq] = chg;
       }
     } catch (e) {}
   }));
