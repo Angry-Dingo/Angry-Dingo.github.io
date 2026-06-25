@@ -185,7 +185,9 @@ async function fetchFuturesData() {
     }
   } catch (e) {}
   return {};
+}
 
+// ==================== 工具函数 ====================
 function quotaIcon(quota) {
   if (!quota) return '⚪';
   if (quota === '暂停') return '🔴';
