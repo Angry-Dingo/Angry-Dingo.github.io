@@ -1205,6 +1205,59 @@ function fetchTencentData() {
   });
 }
 
+// 从新浪财经获取期货数据（腾讯qt不支持期货，东财stock API也不支持）
+function fetchSinaFutures() {
+  return new Promise(resolve => {
+    const sinaCodes = 'nf_AG0';
+    const script = document.createElement('script');
+    
+    let done = false;
+    const timer = setTimeout(() => {
+      if (!done) {
+        done = true;
+        console.log('新浪期货行情超时');
+        script.remove();
+        resolve({});
+      }
+    }, 8000);
+    
+    script.onload = () => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      
+      const result = {};
+      const raw = window['hq_str_nf_AG0'];
+      if (raw) {
+        const parts = raw.split(',');
+        // Sina期货格式: name,time,open,high,low,prevSettlement,currentPrice,bid,ask,volume,position,...
+        const currentPrice = parseFloat(parts[6]);
+        // 前收盘/昨结算可能在field 5或field 10，取非零值
+        let prevClose = parseFloat(parts[5]);
+        if (!prevClose || prevClose <= 0) prevClose = parseFloat(parts[10]);
+        if (!prevClose || prevClose <= 0) prevClose = parseFloat(parts[27]);
+        
+        if (currentPrice > 0 && prevClose > 0) {
+          result['nf_AG0'] = (currentPrice - prevClose) / prevClose * 100;
+        }
+      }
+      resolve(result);
+    };
+    
+    script.onerror = () => {
+      if (!done) {
+        done = true;
+        clearTimeout(timer);
+        script.remove();
+        resolve({});
+      }
+    };
+    
+    script.src = `https://hq.sinajs.cn/list=${sinaCodes}&_=${Date.now()}`;
+    document.head.appendChild(script);
+  });
+}
+
 // 刷新数据
 async function refreshData() {
   // 刷新锁，防止并发调用
@@ -1217,8 +1270,8 @@ async function refreshData() {
   // 每次刷新都重新加载净值数据，确保数据是最新的
   await loadNavs();
   
-  // 并行获取腾讯财经和东方财富数据
-  const [tencentData, emResult] = await Promise.all([fetchTencentData(), fetchEastmoney()]);
+  // 并行获取腾讯财经、东方财富（JSONP）和新浪期货数据
+  const [tencentData, emResult, sinaResult] = await Promise.all([fetchTencentData(), fetchEastmoney(), fetchSinaFutures()]);
   const emIdx = emResult.data;
   const emTimes = emResult.times;
   
@@ -1244,6 +1297,18 @@ async function refreshData() {
       const minute = String(now.getMinutes()).padStart(2, '0');
       indexTimes[code] = `${year}-${month}-${day} ${hour}:${minute}`;
     }
+  });
+  
+  // 合并新浪期货数据（nf_AG0沪银主连）
+  Object.entries(sinaResult).forEach(([code, chg]) => {
+    indexData[code] = chg;
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hour = String(now.getHours()).padStart(2, '0');
+    const minute = String(now.getMinutes()).padStart(2, '0');
+    indexTimes[code] = `${year}-${month}-${day} ${hour}:${minute}`;
   });
   
   // 为所有基准指数设置默认时间信息，确保即使获取不到数据也能显示时间
