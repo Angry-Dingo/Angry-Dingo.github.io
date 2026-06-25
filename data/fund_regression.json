@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-25T10:20:23.415Z",
+  "updatedAt": "2026-06-25T10:31:39.200Z",
   "fundCount": 47,
   "summary": {
     "total": 47,
@@ -15,11 +15,11 @@
       "status": "done",
       "lag": 0,
       "samples": 154,
-      "bestSingleR2": 0.9977668978423206,
+      "bestSingleR2": 0.9977669112431776,
       "bestIndex": "usXBI",
       "bestIndexName": "标普生物科技",
-      "bestBeta": 0.946279837198615,
-      "multiR2": 0.9978621022991528
+      "bestBeta": 0.9462799269005352,
+      "multiR2": 0.9978621164743416
     },
     {
       "code": "164906",
@@ -45,7 +45,7 @@
       "bestIndex": "usQQQ",
       "bestIndexName": "纳斯达克100",
       "bestBeta": 1.2145764049342807,
-      "multiR2": 0.8276583307350704
+      "multiR2": 0.827658394050398
     },
     {
       "code": "164824",
@@ -58,7 +58,7 @@
       "bestIndex": "usINDA",
       "bestIndexName": "印度ETF",
       "bestBeta": 0.8492867754961715,
-      "multiR2": 0.921696170654372
+      "multiR2": 0.921696159762188
     },
     {
       "code": "160644",
@@ -80,11 +80,11 @@
       "status": "done",
       "lag": 0,
       "samples": 154,
-      "bestSingleR2": 0.9945496849302039,
+      "bestSingleR2": 0.9945496472788066,
       "bestIndex": "usXLY",
       "bestIndexName": "美国消费",
-      "bestBeta": 0.9292856773605455,
-      "multiR2": 0.9945703349490999
+      "bestBeta": 0.9292853609632328,
+      "multiR2": 0.9945702974936912
     },
     {
       "code": "161126",
@@ -93,11 +93,11 @@
       "status": "done",
       "lag": 0,
       "samples": 154,
-      "bestSingleR2": 0.22610885925747315,
+      "bestSingleR2": 0.22610942183578042,
       "bestIndex": "usSPY",
       "bestIndexName": "usSPY",
-      "bestBeta": 0.5142177476739335,
-      "multiR2": 0.4785778229122585
+      "bestBeta": 0.5142187687811746,
+      "multiR2": 0.47857953383503105
     },
     {
       "code": "161128",
@@ -106,11 +106,11 @@
       "status": "done",
       "lag": 0,
       "samples": 154,
-      "bestSingleR2": 0.9653775747622493,
+      "bestSingleR2": 0.9653777526347302,
       "bestIndex": "usXLK",
       "bestIndexName": "标普信息科技",
-      "bestBeta": 0.8436770826018635,
-      "multiR2": 0.9660127643290831
+      "bestBeta": 0.8436771742007411,
+      "multiR2": 0.9660129453019064
     },
     {
       "code": "161125",
@@ -123,7 +123,7 @@
       "bestIndex": "usINX",
       "bestIndexName": "标普500",
       "bestBeta": 0.9394569945919778,
-      "multiR2": 0.9941443415799056
+      "multiR2": 0.9941443519534132
     },
     {
       "code": "161130",
@@ -136,7 +136,7 @@
       "bestIndex": "usQQQ",
       "bestIndexName": "纳斯达克100",
       "bestBeta": 0.9452326865275856,
-      "multiR2": 0.995454267714846
+      "multiR2": 0.9954542677502227
     },
     {
       "code": "501300",
@@ -145,11 +145,11 @@
       "status": "done",
       "lag": 0,
       "samples": 153,
-      "bestSingleR2": 0.731541181131957,
+      "bestSingleR2": 0.7315364645439693,
       "bestIndex": "usAGG",
       "bestIndexName": "美国综合债券",
-      "bestBeta": 0.6620341998886966,
-      "multiR2": 0.7686378326779856
+      "bestBeta": 0.6620353519962302,
+      "multiR2": 0.7686338141821095
     },
     {
       "code": "160140",
@@ -162,7 +162,7 @@
       "bestIndex": "usRWR",
       "bestIndexName": "美国REIT",
       "bestBeta": 0.9408887521129421,
-      "multiR2": 0.9855119162982335
+      "multiR2": 0.9855119155451462
     },
     {
       "code": "501225",
@@ -262,11 +262,11 @@
       "status": "done",
       "lag": 0,
       "samples": 153,
-      "bestSingleR2": 0.8458550609490363,
+      "bestSingleR2": 0.8458551776865236,
       "bestIndex": "usXLE",
       "bestIndexName": "能源ETF",
-      "bestBeta": 0.8600067658642055,
-      "multiR2": 0.9504966350686329
+      "bestBeta": 0.8600066949754462,
+      "multiR2": 0.9504967106885459
     },
     {
       "code": "501018",
@@ -314,11 +314,11 @@
       "status": "done",
       "lag": 0,
       "samples": 153,
-      "bestSingleR2": 0.9440948442834505,
+      "bestSingleR2": 0.9440948577762505,
       "bestIndex": "usXOP",
       "bestIndexName": "石油天然气上游",
-      "bestBeta": 0.8488188274719981,
-      "multiR2": 0.9451734865592423
+      "bestBeta": 0.8488186070448993,
+      "multiR2": 0.9451735000034119
     },
     {
       "code": "162411",
@@ -327,11 +327,11 @@
       "status": "done",
       "lag": 0,
       "samples": 154,
-      "bestSingleR2": 0.9965800530952653,
+      "bestSingleR2": 0.9965800633817622,
       "bestIndex": "usXOP",
       "bestIndexName": "石油天然气上游",
-      "bestBeta": 0.9484494644840239,
-      "multiR2": 0.996597738596565
+      "bestBeta": 0.948449217168858,
+      "multiR2": 0.9965977488517272
     },
     {
       "code": "160416",
