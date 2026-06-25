@@ -6,89 +6,407 @@
 <meta name="referrer" content="no-referrer-when-downgrade">
 <title>LOF Monitor</title>
 <style>
+/* ===== Reset & Base ===== */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html{font-size:16px;scroll-behavior:smooth}
-:root{--bg-primary:#0b0f1a;--bg-secondary:#111827;--bg-card:#1a2236;--bg-hover:#1e2a45;--bg-active:#243056;--border-color:#2a3456;--border-light:#38406a;--text-primary:#e8ecf4;--text-secondary:#94a3b8;--text-muted:#64748b;--gray:#64748b;--accent-blue:#3b82f6;--accent-blue-hover:#60a5fa;--accent-blue-dim:rgba(59,130,246,0.12);--up:#22c55e;--up-bg:rgba(34,197,94,0.1);--up-border:rgba(34,197,94,0.25);--down:#ef4444;--down-bg:rgba(239,68,68,0.1);--down-border:rgba(239,68,68,0.25);--warning:#f59e0b;--warning-bg:rgba(245,158,11,0.1);--warning-border:rgba(245,158,11,0.25);--radius-sm:6px;--radius-md:10px;--radius-lg:14px;--shadow-card:0 4px 20px rgba(0,0,0,0.3);--transition:all 0.2s ease;--sidebar-width:210px}
-body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.5;min-height:100vh;-webkit-font-smoothing:antialiased}
+
+:root {
+  --bg-primary: #0b0f1a;
+  --bg-secondary: #111827;
+  --bg-card: #1a2236;
+  --bg-hover: #1e2a45;
+  --bg-active: #243056;
+  --border-color: #2a3456;
+  --border-light: #38406a;
+  --text-primary: #e8ecf4;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --gray: #64748b;
+  --accent-blue: #3b82f6;
+  --accent-blue-hover: #60a5fa;
+  --accent-blue-dim: rgba(59,130,246,0.12);
+  --up: #22c55e;
+  --up-bg: rgba(34,197,94,0.1);
+  --up-border: rgba(34,197,94,0.25);
+  --down: #ef4444;
+  --down-bg: rgba(239,68,68,0.1);
+  --down-border: rgba(239,68,68,0.25);
+  --warning: #f59e0b;
+  --warning-bg: rgba(245,158,11,0.1);
+  --warning-border: rgba(245,158,11,0.25);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --shadow-card: 0 4px 20px rgba(0,0,0,0.3);
+  --transition: all 0.2s ease;
+  --sidebar-width: 210px;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== Scrollbar ===== */
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-track{background:var(--bg-secondary)}
 ::-webkit-scrollbar-thumb{background:var(--border-color);border-radius:3px}
 ::-webkit-scrollbar-thumb:hover{background:var(--border-light)}
-.app-layout{display:flex;min-height:100vh}
-.sidebar{width:210px;background:var(--bg-secondary);border-right:1px solid var(--border-color);position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;z-index:100;overflow-y:auto}
-.sidebar-logo{display:flex;align-items:center;gap:10px;padding:18px 16px 14px;border-bottom:1px solid var(--border-color)}
-.sidebar-logo .logo-icon{width:28px;height:28px;background:linear-gradient(135deg,var(--accent-blue),#6366f1);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:800;color:#fff;flex-shrink:0}
-.sidebar-logo .logo-text{font-size:1rem;font-weight:700;color:var(--text-primary)}
-.sidebar-logo .logo-text span{color:var(--accent-blue)}
-.sidebar-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:14px 14px 10px}
-.sidebar-stat{background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius-sm);padding:10px;text-align:center;transition:var(--transition);cursor:pointer}
-.sidebar-stat:hover{border-color:var(--border-light)}
-.sidebar-stat .stat-num{font-size:1.15rem;font-weight:700;line-height:1.2;font-variant-numeric:tabular-nums}
-.sidebar-stat .stat-num.up{color:var(--up)}.sidebar-stat .stat-num.down{color:var(--down)}.sidebar-stat .stat-num.neutral{color:var(--text-primary)}.sidebar-stat .stat-num.accent{color:var(--accent-blue)}
-.sidebar-stat .stat-label{font-size:.6rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.3px;margin-top:2px}
-.sidebar-section{padding:10px 14px 4px}
-.sidebar-section-title{font-size:.62rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;font-weight:600;margin-bottom:8px;padding:0 4px}
-.sidebar-nav-group{display:flex;flex-direction:column;gap:3px}
-.filter-tab{display:block;width:100%;padding:8px 12px;border:none;border-radius:var(--radius-sm);background:transparent;font-size:.8rem;color:var(--text-secondary);cursor:pointer;transition:var(--transition);outline:none;font-weight:500;font-family:inherit;text-align:left}
-.filter-tab:hover{background:var(--bg-hover);color:var(--text-primary)}
-.filter-tab.active{background:var(--accent-blue-dim);color:var(--accent-blue);border-left:3px solid var(--accent-blue);font-weight:600}
-.sidebar-divider{border:none;border-top:1px solid var(--border-color);margin:8px 14px}
-.content-area{flex:1;margin-left:210px;display:flex;flex-direction:column;min-height:100vh}
-.top-bar{display:flex;align-items:center;justify-content:flex-end;padding:16px 24px 0;gap:12px}
-.generate-time{font-size:.75rem;color:var(--text-muted);background:var(--bg-card);padding:6px 14px;border-radius:var(--radius-sm);border:1px solid var(--border-color);white-space:nowrap;font-variant-numeric:tabular-nums}
-.main-container{max-width:100%;padding:16px 24px 24px}
-.fund-table-container{background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-card)}
-.fund-table{width:100%;border-collapse:collapse}
-.fund-table th{background:var(--bg-secondary);color:var(--text-muted);padding:12px 10px;text-align:center;font-weight:600;font-size:.73rem;text-transform:uppercase;letter-spacing:.3px;cursor:pointer;transition:var(--transition);vertical-align:middle;border-bottom:2px solid var(--border-color);font-family:inherit;white-space:nowrap;user-select:none;position:relative}
-.fund-table th:hover{color:var(--text-secondary);background:var(--bg-hover)}
-.fund-table th.sorted{color:var(--accent-blue);background:var(--accent-blue-dim)}
-.fund-table th.sorted::after{content:' \25B2';font-size:.6rem;opacity:.7}
-.fund-table td{padding:10px 10px;border-bottom:1px solid rgba(42,52,86,.5);font-size:.82rem;text-align:center;vertical-align:middle;color:var(--text-primary);font-family:inherit;transition:background .15s ease}
-.fund-table tr:last-child td{border-bottom:none}
-.fund-table tr:hover td{background:rgba(59,130,246,.04)}
-.fund-table th:nth-child(1),.fund-table td:nth-child(1){width:44px;min-width:44px}
-.fund-table th:nth-child(2),.fund-table td:nth-child(2){min-width:110px}
-.fund-table th:nth-child(3),.fund-table td:nth-child(3){min-width:90px}
-.fund-table th:nth-child(4),.fund-table td:nth-child(4){min-width:80px}
-.fund-table th:nth-child(5),.fund-table td:nth-child(5){min-width:95px}
-.fund-table th:nth-child(6),.fund-table td:nth-child(6){min-width:82px}
-.fund-table th:nth-child(7),.fund-table td:nth-child(7){max-width:165px;white-space:normal;word-wrap:break-word;font-size:.7rem;line-height:1.3}
-.fund-table th:nth-child(8),.fund-table td:nth-child(8){min-width:95px}
-.fund-table th:nth-child(9),.fund-table td:nth-child(9){min-width:75px}
-.code-cell{display:flex;flex-direction:column;align-items:center;gap:2px}
-.code-cell .fund-name{font-weight:500;color:var(--text-primary);font-size:.75rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px}
-.code-cell .fund-code{font-size:.65rem;color:var(--text-muted);font-family:'SF Mono','Cascadia Code','JetBrains Mono',monospace;letter-spacing:.3px}
-.price-change{font-weight:600;font-size:.78rem;margin-top:2px}
-.price-change.red,.premium-rate.red{color:var(--down)}
-.price-change.green,.premium-rate.green{color:var(--up)}
-.premium-rate{display:block;font-weight:700;font-size:.9rem}
-.quota-status{display:inline-block;padding:3px 12px;border-radius:12px;font-size:.7rem;font-weight:600;letter-spacing:.2px}
-.quota-status.open{background:var(--up-bg);color:var(--up);border:1px solid var(--up-border)}
-.quota-status.limited{background:var(--warning-bg);color:var(--warning);border:1px solid var(--warning-border)}
-.quota-status.suspended{background:var(--down-bg);color:var(--down);border:1px solid var(--down-border)}
-.zero-change{display:inline-block;padding:3px 12px;border-radius:12px;background:rgba(100,116,139,.08);color:var(--text-muted);border:1px solid rgba(100,116,139,.15);font-weight:500;font-size:.78rem}
-.loading{display:flex;align-items:center;justify-content:center;padding:60px 20px;color:var(--text-muted);font-size:.9rem;font-weight:500;gap:14px}
-.loading::after{content:'';width:20px;height:20px;border:2px solid var(--border-color);border-top-color:var(--accent-blue);border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.footer{margin-top:0;border-top:1px solid var(--border-color);background:var(--bg-secondary)}
-.footer-content{max-width:100%;margin:0 auto;padding:16px 24px;display:flex;align-items:center;justify-content:center;text-align:center}
-.footer-info{font-size:.7rem;color:var(--text-muted);line-height:1.8}
-@media(max-width:900px){.sidebar{width:48px}.sidebar-logo .logo-text,.sidebar-stat .stat-label,.sidebar-section-title,.filter-tab{display:none}.sidebar-stat{padding:6px}.sidebar-stat .stat-num{font-size:.85rem}.sidebar-logo{justify-content:center;padding:12px 0}.sidebar-section{padding:6px 4px}.filter-tab{padding:10px 0;text-align:center}.filter-tab.active{border-left:3px solid var(--accent-blue)}.content-area{margin-left:48px}.top-bar{padding:12px 14px 0}.main-container{padding:12px 14px 16px}.fund-table-container{overflow-x:auto}.fund-table{min-width:780px}.fund-table th,.fund-table td{padding:8px 6px;font-size:.72rem}}
-@media(max-width:680px){.sidebar{width:44px}.content-area{margin-left:44px}.top-bar{padding:10px 10px 0}.main-container{padding:10px 10px 12px}.fund-table th,.fund-table td{padding:8px 5px;font-size:.7rem}.generate-time{font-size:.65rem;padding:4px 8px}}
-@media(max-width:480px){.fund-table th,.fund-table td{padding:6px 4px;font-size:.65rem}}
+
+/* ===== Layout ===== */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ===== Sidebar ===== */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  overflow-y: auto;
+}
+
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 16px 14px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-logo .logo-icon {
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(135deg, var(--accent-blue), #6366f1);
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.sidebar-logo .logo-text {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.sidebar-logo .logo-text span { color: var(--accent-blue); }
+
+/* Sidebar Stats */
+.sidebar-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 14px 14px 10px;
+}
+
+.sidebar-stat {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  text-align: center;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.sidebar-stat:hover {
+  border-color: var(--border-light);
+}
+
+.sidebar-stat .stat-num {
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+.sidebar-stat .stat-num.up{color:var(--up)}
+.sidebar-stat .stat-num.down{color:var(--down)}
+.sidebar-stat .stat-num.neutral{color:var(--text-primary)}
+.sidebar-stat .stat-num.accent{color:var(--accent-blue)}
+
+.sidebar-stat .stat-label {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-top: 2px;
+}
+
+/* Sidebar Section */
+.sidebar-section {
+  padding: 10px 14px 4px;
+}
+
+.sidebar-section-title {
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  padding: 0 4px;
+}
+
+.sidebar-nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.filter-tab {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+  outline: none;
+  font-weight: 500;
+  font-family: var(--font);
+  text-align: left;
+}
+
+.filter-tab:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.filter-tab.active {
+  background: var(--accent-blue-dim);
+  color: var(--accent-blue);
+  border-left: 3px solid var(--accent-blue);
+  font-weight: 600;
+}
+
+.sidebar-divider {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 8px 14px;
+}
+
+/* ===== Content Area ===== */
+.content-area {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 16px 24px 0;
+  gap: 12px;
+}
+
+.generate-time {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  background: var(--bg-card);
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.main-container {
+  max-width: 100%;
+  padding: 16px 24px 24px;
+}
+
+/* ===== Table ===== */
+.fund-table-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
+
+.fund-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.fund-table th {
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  padding: 12px 10px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.73rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: var(--transition);
+  vertical-align: middle;
+  border-bottom: 2px solid var(--border-color);
+  font-family: var(--font);
+  white-space: nowrap;
+  user-select: none;
+  position: relative;
+}
+
+.fund-table th:hover {
+  color: var(--text-secondary);
+  background: var(--bg-hover);
+}
+
+.fund-table th.sorted {
+  color: var(--accent-blue);
+  background: var(--accent-blue-dim);
+}
+
+.fund-table th.sorted::after {
+  content: ' \25B2';
+  font-size: 0.6rem;
+  opacity: 0.7;
+}
+
+.fund-table td {
+  padding: 10px 10px;
+  border-bottom: 1px solid rgba(42,52,86,0.5);
+  font-size: 0.82rem;
+  text-align: center;
+  vertical-align: middle;
+  color: var(--text-primary);
+  font-family: var(--font);
+  transition: background 0.15s ease;
+}
+
+.fund-table tr:last-child td { border-bottom: none; }
+.fund-table tr:hover td { background: rgba(59,130,246,0.04); }
+
+.fund-table th:nth-child(1), .fund-table td:nth-child(1) { width: 44px; min-width: 44px; }
+.fund-table th:nth-child(2), .fund-table td:nth-child(2) { min-width: 110px; }
+.fund-table th:nth-child(3), .fund-table td:nth-child(3) { min-width: 90px; }
+.fund-table th:nth-child(4), .fund-table td:nth-child(4) { min-width: 80px; }
+.fund-table th:nth-child(5), .fund-table td:nth-child(5) { min-width: 95px; }
+.fund-table th:nth-child(6), .fund-table td:nth-child(6) { min-width: 82px; }
+.fund-table th:nth-child(7), .fund-table td:nth-child(7) { max-width: 165px; white-space: normal; word-wrap: break-word; font-size: 0.7rem; line-height: 1.3; }
+.fund-table th:nth-child(8), .fund-table td:nth-child(8) { min-width: 95px; }
+.fund-table th:nth-child(9), .fund-table td:nth-child(9) { min-width: 75px; }
+
+/* ===== Code Cell ===== */
+.code-cell { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.code-cell .fund-name { font-weight: 500; color: var(--text-primary); font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px; }
+.code-cell .fund-code { font-size: 0.65rem; color: var(--text-muted); font-family: 'SF Mono', 'Cascadia Code', 'JetBrains Mono', monospace; letter-spacing: 0.3px; }
+
+/* ===== Price & Premium Colors ===== */
+.price-change { font-weight: 600; font-size: 0.78rem; margin-top: 2px; }
+.price-change.red, .premium-rate.red { color: var(--down); }
+.price-change.green, .premium-rate.green { color: var(--up); }
+.premium-rate { display: block; font-weight: 700; font-size: 0.9rem; }
+.premium-rate.red { color: var(--down); }
+.premium-rate.green { color: var(--up); }
+
+/* ===== Quota Badges ===== */
+.quota-status { display: inline-block; padding: 3px 12px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.2px; }
+.quota-status.open { background: var(--up-bg); color: var(--up); border: 1px solid var(--up-border); }
+.quota-status.limited { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning-border); }
+.quota-status.suspended { background: var(--down-bg); color: var(--down); border: 1px solid var(--down-border); }
+
+/* ===== Zero Change ===== */
+.zero-change { display: inline-block; padding: 3px 12px; border-radius: 12px; background: rgba(100,116,139,0.08); color: var(--text-muted); border: 1px solid rgba(100,116,139,0.15); font-weight: 500; font-size: 0.78rem; }
+
+/* ===== Loading ===== */
+.loading { display: flex; align-items: center; justify-content: center; padding: 60px 20px; color: var(--text-muted); font-size: 0.9rem; font-weight: 500; gap: 14px; }
+.loading::after { content: ''; width: 20px; height: 20px; border: 2px solid var(--border-color); border-top-color: var(--accent-blue); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===== Footer ===== */
+.footer { margin-top: 0; border-top: 1px solid var(--border-color); background: var(--bg-secondary); }
+.footer-content { max-width: 100%; margin: 0 auto; padding: 16px 24px; display: flex; align-items: center; justify-content: center; text-align: center; }
+.footer-info { font-size: 0.7rem; color: var(--text-muted); line-height: 1.8; }
+
+/* ===== Responsive ===== */
+@media (max-width: 900px) {
+  .sidebar { width: 48px; }
+  .sidebar-logo .logo-text, .sidebar-stat .stat-label, .sidebar-section-title, .filter-tab { display: none; }
+  .sidebar-stat { padding: 6px; }
+  .sidebar-stat .stat-num { font-size: 0.85rem; }
+  .sidebar-logo { justify-content: center; padding: 12px 0; }
+  .sidebar-section { padding: 6px 4px; }
+  .filter-tab { padding: 10px 0; text-align: center; }
+  .filter-tab.active { border-left: 3px solid var(--accent-blue); }
+  .content-area { margin-left: 48px; }
+  .top-bar { padding: 12px 14px 0; }
+  .main-container { padding: 12px 14px 16px; }
+  .fund-table-container { overflow-x: auto; }
+  .fund-table { min-width: 780px; }
+  .fund-table th, .fund-table td { padding: 8px 6px; font-size: 0.72rem; }
+}
+
+@media (max-width: 680px) {
+  .sidebar { width: 44px; }
+  .content-area { margin-left: 44px; }
+  .top-bar { padding: 10px 10px 0; }
+  .main-container { padding: 10px 10px 12px; }
+  .fund-table th, .fund-table td { padding: 8px 5px; font-size: 0.7rem; }
+  .generate-time { font-size: 0.65rem; padding: 4px 8px; }
+}
+
+@media (max-width: 480px) {
+  .fund-table th, .fund-table td { padding: 6px 4px; font-size: 0.65rem; }
+}
 </style>
 </head>
 <body>
+
 <div class="app-layout">
+
+<!-- ===== Left Sidebar ===== -->
 <aside class="sidebar">
-  <div class="sidebar-logo"><div class="logo-icon">LF</div><div class="logo-text"><span>LOF</span> Monitor</div></div>
-  <div class="sidebar-stats">
-    <div class="sidebar-stat" onclick="setFilter('all')"><div class="stat-num neutral" id="statTotal">-</div><div class="stat-label">全部</div></div>
-    <div class="sidebar-stat" onclick="setFilter('premium')"><div class="stat-num up" id="statPremium">-</div><div class="stat-label">溢价</div></div>
-    <div class="sidebar-stat" onclick="setFilter('discount')"><div class="stat-num down" id="statDiscount">-</div><div class="stat-label">折价</div></div>
-    <div class="sidebar-stat" onclick="setFilter('arbitrage')"><div class="stat-num accent" id="statArbitrage">-</div><div class="stat-label">套利</div></div>
+  <div class="sidebar-logo">
+    <div class="logo-icon">LF</div>
+    <div class="logo-text"><span>LOF</span> Monitor</div>
   </div>
+
+  <div class="sidebar-stats">
+    <div class="sidebar-stat" onclick="setFilter('all')">
+      <div class="stat-num neutral" id="statTotal">-</div>
+      <div class="stat-label">全部</div>
+    </div>
+    <div class="sidebar-stat" onclick="setFilter('premium')">
+      <div class="stat-num up" id="statPremium">-</div>
+      <div class="stat-label">溢价</div>
+    </div>
+    <div class="sidebar-stat" onclick="setFilter('discount')">
+      <div class="stat-num down" id="statDiscount">-</div>
+      <div class="stat-label">折价</div>
+    </div>
+    <div class="sidebar-stat" onclick="setFilter('arbitrage')">
+      <div class="stat-num accent" id="statArbitrage">-</div>
+      <div class="stat-label">套利</div>
+    </div>
+  </div>
+
   <hr class="sidebar-divider">
+
   <div class="sidebar-section">
     <div class="sidebar-section-title">类型筛选</div>
     <div class="sidebar-nav-group">
@@ -98,7 +416,9 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sa
       <button class="filter-tab" onclick="setFilter('discount')">折价基金</button>
     </div>
   </div>
+
   <hr class="sidebar-divider">
+
   <div class="sidebar-section">
     <div class="sidebar-section-title">类别筛选</div>
     <div class="sidebar-nav-group">
@@ -110,45 +430,848 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sa
     </div>
   </div>
 </aside>
+
+<!-- ===== Right Content ===== -->
 <div class="content-area">
+
   <div class="top-bar">
     <div id="generate-time" class="generate-time">数据加载中...</div>
   </div>
+
   <main class="main-container">
     <div class="fund-table-container">
       <table class="fund-table desktop-table">
-        <thead><tr><th onclick="sortTable('index')">#</th><th onclick="sortTable('code')">代码</th><th onclick="sortTable('price')">场内价格</th><th onclick="sortTable('nav')">预估净值</th><th onclick="sortTable('officialNav')">T-1净值</th><th onclick="sortTable('premium')" class="sorted">溢价率</th><th>基金参考指数</th><th>指数涨跌幅</th><th onclick="sortTable('quota')">申购限额</th></tr></thead>
-        <tbody id="fundTableBodyDesktop"><tr><td colspan="9" class="loading">加载中...</td></tr></tbody>
+        <thead>
+          <tr>
+            <th onclick="sortTable('index')">#</th>
+            <th onclick="sortTable('code')">代码</th>
+            <th onclick="sortTable('price')">场内价格</th>
+            <th onclick="sortTable('nav')">预估净值</th>
+            <th onclick="sortTable('officialNav')">T-1净值</th>
+            <th onclick="sortTable('premium')" class="sorted">溢价率</th>
+            <th>基金参考指数</th>
+            <th>指数涨跌幅</th>
+            <th onclick="sortTable('quota')">申购限额</th>
+          </tr>
+        </thead>
+        <tbody id="fundTableBodyDesktop">
+          <tr>
+            <td colspan="9" class="loading">加载中...</td>
+          </tr>
+        </tbody>
       </table>
     </div>
   </main>
-  <footer class="footer"><div class="footer-content"><div class="footer-info">LOF Monitor · 实时溢价监控 · 数据来源：腾讯财经 · 天天基金 · 东方财富 · &copy; 2026</div></div></footer>
+
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-info">
+        LOF Monitor · 实时溢价监控 · 数据来源：腾讯财经 · 天天基金 · 东方财富 · &copy; 2026
+      </div>
+    </div>
+  </footer>
+
 </div>
 </div>
+
 <script>
-let FUNDS=[];let BENCH={};let INDEX_NAMES={};let ALL_TQ_CODES=[];
-async function loadFundsData(){try{const r=await fetch('https://raw.githubusercontent.com/Angry-Dingo/Angry-Dingo.github.io/main/data/funds.json?'+Date.now());const d=await r.json();FUNDS=d.funds||[];INDEX_NAMES=d.indexNames||{};BENCH={};FUNDS.forEach(f=>{if(f.benchmark)BENCH[f.code]=f.benchmark});ALL_TQ_CODES=[...FUNDS.map(f=>f.tq),...Object.values(BENCH).flatMap(b=>Array.isArray(b)?b.map(x=>x.tq):[b])];console.log('\u6210\u529f\u52a0\u8f7d'+FUNDS.length+'\u53ea\u57fa\u91d1\u6570\u636e');return true}catch(e){console.error('\u52a0\u8f7d\u57fa\u91d1\u6570\u636e\u5931\u8d25:',e);return false}}
-function getAllTqCodes(){return[...FUNDS.map(f=>f.tq),...Object.values(BENCH).flatMap(b=>Array.isArray(b)?b.map(x=>x.tq):[b])]}
-const Cache={get(key){try{const item=localStorage.getItem(key);if(!item)return null;const parsed=JSON.parse(item);if(parsed.expiry&&Date.now()>parsed.expiry){localStorage.removeItem(key);return null}return parsed.data}catch(e){return null}},set(key,data,expiryHours=1){try{localStorage.setItem(key,JSON.stringify({data,expiry:Date.now()+expiryHours*60*60*1000}))}catch(e){}},remove(key){try{localStorage.removeItem(key)}catch(e){}}};
-let fundData=[];let running=false;let refreshInterval=15000;let refreshTimer=null;let currentFilter='all';let currentCategory='all';let sortColumn='premium';let sortDirection='desc';let indexData={};let indexTimes={};let navLoaded=false;let dataTimestamp=new Date();let isRefreshing=false;
-const fundTableBodyDesktop=document.getElementById('fundTableBodyDesktop');
-function init(){fundData=FUNDS.map(f=>({...f,price:null,prevClose:null,change:null,volume:0,nav:null,navChange:null,premium:null,officialNav:null,navDate:''}));renderTable();window.addEventListener('scroll',handleScroll);running=true;refreshData();startRefreshTimer()}
-function handleScroll(){const h=document.getElementById('mainHeader');if(h){if(window.scrollY>50)h.classList.add('scrolled');else h.classList.remove('scrolled')}}
-function setRefreshRate(v){refreshInterval=parseInt(v);startRefreshTimer();localStorage.setItem('refreshRate',refreshInterval)}
-function startRefreshTimer(){stopRefreshTimer();refreshTimer=setInterval(refreshData,refreshInterval)}
-function stopRefreshTimer(){if(refreshTimer){clearInterval(refreshTimer);refreshTimer=null}}
-function setFilter(f){currentFilter=f;document.querySelectorAll('.filter-tab').forEach(t=>{if(t.onclick.toString().includes("setFilter('"+f+"')"))t.classList.add('active');else if(t.onclick.toString().includes('setFilter('))t.classList.remove('active')});renderTable()}
-function setCategory(c){currentCategory=c;document.querySelectorAll('.filter-tab').forEach(t=>{if(t.onclick.toString().includes("setCategory('"+c+"')"))t.classList.add('active');else if(t.onclick.toString().includes('setCategory('))t.classList.remove('active')});renderTable()}
-const NO_GSZ_FUNDS=new Set(['164906','164824','501300','501225','160216','164701','160719','163208','501018','161129','160723','501021','501310','161226','161125','161126','161127','161128','161130','162415','160140','160644','160717','160924','164705','161831','160322','161124','501303','501301','501302','501305','501306','501307','501311','501025','161815','165513','161116','501312','162719','162411','160416']);
-function toBeijingDate(ts){const d=new Date(ts);const offset=8*60*60*1000;return new Date(d.getTime()+offset).toISOString().slice(0,10)}
-function fetchNavFromPingzhong(fund){return new Promise(resolve=>{const cb='pzd'+Date.now()+'_'+fund.code;let done=false;const timer=setTimeout(()=>{if(!done){done=true;delete window[cb];resolve(null)}},8000);const s=document.createElement('script');s.onload=()=>{if(done)return;done=true;clearTimeout(timer);try{let nav=null,dt='';const arr=window['Data_netWorthTrend'];if(arr&&arr.length>0){const last=arr[arr.length-1];const v=parseFloat(last.y||last[1]);if(v>0&&v<=50){nav=v;dt=last.x?toBeijingDate(last.x):''}}if(!nav){const arr2=window['Data_ACWorthTrend'];if(arr2&&arr2.length>0){const last2=arr2[arr2.length-1];const v2=parseFloat(Array.isArray(last2)?last2[1]:last2.y);const ts=Array.isArray(last2)?last2[0]:last2.x;dt=ts?toBeijingDate(ts):'';if(v2>0)nav=v2}}if(nav)resolve({nav,date:dt});else resolve(null)}catch(e){resolve(null)}finally{s.remove();delete window['Data_netWorthTrend'];delete window['Data_ACWorthTrend']}};s.onerror=()=>{if(!done){done=true;clearTimeout(timer);s.remove();resolve(null)}};s.src='https://fund.eastmoney.com/pingzhongdata/'+fund.code+'.js?v='+Date.now();document.head.appendChild(s)})}
-function fetchNavFromLsjz(fund){return new Promise(resolve=>{const cb='jq'+Date.now()+'_'+fund.code;const s=document.createElement('script');let done=false;const timer=setTimeout(()=>{if(!done){done=true;delete window[cb];s.remove();resolve(null)}},8000);window[cb]=function(d){if(done)return;done=true;clearTimeout(timer);delete window[cb];s.remove();try{const item=d&&d.Data&&d.Data.LSJZList&&d.Data.LSJZList[0];if(item&&item.DWJZ)resolve({nav:parseFloat(item.DWJZ),date:item.FSRQ||''});else resolve(null)}catch(e){resolve(null)}};s.onerror=()=>{if(!done){done=true;clearTimeout(timer);delete window[cb];resolve(null)}};s.src='https://api.fund.eastmoney.com/f10/lsjz?fundCode='+fund.code+'&pageIndex=1&pageSize=1&callback='+cb+'&_='+Date.now();document.head.appendChild(s)})}
-async function fetchNavFromEM(fund){const cached=Cache.get('nav_'+fund.ocode);const[r1,r2]=await Promise.all([fetchNavFromPingzhong(fund),fetchNavFromLsjz(fund)]);if(!r1&&!r2)return cached||null;let bestResult;if(!r1)bestResult=r2;else if(!r2)bestResult=r1;else{const d1=r1.date||'',d2=r2.date||'';bestResult=d2>d1?r2:r1}if(cached){const cd=cached.date||'',nd=bestResult.date||'';if(nd>cd){Cache.set('nav_'+fund.ocode,bestResult);return bestResult}else return cached}else{Cache.set('nav_'+fund.ocode,bestResult);return bestResult}}
-function fetchNav(fund){return new Promise(resolve=>{const cached=Cache.get('nav_'+fund.ocode);const iframe=document.createElement('iframe');iframe.style.cssText='display:none;width:0;height:0;border:0';document.body.appendChild(iframe);let done=false;const cleanup=()=>{try{document.body.removeChild(iframe)}catch(e){}};const timer=setTimeout(()=>{if(!done){done=true;cleanup();fetchNavFromEM(fund).then(r=>{if(r&&r.nav>0){if(cached){const cd=cached.date||'',nd=r.date||'';if(nd>cd){Cache.set('nav_'+fund.ocode,r);resolve(r)}else resolve(cached)}else{Cache.set('nav_'+fund.ocode,r);resolve(r)}}else resolve(cached||null)})}},7000);try{const iw=iframe.contentWindow;iw.jsonpgz=function(d){if(done)return;done=true;clearTimeout(timer);if(!d){cleanup();fetchNavFromEM(fund).then(r=>{if(r&&r.nav>0){if(cached){const cd=cached.date||'',nd=r.date||'';if(nd>cd){Cache.set('nav_'+fund.ocode,r);resolve(r)}else resolve(cached)}else{Cache.set('nav_'+fund.ocode,r);resolve(r)}}else resolve(cached||null)});return}const dwjz=parseFloat(d.dwjz),gsz=parseFloat(d.gsz);fetchNavFromEM(fund).then(em=>{let best=null;if(dwjz>0)best={nav:dwjz,date:d.jzrq||''};else if(gsz>0)best={nav:gsz,date:(d.gztime||'').slice(0,10)};if(em&&em.nav>0){if(!best||em.date&&(!best.date||em.date>best.date))best=em}if(best){if(cached){const cd=cached.date||'',nd=best.date||'';if(nd>cd){Cache.set('nav_'+fund.ocode,best);resolve(best)}else resolve(cached)}else{Cache.set('nav_'+fund.ocode,best);resolve(best)}}else resolve(cached||null);cleanup()});const script=iw.document.createElement('script');script.onerror=()=>{if(!done){done=true;clearTimeout(timer);cleanup();fetchNavFromEM(fund).then(r=>{if(r&&r.nav>0){if(cached){const cd=cached.date||'',nd=r.date||'';if(nd>cd){Cache.set('nav_'+fund.ocode,r);resolve(r)}else resolve(cached)}else{Cache.set('nav_'+fund.ocode,r);resolve(r)}}else resolve(cached||null)})}};script.src='https://fundgz.1234567.com.cn/js/'+fund.ocode+'.js?rt='+Date.now();iw.document.head.appendChild(script)}catch(e){clearTimeout(timer);cleanup();fetchNavFromEM(fund).then(r=>{if(r&&r.nav>0){if(cached){const cd=cached.date||'',nd=r.date||'';if(nd>cd){Cache.set('nav_'+fund.ocode,r);resolve(r)}else resolve(cached)}else{Cache.set('nav_'+fund.ocode,r);resolve(r)}}else resolve(cached||null)})}})}
-async function loadNavs(){const BATCH_SIZE=15;for(let i=0;i<fundData.length;i+=BATCH_SIZE){const batch=fundData.slice(i,i+BATCH_SIZE);const results=await Promise.all(batch.map(f=>NO_GSZ_FUNDS.has(f.code)?fetchNavFromEM(f):fetchNav(f)));results.forEach((r,i)=>{const f=batch[i];if(r&&r.nav>0){f.officialNav=r.nav;f.navDate=r.date}})}navLoaded=true}
-function fetchEastmoney(){const EM_CODES={'csi930917':'2.930917','csi930914':'2.930914','csi930792':'2.930792','sh000985':'1.000985','sh000066':'1.000066','sh000945':'1.000945','hkHSMI':'124.HSMI','hkHSSI':'124.HSSI','hkHSCI':'124.HSCI','nf_AG0':'113.agm'};const prefix='_em_'+Date.now();let pending=Object.keys(EM_CODES).length;const out={};const times={};return new Promise(resolve=>{Object.entries(EM_CODES).forEach(([key,secid]) =>{const cb=prefix+'_'+key;const timer=setTimeout(()=>{if(window[cb]){delete window[cb];pending--;if(pending<=0)resolve({data:out,times})}},8000);window[cb]=function(d){clearTimeout(timer);delete window[cb];if(d&&d.data){const chg=d.data.f3!==undefined?d.data.f3:(d.data.f170||0)/(d.data.f43||100)*100;const time=d.data.f14||'';out[key]=chg;times[key]=time}pending--;if(pending<=0)resolve({data:out,times})};const s=document.createElement('script');s.src='https://push2.eastmoney.com/api/qt/stock/get?secid='+secid+'&fields=f43,f169,f170,f3,f14&cb='+cb+'&_='+Date.now();s.onerror=function(){clearTimeout(timer);if(window[cb])delete window[cb];pending--;if(pending<=0)resolve({data:out,times})};document.head.appendChild(s)})})}
-async function fetchTencentData(){return new Promise(resolve=>{const codes=[...new Set(getAllTqCodes())].join(',');const script=document.createElement('script');let done=false;const timer=setTimeout(()=>{if(!done){done=true;console.log('\u817e\u8baf\u884c\u60c5\u8d85\u65f6');script.remove();resolve({funds:{},indices:{})}},8000);script.onload=()=>{if(done)return;done=true;clearTimeout(timer);const result={funds:{},indices:{}};fundData.forEach(fund=>{const d=window['v_'+fund.tq];if(!d||d.length<10)return;const parts=d.split('~');const price=parseFloat(parts[3]),prev=parseFloat(parts[4]),vol=parseFloat(parts[37])||0;if(price>0)result.funds[fund.code]={price,prevClose:prev,change:prev>0?(price-prev)/prev*100:0,volume:vol}});const idxCodes=[...new Set(Object.values(BENCH).flatMap(b=>Array.isArray(b)?b.map(x=>x.tq):[b]))];idxCodes.forEach(c=>{const d=window['v_'+c];if(!d||d.length<5)return;const p=d.split('~');const price=parseFloat(p[3]),prev=parseFloat(p[4]),time=p[30]||p[29]||'';if(price>0)result.indices[c]={price,change:prev>0?(price-prev)/prev*100:0,time}});script.remove();resolve(result)};script.onerror=()=>{if(!done){done=true;clearTimeout(timer);console.log('\u817e\u8baf\u811a\u672c\u52a0\u8f7d\u5931\u8d25');script.remove();resolve({funds:{},indices:{}})}};script.src='https://qt.gtimg.cn/q='+codes+'&_='+Date.now();document.head.appendChild(script)})}
-async function fetchFuturesFromProxy(){try{const res=await fetch('/api/futures?_='+Date.now(),{cache:'no-cache'});if(res.ok){const data=await res.json();console.log('[\u671f\u8d27\u4ee3\u7406] \u54cd\u5e94:',JSON.stringify(data));if(data&&data.nf_AG0!==null&&data.nf_AG0!==undefined)return{nf_AG0:data.nf_AG0};console.warn('[\u671f\u8d27\u4ee3\u7406] \u8fd4\u56denull\uff0c\u6570\u636e\u6e90:',data.source,data.raw_text?'\u539f\u59cb\u7247\u6bb5:'+data.raw_text.substring(0,100):'')}else console.warn('[\u671f\u8d27\u4ee3\u7406] HTTP\u9519\u8bef:',res.status)}catch(e){console.log('[\u671f\u8d27\u4ee3\u7406] \u8bf7\u6c42\u5931\u8d25:',e)}return{}}
-async function refreshData(){if(isRefreshing)return;isRefreshing=true;dataTimestamp=new Date();await loadNavs();const[tencentData,emResult,futuresResult]=await Promise.all([fetchTencentData(),fetchEastmoney(),fetchFuturesFromProxy()]);const emIdx=emResult.data;const emTimes=emResult.times;indexData={};indexTimes={};Object.entries(tencentData.indices).forEach(([code,d])=>{indexData[code]=d.change;indexTimes[code]=d.time||''});Object.entries(emIdx).forEach(([code,chg])=>{indexData[code]=chg;if(emTimes[code])indexTimes[code]=emTimes[code];else{const n=new Date();indexTimes[code]=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0')+' '+String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')}});Object.entries(futuresResult).forEach(([code,chg])=>{indexData[code]=chg;const n=new Date();indexTimes[code]=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0')+' '+String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')});Object.values(BENCH).forEach(b=>{if(Array.isArray(b))b.forEach(x=>{if(!indexTimes[x.tq]){const n=new Date();indexTimes[x.tq]=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0')+' '+String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')}});else if(b&&!indexTimes[b]){const n=new Date();indexTimes[b]=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0')+' '+String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')}});if(indexData['hkHSMI']==null||indexData['hkHSMI']===0){if(indexData['hkHSI']!=null)indexData['hkHSMI']=indexData['hkHSI']}if(indexData['hkHSCI']==null||indexData['hkHSCI']===0){if(indexData['hkHSI']!=null)indexData['hkHSCI']=indexData['hkHSI']}if(indexData['hkHSSI']==null||indexData['hkHSSI']===0){if(indexData['hkHSI']!=null)indexData['hkHSSI']=indexData['hkHSI']}fundData.forEach(fund=>{const md=tencentData.funds[fund.code];if(md){fund.price=md.price;fund.prevClose=md.prevClose;fund.change=md.change;fund.volume=md.volume;const bn=fund.officialNav||fund.prevClose;const bd=BENCH[fund.code];let bcp=0;if(Array.isArray(bd)){let tw=0;bd.forEach(b=>{bcp+=(indexData[b.tq]||0)*b.w;tw+=b.w});if(tw>0)bcp/=tw}else if(bd)bcp=indexData[bd]||0;if(bn>0){fund.nav=bn*(1+bcp/100);fund.navChange=bcp;fund.premium=(fund.price-fund.nav)/fund.nav*100}}});renderTable();updateGenerateTime();isRefreshing=false}
-function updateGenerateTime(){const now=new Date().toLocaleString('zh-CN');const el=document.getElementById('generate-time');if(el)el.textContent='\u6570\u636e\u751f\u6210\u65f6\u95f4: '+now}
-function sortTable(column){document.querySelectorAll('th.sorted').forEach(th=>th.classList.remove('sorted'));const th=document.querySelector("th[onclick=\d.change;fund.volume=md.volume;const bn=fund.officialNav||fund.prevClose;const bd=BENCH[fund.code];let bcp=0;if(Array.isArray(bd)){let tw=0;bd.forEach(b=>{bcp+=(indexData[b.tq]||0)*b.w;tw+=b.w});if(tw>0)bcp/=tw}else if(bd)bcp=indexData[bd]||0;if(bn>0){fund.nav=bn*(1+bcp/100);fund.navChange=bcp;fund.premium=(fund.price-fund.nav)/fund.nav*100}}});renderTable();updateGenerateTime();isRefreshing=false}\nfunction updateGenerateTime(){const now=new Date().toLocaleString('zh-CN');const el=document.getElementById('generate-time');if(el)el.textContent='\\u6570\\u636e\\u751f\\u6210\\u65f6\\u95f4: '+now}\nfunction sortTable(column){document.querySelectorAll('th.sorted').forEach(th=>th.classList.remove('sorted'));const th=document.querySelector(\"th[onclick=\\\\"sortTable('\"+column+\"')\\\"]\");th.classList.add('sorted');if(sortColumn===column)sortDirection=sortDirection==='asc'?'desc':'asc';else{sortColumn=column;sortDirection='desc'}renderTable()}\nfunction renderTable(){let filteredData=[...fundData];if(currentCategory!=='all')filteredData=filteredData.filter(f=>f.category===currentCategory);const threshold=2;switch(currentFilter){case'arbitrage':filteredData=filteredData.filter(f=>{if(f.premium===null)return false;if(f.premium>=threshold&&f.quota!=='\\u6682\\u505c')return true;if(f.premium<=-threshold)return true;return false});break;case'premium':filteredData=filteredData.filter(f=>f.premium!==null&&f.premium>0);break;case'discount':filteredData=filteredData.filter(f=>f.premium!==null&&f.premium<0);break}const sortedData=filteredData.sort((a,b)=>{let va,vb;switch(sortColumn){case'index':return sortDirection==='asc'?1:-1;case'name':va=a.name;vb=b.name;break;case'code':va=a.code;vb=b.code;break;case'category':va=a.category;vb=b.category;break;case'nav':va=a.nav||0;vb=b.nav||0;break;case'officialNav':va=a.officialNav||0;vb=b.officialNav||0;break;case'price':va=a.price||0;vb=b.price||0;break;case'premium':va=a.premium||0;vb=b.premium||0;break;case'quota':va=a.quota;vb=b.quota;break;default:return 0}if(typeof va==='string'&&typeof vb==='string')return sortDirection==='asc'?va.localeCompare(vb):vb.localeCompare(va);else return sortDirection==='asc'?va-vb:vb-va});renderDesktopTable(sortedData);updateStats()}\nfunction updateStats(){const total=fundData.length;const pc=fundData.filter(f=>f.premium!==null&&f.premium>0).length;const dc=fundData.filter(f=>f.premium!==null&&f.premium<0).length;const ac=fundData.filter(f=>{if(f.premium===null)return false;if(f.premium>=2&&f.quota!=='\\u6682\\u505c')return true;if(f.premium<=-2)return true;return false}).length;const el=id=>document.getElementById(id);if(el('statTotal'))el('statTotal').textContent=total;if(el('statPremium'))el('statPremium').textContent=pc;if(el('statDiscount'))el('statDiscount').textContent=dc;if(el('statArbitrage'))el('statArbitrage').textContent=ac}\nfunction renderDesktopTable(d){if(d.length===0){fundTableBodyDesktop.innerHTML='<tr><td colspan=\\'9\\' class=\\'loading\\'>\\u6682\\u65e0\\u6570\\u636e</td></tr>';return}const cm={'us':'\\u7f8e\\u80a1','hk':'\\u6e2f\\u80a1','cm':'\\u5546\\u54c1','cn':'A\\u80a1'};fundTableBodyDesktop.innerHTML=d.map((f,i)=>{const qc=f.quota==='\\u5f00\\u653e'?'open':f.quota==='\\u6682\\u505c'?'suspended':'limited';let pc='';if(f.premium>0)pc='red';else if(f.premium<0)pc='green';const cn=cm[f.category]||f.category;return'<tr><td style=\\'font-weight:600\\'>'+(i+1)+'</td><td><div class=\\'code-cell\\'><div class=\\'fund-name\\'>'+f.name+'</div><div class=\\'fund-code\\'>'+f.code+'</div></div></td><td>'+(f.price?f.price.toFixed(2):'-')+(f.change?'<div class=\\'price-change '+(f.change>=0?'red':'green')+'\\'>'+(f.change>=0?'+':'')+f.change.toFixed(2)+'%</div>':'')+'</td><td>'+(f.nav?f.nav.toFixed(2):'-')+'</td><td>'+(f.officialNav?f.officialNav.toFixed(4):'-')+(f.navDate?'<div style=\\'font-size:.65rem;color:var(--gray);margin-top:.2rem\\'>'+f.navDate+'</div>':'')+'</td><td>'+(f.premium!==null?'<span class=\\'premium-rate '+pc+'\\'>'+(f.premium>=0?'+':'')+f.premium.toFixed(2)+'%</span>':'-')+'</td><td>'+(()=>{const bd=BENCH[f.code];if(Array.isArray(bd))return bd.map(b=>{'+(INDEX_NAMES[b.tq]||b.tq)+'}('+b.tq+')('+b.w+')').join('+');else if(bd)return'+(INDEX_NAMES[bd]||bd)+'}('+bd+')';return'-'})()+'</td><td>'+(()=>{const bd=BENCH[f.code];let ct='-',ts='',cv=0;if(Array.isArray(bd)){let tw=0,bcp=0,mi=bd[0].tq;bd.forEach(b=>{bcp+=(indexData[b.tq]||0)*b.w;tw+=b.w});if(tw>0)bcp/=tw;cv=bcp;ct=(bcp>=0?'+':'')+bcp.toFixed(2)+'%';ts=indexTimes[mi]||''}else if(bd){const chg=indexData[bd]||0;cv=chg;ct=(chg>=0?'+':'')+chg.toFixed(2)+'%';ts=indexTimes[bd]||''}const cc=cv>0?'price-change red':cv<0?'price-change green':'zero-change';return'<div class=\\'+cc+'\\'>'+ct+(ts?'<div style=\\'font-size:.65rem;color:var(--gray);margin-top:.2rem\\'>'+ts+'</div>':'')+'</div>'})()+'</td><td><span class=\\'quota-status '+qc+'\\'>'+f.quota+'</span></td></tr>'}).join('')}\nasync function bootstrap(){const ok=await loadFundsData();if(ok)init();else console.error('\\u65e0\\u6cd5\\u52a0\\u8f7d\\u57fa\\u91d1\\u6570\\u636e\\uff0c\\u5e94\\u7528\\u521d\\u59cb\\u5316\\u5931\\u8d25')}\nbootstrap();\n</script>\n</body>\n</html>"}, {"path": "lof-smart-monitor-worker.js", "content": "export default {\n  async scheduled(event, env, ctx) {\n    const now = new Date();\n    const hour = now.getUTCHours();\n    const minute = now.getUTCMinutes();\n    const day = now.getUTCDay();\n    const cron = event.cron;\n    const beijingHour = (hour + 8) % 24;\n    const beijingDay = (hour + 8 >= 24) ? (day + 1) % 7 : day;\n    console.log(`[LOG] UTC: ${hour}:${minute}, \\u661f\\u671f: ${day}, \\u5317\\u4eac: ${beijingHour}:${minute}, \\u661f\\u671f: ${beijingDay}, Cron: ${cron}`);\n    if (cron.startsWith('0 23') || cron.startsWith('10 13')) {\n      console.log('[LOG] \\u6267\\u884c\\u6570\\u636e\\u540c\\u6b65\\u4efb\\u52a1');\n      ctx.waitUntil(syncDataFromGitHub(env));\n    } else {\n      console.log('[LOG] \\u6267\\u884c\\u6ea2\\u4ef7\\u76d1\\u63a7\\u4efb\\u52a1');\n      ctx.waitUntil(smartMonitor(env));\n    }\n  },\n  async fetch(request, env, ctx) {\n    const url = new URL(request.url);\n    if (url.pathname === '/test') { ctx.waitUntil(smartMonitor(env, true)); return new Response('\\u6d4b\\u8bd5\\u5df2\\u89e6\\u53d1', { status: 200 }); }\n    if (url.pathname === '/sync') { ctx.waitUntil(syncDataFromGitHub(env)); return new Response('\\u6570\\u636e\\u540c\\u6b65\\u5df2\\u89e6\\u53d1', { status: 200 }); }\n    if (url.pathname === '/api/indices') {\n      const EM_CODES = [['csi930917','2.930917'],['csi930914','2.930914'],['csi930792','2.930792'],['sh000985','1.000985'],['sh000066','1.000066'],['sh000945','1.000945'],['hkHSMI','124.HSMI'],['hkHSSI','124.HSSI'],['hkHSCI','124.HSCI']];\n      const results = {}; const times = {};\n      await Promise.all(EM_CODES.map(async ([key, secid]) => {\n        try { const r = await fetch(`https://push2.eastmoney.com/api/qt/stock/get?secid=${secid}&fields=f43,f169,f170,f3,f14&_=${Date.now()}`); const d = await r.json(); if (d.data) { const chg = d.data.f3 !== undefined ? d.data.f3 : ((d.data.f170 || 0) / 100); results[key] = chg; times[key] = d.data.f14 || ''; } } catch(e) {}\n      }));\n      return new Response(JSON.stringify({ data: results, times }), { headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } });\n    }\n    if (url.pathname === '/api/futures') { return await handleFuturesProxy(); }\n    return new Response('LOF \\u57fa\\u91d1\\u76d1\\u63a7\\u670d\\u52a1', { status: 200 });\n  }\n};\n\nasync function handleFuturesProxy() {\n  const headers = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'no-cache' };\n  try {\n    const emRes = await fetch(`https://push2.eastmoney.com/api/qt/stock/get?secid=113.AGM&fields=f43,f170,f3,f14&_=${Date.now()}`, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' } });\n    if (emRes.ok) { const emData = await emRes.json(); if (emData && emData.data) { const chg = emData.data.f3; if (chg !== undefined && chg !== null) { return new Response(JSON.stringify({ nf_AG0: chg, source: 'eastmoney_A' }), { headers }); } } }\n  } catch(e) {}\n  try {\n    const emRes = await fetch(`https://push2.eastmoney.com/api/qt/stock/get?secid=113.agm&fields=f43,f170,f3,f14&_=${Date.now()}`, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' } });\n    if (emRes.ok) { const emData = await emRes.json(); if (emData && emData.data) { const chg = emData.data.f3; if (chg !== undefined && chg !== null) { return new Response(JSON.stringify({ nf_AG0: chg, source: 'eastmoney_B' }), { headers }); } } }\n  } catch(e) {}\n  try {\n    const sinaRes = await fetch('https://hq.sinajs.cn/list=nf_AG0', { headers: { 'Referer': 'https://finance.sina.com.cn', 'User-Agent': 'Mozilla/5.0' } });\n    const text = await sinaRes.text();\n    const match = text.match(/hq_str_nf_AG0=\"([^\"]+)\"/);\n    if (match) {\n      const parts = match[1].split(',');\n      const currentPrice = parseFloat(parts[6]);\n      let prevClose = parseFloat(parts[5]);\n      if (!prevClose || prevClose <= 0) prevClose = parseFloat(parts[10]);\n      if (currentPrice > 0 && prevClose > 0) {\n        const chg = (currentPrice - prevClose) / prevClose * 100;\n        return new Response(JSON.stringify({ nf_AG0: parseFloat(chg.toFixed(2)), source: 'sina' }), { headers });\n      }\n    }\n  } catch(e) {}\n  return new Response(JSON.stringify({ nf_AG0: null, source: 'none' }), { headers });\n}\n\nasync function fetchFuturesData() {\n  try {\n    const emRes = await fetch(`https://push2.eastmoney.com/api/qt/stock/get?secid=113.AGM&fields=f43,f3&_=${Date.now()}`, { headers: { 'User-Agent': 'Mozilla/5.0' } });\n    if (emRes.ok) { const emData = await emRes.json(); if (emData && emData.data && emData.data.f3 !== undefined) { return { 'nf_AG0': emData.data.f3 }; } }\n  } catch(e) {}\n  try {\n    const emRes = await fetch(`https://push2.eastmoney.com/api/qt/stock/get?secid=113.agm&fields=f43,f3&_=${Date.now()}`, { headers: { 'User-Agent': 'Mozilla/5.0' } });\n    if (emRes.ok) { const emData = await emRes.json(); if (emData && emData.data && emData.data.f3 !== undefined) { return { 'nf_AG0': emData.data.f3 }; } }\n  } catch(e) {}\n  try {\n    const sinaRes = await fetch('https://hq.sinajs.cn/list=nf_AG0', { headers: { 'Referer': 'https://finance.sina.com.cn' } });\n    const text = await sinaRes.text();\n    const match = text.match(/hq_str_nf_AG0=\"([^\"]+)\"/);\n    if (match) {\n      const parts = match[1].split(',');\n      const currentPrice = parseFloat(parts[6]);\n      let prevClose = parseFloat(parts[5]);\n      if (!prevClose || prevClose <= 0) prevClose = parseFloat(parts[10]);\n      if (currentPrice > 0 && prevClose > 0) {\n        const chg = (currentPrice - prevClose) / prevClose * 100;\n        return { 'nf_AG0': parseFloat(chg.toFixed(2)) };\n      }\n    }\n  } catch(e) {}\n  return {};\n}\n\nfunction quotaIcon(quota) { if (!quota) return '\\u26aa'; if (quota === '\\u6682\\u505c') return '\\ud83d\\udd34'; if (quota === '\\u5f00\\u653e') return '\\ud83d\\udfe2'; return '\\ud83d\\udfe0'; }\n\nasync function syncDataFromGitHub(env) {\n  try {\n    console.log('[LOG] === \\u5f00\\u59cb\\u6570\\u636e\\u540c\\u6b65\\u4efb\\u52a1 ===');\n    const res = await fetch('https://raw.githubusercontent.com/Angry-Dingo/Angry-Dingo.github.io/main/data/funds.json');\n    const fundsData = await res.json();\n    console.log(`[LOG] \\u4eceGitHub\\u52a0\\u8f7d ${fundsData.funds.length} \\u53ea\\u57fa\\u91d1`);\n    let changes = [];\n    if (env.FUNDS_KV) {\n      const oldData = await env.FUNDS_KV.get('funds');\n      if (oldData) {\n        const oldFunds = JSON.parse(oldData);\n        const oldQuotaMap = {};\n        oldFunds.funds.forEach(f => { oldQuotaMap[f.code] = f.quota; });\n        fundsData.funds.forEach(f => { if (f.quota !== oldQuotaMap[f.code]) { changes.push({ code: f.code, name: f.name, oldQuota: oldQuotaMap[f.code] || '\\u672a\\u77e5', newQuota: f.quota }); } });\n      }\n    }\n    if (env.FUNDS_KV) { await env.FUNDS_KV.put('funds', JSON.stringify(fundsData, null, 2)); console.log('[LOG] KV \\u5b58\\u50a8\\u6210\\u529f'); }\n    await sendQuotaUpdateAlert(env, fundsData.funds.length, changes);\n    console.log('[LOG] \\u6570\\u636e\\u540c\\u6b65\\u4efb\\u52a1\\u5b8c\\u6210');\n  } catch (error) { console.error('[ERROR] \\u6570\\u636e\\u540c\\u6b65\\u4efb\\u52a1\\u5931\\u8d25:', error.message); }\n}\n\nasync function sendQuotaUpdateAlert(env, totalCount, changes) {\n  if (!env.FEISHU_WEBHOOK) { console.log('[LOG] \\u672a\\u914d\\u7f6e\\u98de\\u4e66Webhook\\uff0c\\u8df3\\u8fc7\\u53d1\\u9001'); return; }\n  const now = Date.now();\n  const lastSendTime = await env.FUNDS_KV?.get('lastQuotaAlertTime');\n  if (lastSendTime && now - parseInt(lastSendTime) < 5 * 60 * 1000) { console.log('[LOG] 5\\u5206\\u949f\\u5185\\u5df2\\u53d1\\u9001\\u8fc7\\u7533\\u8d2d\\u72b6\\u6001\\u66f4\\u65b0\\u901a\\u77e5\\uff0c\\u8df3\\u8fc7'); return; }\n  try {\n    const t = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });\n    let msg = `\\ud83d\\udcca \\u7533\\u8d2d\\u72b6\\u6001\\u66f4\\u65b0\\u5b8c\\u6210 (${t})\\n\\n`;\n    msg += `\\u603b\\u8ba1\\u83b7\\u53d6: ${totalCount} \\u53ea\\u57fa\\u91d1\\n`;\n    msg += `\\u72b6\\u6001\\u53d8\\u5316: ${changes.length} \\u53ea\\u57fa\\u91d1\\n`;\n    if (changes.length > 0) {\n      msg += '\\n\\ud83d\\udccb \\u53d8\\u5316\\u5217\\u8868:\\n';\n      changes.forEach(({ code, name, oldQuota, newQuota }) => {\n        msg += `\\u2022 ${code} ${name}: ${quotaIcon(oldQuota)}${oldQuota} \\u2192 ${quotaIcon(newQuota)}${newQuota}\\n`;\n      });\n    }\n    const response = await fetch(env.FEISHU_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ msg_type: 'text', content: { text: msg } }) });\n    if (response.ok) { await env.FUNDS_KV?.put('lastQuotaAlertTime', now.toString()); console.log('[LOG] \\u7533\\u8d2d\\u72b6\\u6001\\u66f4\\u65b0\\u901a\\u77e5\\u5df2\\u53d1\\u9001'); } else { console.error('[ERROR] \\u98de\\u4e66\\u901a\\u77e5\\u53d1\\u9001\\u5931\\u8d25:', response.status); }\n  } catch (error) { console.error('[ERROR] \\u53d1\\u9001\\u7533\\u8d2d\\u72b6\\u6001\\u901a\\u77e5\\u5931\\u8d25:', error.message); }\n}\n\nconst PREMIUM_HISTORY = {};\nconst LAST_ALERT_TIME = {};\n\nasync function smartMonitor(env, isTestMode = false) {\n  try {\n    const now = new Date();\n    const hour = now.getUTCHours(); const m = now.getUTCMinutes(); const day = now.getUTCDay();\n    const h = (hour + 8) % 24; const d = (hour + 8 >= 24) ? (day + 1) % 7 : day;\n    console.log(`[LOG] smartMonitor - \\u5317\\u4eac\\u65f6\\u95f4: ${h}:${m}, \\u661f\\u671f: ${d}`);\n    const isTrading = isTestMode || ((d >= 1 && d <= 5) && ((h === 9 && m >= 25) || h === 10 || (h === 11 && m <= 30) || (h === 13 && m >= 0) || h === 14 || (h === 15 && m <= 0)));\n    if (!isTrading) { console.log('[LOG] \\u4e0d\\u5728\\u4ea4\\u6613\\u65f6\\u95f4\\uff0c\\u8df3\\u8fc7'); return; }\n    const fundsData = await loadFundsData(env);\n    const { fundMarketData, indexData } = await fetchMarketData(fundsData);\n    const alerts = [];\n    const allAbnormalFunds = [];\n    const isGlobalAlert = isTestMode || ((h === 9 && m >= 25 && m <= 26) || (h === 10 && (m <= 1 || (m >= 30 && m <= 31))) || (h === 11 && (m <= 1 || (m >= 30 && m <= 31))) || (h === 13 && (m <= 1 || (m >= 30 && m <= 31))) || (h === 14 && (m <= 1 || (m >= 30 && m <= 31))));\n    console.log(`[LOG] isGlobalAlert: ${isGlobalAlert}`);\n    for (const fund of fundsData.funds) {\n      const mi = fundMarketData[fund.tq];\n      if (!mi) continue;\n      const baseNav = fund.officialNav || mi.prevClose;\n      if (!baseNav) continue;\n      const benchChg = fund.benchmark ? calculateBenchChgPct(fund.benchmark, indexData) : 0;\n      const nav = baseNav * (1 + benchChg / 100);\n      const premium = ((mi.price - nav) / nav) * 100;\n      const threshold = fund.premiumThreshold || 2;\n      if (isTestMode || Math.abs(premium) >= threshold) {\n        allAbnormalFunds.push({ fund, premiumRate: premium });\n        if (!isTestMode) { const alert = checkDynamicChange(fund.code, premium); if (alert) alerts.push(alert); }\n      }\n    }\n    console.log(`[LOG] \\u5f02\\u5e38\\u57fa\\u91d1\\u6570\\u91cf: ${allAbnormalFunds.length}`);\n    if (allAbnormalFunds.length > 0) { console.log('[LOG] \\u5f02\\u5e38\\u57fa\\u91d1\\u8be6\\u60c5:'); allAbnormalFunds.forEach(({ fund, premiumRate }) => { console.log(`[LOG]   ${fund.code} ${fund.name}: ${premiumRate.toFixed(2)}%`); }); } else { console.log('[LOG] \\u6ca1\\u6709\\u5f02\\u5e38\\u57fa\\u91d1\\uff0c\\u4e0d\\u4f1a\\u53d1\\u9001\\u63d0\\u9192'); }\n    if (isGlobalAlert) { if (allAbnormalFunds.length > 0) { console.log('[LOG] \\u53d1\\u9001\\u5168\\u5c40\\u63d0\\u9192'); await sendGlobalAlert(env, allAbnormalFunds); } else { console.log('[LOG] \\u5168\\u5c40\\u63d0\\u9192\\u65f6\\u95f4\\u4f46\\u65e0\\u5f02\\u5e38\\u57fa\\u91d1\\uff0c\\u4e0d\\u53d1\\u9001'); } } else { if (alerts.length > 0) { console.log('[LOG] \\u53d1\\u9001\\u52a8\\u6001\\u63d0\\u9192'); await sendDynamicAlerts(env, alerts, fundsData); } else { console.log('[LOG] \\u52a8\\u6001\\u63d0\\u9192\\u65f6\\u95f4\\u4f46\\u65e0\\u7b26\\u5408\\u6761\\u4ef6\\u7684\\u57fa\\u91d1\\uff0c\\u4e0d\\u53d1\\u9001'); } }\n  } catch (e) { console.error('[ERROR] \\u76d1\\u63a7\\u5931\\u8d25:', e); }\n}\n\nfunction calculateBenchChgPct(bench, indexData) {\n  if (Array.isArray(bench)) { let w = 0, c = 0; bench.forEach(b => { c += (indexData[b.tq] || 0) * b.w; w += b.w; }); return w > 0 ? c / w : 0; }\n  if (bench && typeof bench === 'object') return indexData[bench.tq] || 0;\n  if (bench) return indexData[bench] || 0;\n  return 0;\n}\n\nfunction checkDynamicChange(code, premium) {\n  const now = Date.now();\n  if (!PREMIUM_HISTORY[code]) PREMIUM_HISTORY[code] = [];\n  PREMIUM_HISTORY[code].push({ t: now, p: premium });\n  if (PREMIUM_HISTORY[code].length > 10) PREMIUM_HISTORY[code].shift();\n  const recent = PREMIUM_HISTORY[code].filter(h => h.t > now - 5 * 60 * 1000);\n  if (recent.length < 2) return null;\n  const avg = recent.reduce((s, h) => s + h.p, 0) / recent.length;\n  const change = premium - avg;\n  if (Math.abs(change) >= 1.5 && Math.abs(premium) >= 2 && (now - (LAST_ALERT_TIME[code] || 0) > 10 * 60 * 1000)) {\n    LAST_ALERT_TIME[code] = now;\n    return { fundCode: code, premium, change, type: change > 0 ? '\\u6ea2\\u4ef7\\u4e0a\\u5347' : '\\u6298\\u4ef7\\u52a0\\u6df1' };\n  }\n  return null;\n}\n\nasync function loadFundsData(env) {\n  try {\n    const res = await fetch('https://raw.githubusercontent.com/Angry-Dingo/Angry-Dingo.github.io/main/data/funds.json');\n    const data = await res.json();\n    if (env.FUNDS_KV) { await env.FUNDS_KV.put('funds', JSON.stringify(data, null, 2)); }\n    return data;\n  } catch (e) {\n    console.error('[ERROR] \\u4eceGitHub\\u62c9\\u53d6\\u6570\\u636e\\u5931\\u8d25\\uff0c\\u56de\\u9000\\u5230KV:', e.message);\n    if (env.FUNDS_KV) { const d = await env.FUNDS_KV.get('funds'); if (d) return JSON.parse(d); }\n    throw e;\n  }\n}\n\nasync function fetchMarketData(fundsData) {\n  const fundTqs = fundsData.funds.map(f => f.tq);\n  const idxTqs = [...new Set(fundsData.funds.flatMap(f => Array.isArray(f.benchmark) ? f.benchmark.map(b => b.tq) : f.benchmark?.tq ? [f.benchmark.tq] : f.benchmark ? [f.benchmark] : []))];\n  const all = [...new Set([...fundTqs, ...idxTqs])].join(',');\n  const res = await fetch(`https://qt.gtimg.cn/q=${all}&_=${Date.now()}`);\n  const text = await res.text();\n  const fundMarketData = {};\n  const indexData = {};\n  const fundSet = new Set(fundTqs);\n  text.split(';').forEach(line => {\n    const m = line.match(/v_(\\w+)=\"([^\"]+)\"/);\n    if (!m) return;\n    const p = m[2].split('~');\n    if (p.length < 10) return;\n    const price = parseFloat(p[3]), prev = parseFloat(p[4]);\n    if (price > 0) {\n      const chg = prev > 0 ? (price - prev) / prev * 100 : 0;\n      if (fundSet.has(m[1])) fundMarketData[m[1]] = { price, prevClose: prev, change: chg };\n      else indexData[m[1]] = chg;\n    }\n  });\n  const EM_CODES = [['csi930917','2.930917'],['csi930914','2.930914'],['csi930792','2.930792'],['sh000985','1.000985'],['sh000066','1.000066'],['sh000945','1.000945'],['hkHSMI','124.HSMI'],['hkHSSI','124.HSSI'],['hkHSCI','124.HSCI']];\n  await Promise.all(EM_CODES.map(async ([tq, secid]) => {\n    try { const r = await fetch(`https://push2.eastmoney.com/api/qt/stock/get?secid=${secid}&fields=f43,f170,f3&_=${Date.now()}`); const d = await r.json(); if (d.data) { indexData[tq] = d.data.f3 !== undefined ? d.data.f3 : ((d.data.f170 || 0) / 100); } } catch(e) {}\n  }));\n  try {\n    const futuresData = await fetchFuturesData();\n    if (futuresData['nf_AG0'] !== undefined && futuresData['nf_AG0'] !== null) { indexData['nf_AG0'] = futuresData['nf_AG0']; }\n  } catch(e) {}\n  if (indexData['hkHSMI'] == null || indexData['hkHSMI'] === 0) { if (indexData['hkHSI'] != null) indexData['hkHSMI'] = indexData['hkHSI']; }\n  if (indexData['hkHSCI'] == null || indexData['hkHSCI'] === 0) { if (indexData['hkHSI'] != null) indexData['hkHSCI'] = indexData['hkHSI']; }\n  if (indexData['hkHSSI'] == null || indexData['hkHSSI'] === 0) { if (indexData['hkHSI'] != null) indexData['hkHSSI'] = indexData['hkHSI']; }\n  return { fundMarketData, indexData };\n}\n\nasync function sendGlobalAlert(env, funds) {\n  if (!env.FEISHU_WEBHOOK) { console.log('[LOG] \\u672a\\u914d\\u7f6e\\u98de\\u4e66Webhook\\uff0c\\u8df3\\u8fc7\\u53d1\\u9001'); return; }\n  const now = new Date();\n  const timeKey = `${now.getHours()}:${now.getMinutes()}`;\n  const lockKey = `globalAlertLock_${timeKey}`;\n  try {\n    const existingLock = await env.FUNDS_KV?.get(lockKey);\n    if (existingLock) { console.log('[LOG] \\u76f8\\u540c\\u65f6\\u95f4\\u5df2\\u53d1\\u9001\\u8fc7\\u5168\\u5c40\\u63d0\\u9192\\uff0c\\u8df3\\u8fc7'); return; }\n    const sorted = [...funds].sort((a, b) => b.premiumRate - a.premiumRate);\n    const t = now.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });\n    let msg = `\\ud83d\\udcc8 \\u6ea2\\u4ef7\\u63d0\\u9192 - \\u5168\\u5c40\\u6c47\\u603b\\n\\u68c0\\u6d4b\\u65f6\\u95f4: ${t}\\n\\n`;\n    sorted.forEach(({ fund, premiumRate }) => { const p = premiumRate >= 0 ? `+${premiumRate.toFixed(2)}%` : `${premiumRate.toFixed(2)}%`; const icon = quotaIcon(fund.quota); msg += `\\u2022 ${fund.code} ${fund.name}: ${p}  ${icon}${fund.quota || '\\u672a\\u77e5'}\\n`; });\n    const response = await fetch(env.FEISHU_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ msg_type: 'text', content: { text: msg } }) });\n    if (response.ok) { await env.FUNDS_KV?.put(lockKey, '1', { expirationTtl: 120 }); console.log('[LOG] \\u5168\\u5c40\\u6ea2\\u4ef7\\u63d0\\u9192\\u5df2\\u53d1\\u9001'); } else { console.error('[ERROR] \\u98de\\u4e66\\u901a\\u77e5\\u53d1\\u9001\\u5931\\u8d25:', response.status); }\n  } catch (error) { console.error('[ERROR] \\u53d1\\u9001\\u5168\\u5c40\\u6ea2\\u4ef7\\u63d0\\u9192\\u5931\\u8d25:', error.message); }\n}\n\nasync function sendDynamicAlerts(env, alerts, fundsData) {\n  if (!env.FEISHU_WEBHOOK) { console.log('[LOG] \\u672a\\u914d\\u7f6e\\u98de\\u4e66Webhook\\uff0c\\u8df3\\u8fc7\\u53d1\\u9001'); return; }\n  const lockKey = 'dynamicAlertLock';\n  try {\n    const existingLock = await env.FUNDS_KV?.get(lockKey);\n    if (existingLock) { console.log('[LOG] 2\\u5206\\u949f\\u5185\\u5df2\\u53d1\\u9001\\u8fc7\\u52a8\\u6001\\u63d0\\u9192\\uff0c\\u8df3\\u8fc7'); return; }\n    const t = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });\n    let msg = `\\ud83d\\udcca \\u6ea2\\u4ef7\\u63d0\\u9192 - \\u52a8\\u6001\\u53d8\\u5316\\n\\u68c0\\u6d4b\\u65f6\\u95f4: ${t}\\n\\n`;\n    alerts.forEach(a => { const f = fundsData.funds.find(x => x.code === a.fundCode); const icon = quotaIcon(f?.quota); msg += `\\u2022 ${a.fundCode} ${f?.name || a.fundCode}: ${a.type}\\n  \\u5f53\\u524d: ${a.premium.toFixed(2)}%  \\u53d8\\u5316: ${a.change.toFixed(2)}%  ${icon}${f?.quota || '\\u672a\\u77e5'}\\n`; });\n    const response = await fetch(env.FEISHU_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ msg_type: 'text', content: { text: msg } }) });\n    if (response.ok) { await env.FUNDS_KV?.put(lockKey, '1', { expirationTtl: 120 }); console.log('[LOG] \\u52a8\\u6001\\u6ea2\\u4ef7\\u63d0\\u9192\\u5df2\\u53d1\\u9001'); } else { console.error('[ERROR] \\u98de\\u4e66\\u901a\\u77e5\\u53d1\\u9001\\u5931\\u8d25:', response.status); }\n  } catch (error) { console.error('[ERROR] \\u53d1\\u9001\\u52a8\\u6001\\u6ea2\\u4ef7\\u63d0\\u9192\\u5931\\u8d25:', error.message); }\n}\n"}]}
+let FUNDS = [];
+let BENCH = {};
+let INDEX_NAMES = {};
+let ALL_TQ_CODES = [];
+
+async function loadFundsData() {
+  try {
+    const response = await fetch('./data/funds.json?' + Date.now());
+    const data = await response.json();
+    
+    FUNDS = data.funds || [];
+    INDEX_NAMES = data.indexNames || {};
+    
+    BENCH = {};
+    FUNDS.forEach(fund => {
+      if (fund.benchmark) {
+        BENCH[fund.code] = fund.benchmark;
+      }
+    });
+    
+    ALL_TQ_CODES = [
+      ...FUNDS.map(f => f.tq),
+      ...Object.values(BENCH).flatMap(b => Array.isArray(b) ? b.map(x => x.tq) : [b]),
+    ];
+    
+    console.log(`\u6210\u529f\u52a0\u8f7d ${FUNDS.length} \u53ea\u57fa\u91d1\u6570\u636e`);
+    return true;
+  } catch (error) {
+    console.error('\u52a0\u8f7d\u57fa\u91d1\u6570\u636e\u5931\u8d25:', error);
+    return false;
+  }
+}
+
+function getAllTqCodes() {
+  return [
+    ...FUNDS.map(f => f.tq),
+    ...Object.values(BENCH).flatMap(b => Array.isArray(b) ? b.map(x => x.tq) : [b]),
+  ];
+}
+
+const Cache = {
+  get(key) {
+    try {
+      const item = localStorage.getItem(key);
+      if (!item) return null;
+      const parsed = JSON.parse(item);
+      if (parsed.expiry && Date.now() > parsed.expiry) {
+        localStorage.removeItem(key);
+        return null;
+      }
+      return parsed.data;
+    } catch (e) {
+      return null;
+    }
+  },
+  set(key, data, expiryHours = 1) {
+    try {
+      const item = {
+        data,
+        expiry: Date.now() + (expiryHours * 60 * 60 * 1000)
+      };
+      localStorage.setItem(key, JSON.stringify(item));
+    } catch (e) {
+    }
+  },
+  remove(key) {
+    try {
+      localStorage.removeItem(key);
+    } catch (e) {
+    }
+  }
+};
+
+// \u5168\u5c40\u53d8\u91cf
+let fundData = [];
+let running = false;
+let refreshInterval = 15000;
+let refreshTimer = null;
+let currentFilter = 'all';
+let currentCategory = 'all';
+let sortColumn = 'premium';
+let sortDirection = 'desc';
+let indexData = {};
+let indexTimes = {};
+let navLoaded = false;
+let dataTimestamp = new Date();
+let isRefreshing = false;
+
+// DOM \u5143\u7d20
+const fundTableBodyDesktop = document.getElementById('fundTableBodyDesktop');
+const desktopTable = document.querySelector('.desktop-table');
+
+function init() {
+  fundData = FUNDS.map(fund => ({
+    ...fund,
+    price: null,
+    prevClose: null,
+    change: null,
+    volume: 0,
+    nav: null,
+    navChange: null,
+    premium: null,
+    officialNav: null,
+    navDate: ''
+  }));
+  
+  renderTable();
+  window.addEventListener('scroll', handleScroll);
+
+  running = true;
+  refreshData();
+  startRefreshTimer();
+}
+
+function handleScroll() {
+  const header = document.getElementById('mainHeader');
+  if (header) {
+    if (window.scrollY > 50) {
+      header.classList.add('scrolled');
+    } else {
+      header.classList.remove('scrolled');
+    }
+  }
+}
+
+function setRefreshRate(value) {
+  refreshInterval = parseInt(value);
+  startRefreshTimer();
+  localStorage.setItem('refreshRate', refreshInterval);
+}
+
+function startRefreshTimer() {
+  stopRefreshTimer();
+  refreshTimer = setInterval(refreshData, refreshInterval);
+}
+
+function stopRefreshTimer() {
+  if (refreshTimer) {
+    clearInterval(refreshTimer);
+    refreshTimer = null;
+  }
+}
+
+function setFilter(filter) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-tab').forEach(tab => {
+    if (tab.onclick.toString().includes(`setFilter('${filter}')`)) {
+      tab.classList.add('active');
+    } else if (tab.onclick.toString().includes('setFilter(')) {
+      tab.classList.remove('active');
+    }
+  });
+  renderTable();
+}
+
+function setCategory(category) {
+  currentCategory = category;
+  document.querySelectorAll('.filter-tab').forEach(tab => {
+    if (tab.onclick.toString().includes(`setCategory('${category}')`)) {
+      tab.classList.add('active');
+    } else if (tab.onclick.toString().includes('setCategory(')) {
+      tab.classList.remove('active');
+    }
+  });
+  renderTable();
+}
+
+const NO_GSZ_FUNDS = new Set([
+  '164906','164824','501300','501225','160216','164701','160719','163208','501018','161129','160723','501021','501310','161226',
+  '161125','161126','161127','161128','161130','162415','160140','160644',
+  '160717','160924','164705','161831','160322','161124',
+  '501303','501301','501302','501305','501306','501307','501311','501025',
+  '161815','165513','161116',
+  '501312','162719','162411','160416',
+]);
+
+function toBeijingDate(ts) {
+  const d = new Date(ts);
+  const offset = 8 * 60 * 60 * 1000;
+  return new Date(d.getTime() + offset).toISOString().slice(0, 10);
+}
+
+function fetchNavFromPingzhong(fund) {
+  return new Promise(resolve => {
+    const cb = 'pzd' + Date.now() + '_' + fund.code;
+    let done = false;
+    const timer = setTimeout(() => {
+      if (!done) {
+        done = true;
+        delete window[cb];
+        resolve(null);
+      }
+    }, 8000);
+    const s = document.createElement('script');
+    s.onload = () => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      try {
+        let nav = null, dt = '';
+        const arr = window['Data_netWorthTrend'];
+        if (arr && arr.length > 0) {
+          const last = arr[arr.length - 1];
+          const v = parseFloat(last.y || last[1]);
+          if (v > 0 && v <= 50) {
+            nav = v;
+            dt = last.x ? toBeijingDate(last.x) : '';
+          }
+        }
+        if (!nav) {
+          const arr2 = window['Data_ACWorthTrend'];
+          if (arr2 && arr2.length > 0) {
+            const last2 = arr2[arr2.length - 1];
+            const v2 = parseFloat(Array.isArray(last2) ? last2[1] : last2.y);
+            const ts = Array.isArray(last2) ? last2[0] : last2.x;
+            dt = ts ? toBeijingDate(ts) : '';
+            if (v2 > 0) {
+              nav = v2;
+            }
+          }
+        }
+        if (nav) {
+          resolve({ nav, date: dt });
+        } else {
+          resolve(null);
+        }
+      } catch (e) {
+        resolve(null);
+      } finally {
+        s.remove();
+        delete window['Data_netWorthTrend'];
+        delete window['Data_ACWorthTrend'];
+      }
+    };
+    s.onerror = () => {
+      if (!done) {
+        done = true;
+        clearTimeout(timer);
+        s.remove();
+        resolve(null);
+      }
+    };
+    s.src = `https://fund.eastmoney.com/pingzhongdata/${fund.code}.js?v=${Date.now()}`;
+    document.head.appendChild(s);
+  });
+}
+
+function fetchNavFromLsjz(fund) {
+  return new Promise(resolve => {
+    const cb = 'jq' + Date.now() + '_' + fund.code;
+    const s = document.createElement('script');
+    let done = false;
+    const timer = setTimeout(() => {
+      if (!done) {
+        done = true;
+        delete window[cb];
+        s.remove();
+        resolve(null);
+      }
+    }, 8000);
+    window[cb] = function(d) {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      delete window[cb];
+      s.remove();
+      try {
+        const item = d && d.Data && d.Data.LSJZList && d.Data.LSJZList[0];
+        if (item && item.DWJZ) {
+          resolve({ nav: parseFloat(item.DWJZ), date: item.FSRQ || '' });
+        } else {
+          resolve(null);
+        }
+      } catch (e) {
+        resolve(null);
+      }
+    };
+    s.onerror = () => {
+      if (!done) {
+        done = true;
+        clearTimeout(timer);
+        delete window[cb];
+        resolve(null);
+      }
+    };
+    s.src = `https://api.fund.eastmoney.com/f10/lsjz?fundCode=${fund.code}&pageIndex=1&pageSize=1&callback=${cb}&_=${Date.now()}`;
+    document.head.appendChild(s);
+  });
+}
+
+async function fetchNavFromEM(fund) {
+  const cached = Cache.get(`nav_${fund.ocode}`);
+  const [r1, r2] = await Promise.all([fetchNavFromPingzhong(fund), fetchNavFromLsjz(fund)]);
+  if (!r1 && !r2) {
+    return cached || null;
+  }
+  let bestResult;
+  if (!r1) {
+    bestResult = r2;
+  } else if (!r2) {
+    bestResult = r1;
+  } else {
+    const d1 = r1.date || '', d2 = r2.date || '';
+    if (d2 > d1) {
+      bestResult = r2;
+    } else {
+      bestResult = r1;
+    }
+  }
+  if (cached) {
+    const cachedDate = cached.date || '';
+    const newDate = bestResult.date || '';
+    if (newDate > cachedDate) {
+      Cache.set(`nav_${fund.ocode}`, bestResult);
+      return bestResult;
+    } else {
+      return cached;
+    }
+  } else {
+    Cache.set(`nav_${fund.ocode}`, bestResult);
+    return bestResult;
+  }
+}
+
+function fetchNav(fund) {
+  return new Promise(resolve => {
+    const cached = Cache.get(`nav_${fund.ocode}`);
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'display:none;width:0;height:0;border:0';
+    document.body.appendChild(iframe);
+    let done = false;
+    const cleanup = () => {
+      try {
+        document.body.removeChild(iframe);
+      } catch (e) {}
+    };
+    const timer = setTimeout(() => {
+      if (!done) {
+        done = true;
+        cleanup();
+        fetchNavFromEM(fund).then(result => {
+          if (result && result.nav > 0) {
+            if (cached) {
+              const cachedDate = cached.date || '';
+              const newDate = result.date || '';
+              if (newDate > cachedDate) {
+                Cache.set(`nav_${fund.ocode}`, result);
+                resolve(result);
+              } else {
+                resolve(cached);
+              }
+            } else {
+              Cache.set(`nav_${fund.ocode}`, result);
+              resolve(result);
+            }
+          } else {
+            resolve(cached || null);
+          }
+        });
+      }
+    }, 7000);
+    try {
+      const iw = iframe.contentWindow;
+      iw.jsonpgz = function(d) {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        if (!d) {
+          cleanup();
+          fetchNavFromEM(fund).then(result => {
+            if (result && result.nav > 0) {
+              if (cached) {
+                const cachedDate = cached.date || '';
+                const newDate = result.date || '';
+                if (newDate > cachedDate) {
+                  Cache.set(`nav_${fund.ocode}`, result);
+                  resolve(result);
+                } else {
+                  resolve(cached);
+                }
+              } else {
+                Cache.set(`nav_${fund.ocode}`, result);
+                resolve(result);
+              }
+            } else {
+              resolve(cached || null);
+            }
+          });
+          return;
+        }
+        const dwjz = parseFloat(d.dwjz);
+        const gsz = parseFloat(d.gsz);
+        fetchNavFromEM(fund).then(emResult => {
+          let bestResult = null;
+          if (dwjz > 0) {
+            bestResult = { nav: dwjz, date: d.jzrq || '' };
+          } else if (gsz > 0) {
+            const dt = (d.gztime || '').slice(0, 10);
+            bestResult = { nav: gsz, date: dt };
+          }
+          if (emResult && emResult.nav > 0) {
+            if (!bestResult || (emResult.date && (!bestResult.date || emResult.date > bestResult.date))) {
+              bestResult = emResult;
+            }
+          }
+          if (bestResult) {
+            if (cached) {
+              const cachedDate = cached.date || '';
+              const newDate = bestResult.date || '';
+              if (newDate > cachedDate) {
+                Cache.set(`nav_${fund.ocode}`, bestResult);
+                resolve(bestResult);
+              } else {
+                resolve(cached);
+              }
+            } else {
+              Cache.set(`nav_${fund.ocode}`, bestResult);
+              resolve(bestResult);
+            }
+          } else {
+            resolve(cached || null);
+          }
+          cleanup();
+        });
+      };
+      const script = iw.document.createElement('script');
+      script.onerror = () => {
+        if (!done) {
+          done = true;
+          clearTimeout(timer);
+          cleanup();
+          fetchNavFromEM(fund).then(result => {
+            if (result && result.nav > 0) {
+              if (cached) {
+                const cachedDate = cached.date || '';
+                const newDate = result.date || '';
+                if (newDate > cachedDate) {
+                  Cache.set(`nav_${fund.ocode}`, result);
+                  resolve(result);
+                } else {
+                  resolve(cached);
+                }
+              } else {
+                Cache.set(`nav_${fund.ocode}`, result);
+                resolve(result);
+              }
+            } else {
+              resolve(cached || null);
+            }
+          });
+        }
+      };
+      script.src = `https://fundgz.1234567.com.cn/js/${fund.ocode}.js?rt=${Date.now()}`;
+      iw.document.head.appendChild(script);
+    } catch (e) {
+      clearTimeout(timer);
+      cleanup();
+      fetchNavFromEM(fund).then(result => {
+        if (result && result.nav > 0) {
+          if (cached) {
+            const cachedDate = cached.date || '';
+            const newDate = result.date || '';
+            if (newDate > cachedDate) {
+              Cache.set(`nav_${fund.ocode}`, result);
+              resolve(result);
+            } else {
+              resolve(cached);
+            }
+          } else {
+            Cache.set(`nav_${fund.ocode}`, result);
+            resolve(result);
+          }
+        } else {
+          resolve(cached || null);
+        }
+      });
+    }
+  });
+}
+
+async function loadNavs() {
+  const BATCH_SIZE = 15;
+  let loaded = 0;
+  for (let i = 0; i < fundData.length; i += BATCH_SIZE) {
+    const batch = fundData.slice(i, i + BATCH_SIZE);
+    const results = await Promise.all(batch.map(fund => {
+      if (NO_GSZ_FUNDS.has(fund.code)) {
+        return fetchNavFromEM(fund);
+      } else {
+        return fetchNav(fund);
+      }
+    }));
+    results.forEach((result, index) => {
+      const fund = batch[index];
+      if (result && result.nav > 0) {
+        fund.officialNav = result.nav;
+        fund.navDate = result.date;
+        loaded++;
+      }
+    });
+  }
+  navLoaded = true;
+}
+
+function fetchEastmoney() {
+  const EM_CODES = {
+    'csi930917': '2.930917',
+    'csi930914': '2.930914',
+    'csi930792': '2.930792',
+    'sh000985':  '1.000985',
+    'sh000066':  '1.000066',
+    'sh000945':  '1.000945',
+    'hkHSMI':    '124.HSMI',
+    'hkHSSI':    '124.HSSI',
+    'hkHSCI':    '124.HSCI',
+    'nf_AG0':    '113.agm',
+  };
+  const prefix = '_em_' + Date.now();
+  let pending = Object.keys(EM_CODES).length;
+  const out = {};
+  const times = {};
+  return new Promise(resolve => {
+    Object.entries(EM_CODES).forEach(([key, secid]) => {
+      const cb = prefix + '_' + key;
+      const timer = setTimeout(() => {
+        if (window[cb]) { delete window[cb]; pending--; if (pending <= 0) resolve({ data: out, times }); }
+      }, 8000);
+      window[cb] = function(d) {
+        clearTimeout(timer);
+        delete window[cb];
+        if (d && d.data) {
+          const chg = d.data.f3 !== undefined ? d.data.f3 : ((d.data.f170 || 0) / (d.data.f43 || 100) * 100);
+          const time = d.data.f14 || '';
+          out[key] = chg;
+          times[key] = time;
+        }
+        pending--;
+        if (pending <= 0) resolve({ data: out, times });
+      };
+      const s = document.createElement('script');
+      s.src = `https://push2.eastmoney.com/api/qt/stock/get?secid=${secid}&fields=f43,f169,f170,f3,f14&cb=${cb}&_=${Date.now()}`;
+      s.onerror = function() { clearTimeout(timer); if (window[cb]) delete window[cb]; pending--; if (pending <= 0) resolve({ data: out, times }); };
+      document.head.appendChild(s);
+    });
+  });
+}
+
+function fetchTencentData() {
+  return new Promise(resolve => {
+    const codes = [...new Set(getAllTqCodes())].join(',');
+    const script = document.createElement('script');
+    let done = false;
+    const timer = setTimeout(() => {
+      if (!done) {
+        done = true;
+        console.log('\u817e\u8baf\u884c\u60c5\u8d85\u65f6');
+        script.remove();
+        resolve({ funds: {}, indices: {} });
+      }
+    }, 8000);
+    script.onload = () => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      const result = { funds: {}, indices: {} };
+      fundData.forEach(fund => {
+        const data = window[`v_${fund.tq}`];
+        if (!data || data.length < 10) return;
+        const parts = data.split('~');
+        const price = parseFloat(parts[3]);
+        const prevClose = parseFloat(parts[4]);
+        const volume = parseFloat(parts[37]) || 0;
+        if (price > 0) {
+          result.funds[fund.code] = { price, prevClose, change: prevClose > 0 ? (price - prevClose) / prevClose * 100 : 0, volume };
+        }
+      });
+      const allIdxCodes = [...new Set(Object.values(BENCH).flatMap(b => Array.isArray(b) ? b.map(x => x.tq) : [b]))];
+      allIdxCodes.forEach(indexCode => {
+        const data = window[`v_${indexCode}`];
+        if (!data || data.length < 5) return;
+        const parts = data.split('~');
+        const price = parseFloat(parts[3]);
+        const prevClose = parseFloat(parts[4]);
+        const time = parts[30] || parts[29] || '';
+        if (price > 0) {
+          result.indices[indexCode] = { price, change: prevClose > 0 ? (price - prevClose) / prevClose * 100 : 0, time };
+        }
+      });
+      script.remove();
+      resolve(result);
+    };
+    script.onerror = () => {
+      if (!done) {
+        done = true;
+        clearTimeout(timer);
+        console.log('\u817e\u8baf\u811a\u672c\u52a0\u8f7d\u5931\u8d25');
+        script.remove();
+        resolve({ funds: {}, indices: {} });
+      }
+    };
+    script.src = `https://qt.gtimg.cn/q=${codes}&_=${Date.now()}`;
+    document.head.appendChild(script);
+  });
+}
+
+async function fetchFuturesFromProxy() {
+  try {
+    const res = await fetch('/api/futures?_=' + Date.now(), { cache: 'no-cache' });
+    if (res.ok) {
+      const data = await res.json();
+      console.log('[\u671f\u8d27\u4ee3\u7406] \u54cd\u5e94:', JSON.stringify(data));
+      if (data && data.nf_AG0 !== null && data.nf_AG0 !== undefined) {
+        return { nf_AG0: data.nf_AG0 };
+      }
+      console.warn('[\u671f\u8d27\u4ee3\u7406] \u8fd4\u56denull\uff0c\u6570\u636e\u6e90:', data.source, data.raw_text ? '\u539f\u59cb\u7247\u6bb5:' + data.raw_text.substring(0,100) : '');
+    } else {
+      console.warn('[\u671f\u8d27\u4ee3\u7406] HTTP\u9519\u8bef:', res.status);
+    }
+  } catch (e) {
+    console.log('[\u671f\u8d27\u4ee3\u7406] \u8bf7\u6c42\u5931\u8d25:', e);
+  }
+  return {};
+}
+
+async function refreshData() {
+  if (isRefreshing) return;
+  isRefreshing = true;
+  dataTimestamp = new Date();
+  await loadNavs();
+  const [tencentData, emResult, futuresResult] = await Promise.all([fetchTencentData(), fetchEastmoney(), fetchFuturesFromProxy()]);
+  const emIdx = emResult.data;
+  const emTimes = emResult.times;
+  indexData = {};
+  indexTimes = {};
+  Object.entries(tencentData.indices).forEach(([code, d]) => {
+    indexData[code] = d.change;
+    indexTimes[code] = d.time || '';
+  });
+  Object.entries(emIdx).forEach(([code, chg]) => {
+    indexData[code] = chg;
+    if (emTimes[code]) {
+      indexTimes[code] = emTimes[code];
+    } else {
+      const now = new Date();
+      indexTimes[code] = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    }
+  });
+  Object.entries(futuresResult).forEach(([code, chg]) => {
+    indexData[code] = chg;
+    const now = new Date();
+    indexTimes[code] = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  });
+  Object.values(BENCH).forEach(benchDef => {
+    if (Array.isArray(benchDef)) {
+      benchDef.forEach(b => {
+        if (!indexTimes[b.tq]) {
+          const now = new Date();
+          indexTimes[b.tq] = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+        }
+      });
+    } else if (benchDef) {
+      if (!indexTimes[benchDef]) {
+        const now = new Date();
+        indexTimes[benchDef] = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+      }
+    }
+  });
+  if (indexData['hkHSMI'] == null || indexData['hkHSMI'] === 0) { if (indexData['hkHSI'] != null) indexData['hkHSMI'] = indexData['hkHSI']; }
+  if (indexData['hkHSCI'] == null || indexData['hkHSCI'] === 0) { if (indexData['hkHSI'] != null) indexData['hkHSCI'] = indexData['hkHSI']; }
+  if (indexData['hkHSSI'] == null || indexData['hkHSSI'] === 0) { if (indexData['hkHSI'] != null) indexData['hkHSSI'] = indexData['hkHSI']; }
+  fundData.forEach(fund => {
+    const marketData = tencentData.funds[fund.code];
+    if (marketData) {
+      fund.price = marketData.price;
+      fund.prevClose = marketData.prevClose;
+      fund.change = marketData.change;
+      fund.volume = marketData.volume;
+      const baseNav = fund.officialNav || fund.prevClose;
+      const benchDef = BENCH[fund.code];
+      let benchChgPct = 0;
+      if (Array.isArray(benchDef)) {
+        let totalW = 0;
+        benchDef.forEach(b => {
+          const chg = indexData[b.tq] || 0;
+          benchChgPct += chg * b.w;
+          totalW += b.w;
+        });
+        if (totalW > 0) benchChgPct /= totalW;
+      } else if (benchDef) {
+        benchChgPct = indexData[benchDef] || 0;
+      }
+      if (baseNav > 0) {
+        fund.nav = baseNav * (1 + benchChgPct / 100);
+        fund.navChange = benchChgPct;
+        fund.premium = (fund.price - fund.nav) / fund.nav * 100;
+      }
+    }
+  });
+  renderTable();
+  updateGenerateTime();
+  isRefreshing = false;
+}
+
+function updateGenerateTime() {
+  const now = new Date().toLocaleString('zh-CN');
+  const el = document.getElementById('generate-time');
+  if (el) el.textContent = `\u6570\u636e\u751f\u6210\u65f6\u95f4: ${now}`;
+}
+
+function sortTable(column) {
+  document.querySelectorAll('th.sorted').forEach(th => th.classList.remove('sorted'));
+  const th = document.querySelector(`th[onclick="sortTable('${column}')"]`);
+  th.classList.add('sorted');
+  if (sortColumn === column) { sortDirection = sortDirection === 'asc' ? 'desc' : 'asc'; }
+  else { sortColumn = column; sortDirection = 'desc'; }
+  renderTable();
+}
+
+function renderTable() {
+  let filteredData = [...fundData];
+  if (currentCategory !== 'all') filteredData = filteredData.filter(fund => fund.category === currentCategory);
+  const threshold = 2;
+  switch (currentFilter) {
+    case 'arbitrage':
+      filteredData = filteredData.filter(fund => {
+        if (fund.premium === null) return false;
+        if (fund.premium >= threshold && fund.quota !== '\u6682\u505c') return true;
+        if (fund.premium <= -threshold) return true;
+        return false;
+      });
+      break;
+    case 'premium': filteredData = filteredData.filter(fund => fund.premium !== null && fund.premium > 0); break;
+    case 'discount': filteredData = filteredData.filter(fund => fund.premium !== null && fund.premium < 0); break;
+  }
+  const desktopSortedData = filteredData.sort((a, b) => {
+    let valueA, valueB;
+    switch (sortColumn) {
+      case 'index': return sortDirection === 'asc' ? 1 : -1;
+      case 'name': valueA = a.name; valueB = b.name; break;
+      case 'code': valueA = a.code; valueB = b.code; break;
+      case 'nav': valueA = a.nav || 0; valueB = b.nav || 0; break;
+      case 'officialNav': valueA = a.officialNav || 0; valueB = b.officialNav || 0; break;
+      case 'price': valueA = a.price || 0; valueB = b.price || 0; break;
+      case 'premium': valueA = a.premium || 0; valueB = b.premium || 0; break;
+      case 'quota': valueA = a.quota; valueB = b.quota; break;
+      default: return 0;
+    }
+    if (typeof valueA === 'string' && typeof valueB === 'string') {
+      return sortDirection === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
+    } else { return sortDirection === 'asc' ? valueA - valueB : valueB - valueA; }
+  });
+  renderDesktopTable(desktopSortedData);
+  updateStats();
+}
+
+function updateStats() {
+  const total = fundData.length;
+  const premiumCount = fundData.filter(f => f.premium !== null && f.premium > 0).length;
+  const discountCount = fundData.filter(f => f.premium !== null && f.premium < 0).length;
+  const arbitrageCount = fundData.filter(f => {
+    if (f.premium === null) return false;
+    if (f.premium >= 2 && f.quota !== '\u6682\u505c') return true;
+    if (f.premium <= -2) return true;
+    return false;
+  }).length;
+  const el = id => document.getElementById(id);
+  if (el('statTotal')) el('statTotal').textContent = total;
+  if (el('statPremium')) el('statPremium').textContent = premiumCount;
+  if (el('statDiscount')) el('statDiscount').textContent = discountCount;
+  if (el('statArbitrage')) el('statArbitrage').textContent = arbitrageCount;
+}
+
+function renderDesktopTable(sortedData) {
+  if (sortedData.length === 0) {
+    fundTableBodyDesktop.innerHTML = '<tr><td colspan="9" class="loading">\u6682\u65e0\u6570\u636e</td></tr>';
+    return;
+  }
+  const categoryMap = { 'us': '\u7f8e\u80a1', 'hk': '\u6e2f\u80a1', 'cm': '\u5546\u54c1', 'cn': 'A\u80a1' };
+  fundTableBodyDesktop.innerHTML = sortedData.map((fund, index) => {
+    const quotaClass = fund.quota === '\u5f00\u653e' ? 'open' : fund.quota === '\u6682\u505c' ? 'suspended' : 'limited';
+    let premiumClass = '';
+    if (fund.premium > 0) premiumClass = 'red';
+    else if (fund.premium < 0) premiumClass = 'green';
+    return `<tr><td style="font-weight:600;">${index+1}</td><td><div class="code-cell"><div class="fund-name">${fund.name}</div><div class="fund-code">${fund.code}</div></div></td><td>${fund.price?fund.price.toFixed(2):'-'}${fund.change?`<div class="price-change ${fund.change>=0?'red':'green'}">${fund.change>=0?'+':''}${fund.change.toFixed(2)}%</div>`:''}</td><td>${fund.nav?fund.nav.toFixed(2):'-'}</td><td>${fund.officialNav?fund.officialNav.toFixed(4):'-'}${fund.navDate?`<div style="font-size:0.65rem;color:var(--gray);margin-top:0.2rem;">${fund.navDate}</div>`:''}</td><td>${fund.premium!==null?`<span class="premium-rate ${premiumClass}">${fund.premium>=0?'+':''}${fund.premium.toFixed(2)}%</span>`:'-'}</td><td>${(()=>{const b=BENCH[fund.code];if(Array.isArray(b))return b.map(x=>`${INDEX_NAMES[x.tq]||x.tq}(${x.tq})(${x.w})`).join('+');if(b)return `${INDEX_NAMES[b]||b}(${b})`;return '-'})()}</td><td>${(()=>{const b=BENCH[fund.code];let t='-',s='',v=0;if(Array.isArray(b)){let w=0,c=0,m=b[0].tq;b.forEach(x=>{c+=(indexData[x.tq]||0)*x.w;w+=x.w});if(w>0)c/=w;v=c;t=`${c>=0?'+':''}${c.toFixed(2)}%`;s=indexTimes[m]||''}else if(b){const c=indexData[b]||0;v=c;t=`${c>=0?'+':''}${c.toFixed(2)}%`;s=indexTimes[b]||''}return `<div class="${v>0?'price-change red':v<0?'price-change green':'zero-change'}">${t}${s?`<div style="font-size:0.65rem;color:var(--gray);margin-top:0.2rem;">${s}</div>`:''}</div>`})()}</td><td><span class="quota-status ${quotaClass}">${fund.quota}</span></td></tr>`;
+  }).join('');
+}
+
+async function bootstrap() {
+  const success = await loadFundsData();
+  if (success) {
+    init();
+  } else {
+    console.error('\u65e0\u6cd5\u52a0\u8f7d\u57fa\u91d1\u6570\u636e\uff0c\u5e94\u7528\u521d\u59cb\u5316\u5931\u8d25');
+  }
+}
+
+bootstrap();
+</script>
+</body>
+</html>
