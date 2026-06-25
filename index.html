@@ -482,7 +482,7 @@ let ALL_TQ_CODES = [];
 
 async function loadFundsData() {
   try {
-    const response = await fetch('https://raw.githubusercontent.com/Angry-Dingo/Angry-Dingo.github.io/main/data/funds.json?' + Date.now());
+    const response = await fetch('./data/funds.json?' + Date.now());
     const data = await response.json();
     
     FUNDS = data.funds || [];
