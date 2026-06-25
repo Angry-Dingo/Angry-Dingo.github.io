@@ -1212,12 +1212,16 @@ async function fetchFuturesFromProxy() {
     const res = await fetch('/api/futures?_=' + Date.now(), { cache: 'no-cache' });
     if (res.ok) {
       const data = await res.json();
+      console.log('[期货代理] 响应:', JSON.stringify(data));
       if (data && data.nf_AG0 !== null && data.nf_AG0 !== undefined) {
         return { nf_AG0: data.nf_AG0 };
       }
+      console.warn('[期货代理] 返回null，数据源:', data.source, data.raw_text ? '原始片段:' + data.raw_text.substring(0,100) : '');
+    } else {
+      console.warn('[期货代理] HTTP错误:', res.status);
     }
   } catch (e) {
-    console.log('期货数据代理请求失败:', e);
+    console.log('[期货代理] 请求失败:', e);
   }
   return {};
 }

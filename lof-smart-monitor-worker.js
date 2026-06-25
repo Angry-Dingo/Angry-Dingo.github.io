@@ -82,27 +82,44 @@ async function handleFuturesProxy() {
     'Cache-Control': 'no-cache'
   };
 
-  // 优先尝试东方财富期货行情API
+  // 数据源1：东方财富stock API（大写secid=113.AGM）
   try {
     const emRes = await fetch(
-      `https://push2.eastmoney.com/api/qt/stock/get?secid=113.agm&fields=f43,f170,f3,f14&_=${Date.now()}`,
-      { headers: { 'User-Agent': 'Mozilla/5.0' } }
+      `https://push2.eastmoney.com/api/qt/stock/get?secid=113.AGM&fields=f43,f170,f3,f14&_=${Date.now()}`,
+      { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' } }
     );
     if (emRes.ok) {
       const emData = await emRes.json();
       if (emData && emData.data) {
-        const chg = emData.data.f3 !== undefined ? emData.data.f3 : null;
-        if (chg !== null) {
-          return new Response(JSON.stringify({ nf_AG0: chg }), { headers });
+        const chg = emData.data.f3;
+        if (chg !== undefined && chg !== null) {
+          return new Response(JSON.stringify({ nf_AG0: chg, source: 'eastmoney_A' }), { headers });
         }
       }
     }
   } catch (e) {}
 
-  // 备用：从新浪财经获取期货数据
+  // 数据源2：东方财富stock API（小写secid=113.agm）
+  try {
+    const emRes = await fetch(
+      `https://push2.eastmoney.com/api/qt/stock/get?secid=113.agm&fields=f43,f170,f3,f14&_=${Date.now()}`,
+      { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' } }
+    );
+    if (emRes.ok) {
+      const emData = await emRes.json();
+      if (emData && emData.data) {
+        const chg = emData.data.f3;
+        if (chg !== undefined && chg !== null) {
+          return new Response(JSON.stringify({ nf_AG0: chg, source: 'eastmoney_B' }), { headers });
+        }
+      }
+    }
+  } catch (e) {}
+
+  // 数据源3：新浪财经期货数据（服务端无Referer限制）
   try {
     const sinaRes = await fetch('https://hq.sinajs.cn/list=nf_AG0', {
-      headers: { 'Referer': 'https://finance.sina.com.cn' }
+      headers: { 'Referer': 'https://finance.sina.com.cn', 'User-Agent': 'Mozilla/5.0' }
     });
     const text = await sinaRes.text();
     const match = text.match(/hq_str_nf_AG0="([^"]+)"/);
@@ -113,16 +130,30 @@ async function handleFuturesProxy() {
       if (!prevClose || prevClose <= 0) prevClose = parseFloat(parts[10]);
       if (currentPrice > 0 && prevClose > 0) {
         const chg = (currentPrice - prevClose) / prevClose * 100;
-        return new Response(JSON.stringify({ nf_AG0: parseFloat(chg.toFixed(2)) }), { headers });
+        return new Response(JSON.stringify({ nf_AG0: parseFloat(chg.toFixed(2)), source: 'sina' }), { headers });
       }
     }
   } catch (e) {}
 
-  return new Response(JSON.stringify({ nf_AG0: null }), { headers });
+  return new Response(JSON.stringify({ nf_AG0: null, source: 'none' }), { headers });
 }
 
 // 从新浪获取沪银主连涨跌幅（用于Worker内部监控计算）
 async function fetchFuturesData() {
+  // 尝试东财大写secid
+  try {
+    const emRes = await fetch(
+      `https://push2.eastmoney.com/api/qt/stock/get?secid=113.AGM&fields=f43,f3&_=${Date.now()}`,
+      { headers: { 'User-Agent': 'Mozilla/5.0' } }
+    );
+    if (emRes.ok) {
+      const emData = await emRes.json();
+      if (emData && emData.data && emData.data.f3 !== undefined) {
+        return { 'nf_AG0': emData.data.f3 };
+      }
+    }
+  } catch (e) {}
+  // 尝试东财小写secid
   try {
     const emRes = await fetch(
       `https://push2.eastmoney.com/api/qt/stock/get?secid=113.agm&fields=f43,f3&_=${Date.now()}`,
