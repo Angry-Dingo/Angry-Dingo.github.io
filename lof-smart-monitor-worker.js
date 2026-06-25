@@ -43,7 +43,7 @@ export default {
         ['hkHSMI',    '124.HSMI'],
         ['hkHSSI',    '124.HSSI'],
         ['hkHSCI',    '124.HSCI'],
-        ['nf_AG0',    '8.AG888'],
+        // nf_AG0（沪银主连）通过 /api/futures 端点获取，stock API不支持期货
       ];
       const results = {};
       const times = {};
@@ -63,9 +63,97 @@ export default {
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
       });
     }
+
+    // 期货数据代理：浏览器端通过此端点获取沪银主连数据（服务端无CORS/Referer限制）
+    if (url.pathname === '/api/futures') {
+      return await handleFuturesProxy();
+    }
     return new Response('LOF 基金监控服务', { status: 200 });
   }
 };
+
+// ==================== 期货数据代理 ====================
+// 浏览器端无法直接获取沪银主连数据（东财stock API不支持期货，Sina有Referer限制）
+// 此函数从服务端获取数据，供浏览器端和Worker内部使用
+async function handleFuturesProxy() {
+  const headers = {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    'Cache-Control': 'no-cache'
+  };
+
+  // 优先尝试东方财富期货行情API
+  try {
+    const emRes = await fetch(
+      `https://push2.eastmoney.com/api/qt/stock/get?secid=113.agm&fields=f43,f170,f3,f14&_=${Date.now()}`,
+      { headers: { 'User-Agent': 'Mozilla/5.0' } }
+    );
+    if (emRes.ok) {
+      const emData = await emRes.json();
+      if (emData && emData.data) {
+        const chg = emData.data.f3 !== undefined ? emData.data.f3 : null;
+        if (chg !== null) {
+          return new Response(JSON.stringify({ nf_AG0: chg }), { headers });
+        }
+      }
+    }
+  } catch (e) {}
+
+  // 备用：从新浪财经获取期货数据
+  try {
+    const sinaRes = await fetch('https://hq.sinajs.cn/list=nf_AG0', {
+      headers: { 'Referer': 'https://finance.sina.com.cn' }
+    });
+    const text = await sinaRes.text();
+    const match = text.match(/hq_str_nf_AG0="([^"]+)"/);
+    if (match) {
+      const parts = match[1].split(',');
+      const currentPrice = parseFloat(parts[6]);
+      let prevClose = parseFloat(parts[5]);
+      if (!prevClose || prevClose <= 0) prevClose = parseFloat(parts[10]);
+      if (currentPrice > 0 && prevClose > 0) {
+        const chg = (currentPrice - prevClose) / prevClose * 100;
+        return new Response(JSON.stringify({ nf_AG0: parseFloat(chg.toFixed(2)) }), { headers });
+      }
+    }
+  } catch (e) {}
+
+  return new Response(JSON.stringify({ nf_AG0: null }), { headers });
+}
+
+// 从新浪获取沪银主连涨跌幅（用于Worker内部监控计算）
+async function fetchFuturesData() {
+  try {
+    const emRes = await fetch(
+      `https://push2.eastmoney.com/api/qt/stock/get?secid=113.agm&fields=f43,f3&_=${Date.now()}`,
+      { headers: { 'User-Agent': 'Mozilla/5.0' } }
+    );
+    if (emRes.ok) {
+      const emData = await emRes.json();
+      if (emData && emData.data && emData.data.f3 !== undefined) {
+        return { 'nf_AG0': emData.data.f3 };
+      }
+    }
+  } catch (e) {}
+
+  try {
+    const sinaRes = await fetch('https://hq.sinajs.cn/list=nf_AG0', {
+      headers: { 'Referer': 'https://finance.sina.com.cn' }
+    });
+    const text = await sinaRes.text();
+    const match = text.match(/hq_str_nf_AG0="([^"]+)"/);
+    if (match) {
+      const parts = match[1].split(',');
+      const currentPrice = parseFloat(parts[6]);
+      let prevClose = parseFloat(parts[5]);
+      if (!prevClose || prevClose <= 0) prevClose = parseFloat(parts[10]);
+      if (currentPrice > 0 && prevClose > 0) {
+        const chg = (currentPrice - prevClose) / prevClose * 100;
+        return { 'nf_AG0': parseFloat(chg.toFixed(2)) };
+      }
+    }
+  } catch (e) {}
+  return {};
 
 function quotaIcon(quota) {
   if (!quota) return '⚪';
@@ -355,6 +443,14 @@ async function fetchMarketData(fundsData) {
       }
     } catch (e) {}
   }));
+
+  // 补充沪银期货数据（161226 国投白银LOF基准，腾讯qt和东财stock API均不支持）
+  try {
+    const futuresData = await fetchFuturesData();
+    if (futuresData['nf_AG0'] !== undefined && futuresData['nf_AG0'] !== null) {
+      indexData['nf_AG0'] = futuresData['nf_AG0'];
+    }
+  } catch (e) {}
 
   // 指数降级：腾讯或东方财富查不到的指数，用相近指数替代
   if (indexData['hkHSMI'] == null || indexData['hkHSMI'] === 0) {

@@ -1088,7 +1088,7 @@ function fetchEastmoney() {
     'hkHSMI':    '124.HSMI',  // 恒生综合中型股指数（501303恒生中型股LOF）
     'hkHSSI':    '124.HSSI',  // 恒生综合小型股指数（161124港股小盘LOF）
     'hkHSCI':    '124.HSCI',  // 恒生综合指数（160322港股精选LOF）
-    'nf_AG0':    '8.AG888',   // 沪银主连（161226国投白银LOF）- 上期所白银期货主力合约
+    // 注意：nf_AG0沪银主连通过 Pages Function /api/futures 服务端代理获取（东财stock API不支持期货）
   };
   const prefix = '_em_' + Date.now();
   let pending = Object.keys(EM_CODES).length;
@@ -1205,57 +1205,21 @@ function fetchTencentData() {
   });
 }
 
-// 从新浪财经获取期货数据（腾讯qt不支持期货，东财stock API也不支持）
-function fetchSinaFutures() {
-  return new Promise(resolve => {
-    const sinaCodes = 'nf_AG0';
-    const script = document.createElement('script');
-    
-    let done = false;
-    const timer = setTimeout(() => {
-      if (!done) {
-        done = true;
-        console.log('新浪期货行情超时');
-        script.remove();
-        resolve({});
+// 通过 Pages Function 服务端代理获取沪银主连期货数据
+// 浏览器端直接获取期货Data受CORS/Referer限制，服务端无此限制
+async function fetchFuturesFromProxy() {
+  try {
+    const res = await fetch('/api/futures?_=' + Date.now(), { cache: 'no-cache' });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.nf_AG0 !== null && data.nf_AG0 !== undefined) {
+        return { nf_AG0: data.nf_AG0 };
       }
-    }, 8000);
-    
-    script.onload = () => {
-      if (done) return;
-      done = true;
-      clearTimeout(timer);
-      
-      const result = {};
-      const raw = window['hq_str_nf_AG0'];
-      if (raw) {
-        const parts = raw.split(',');
-        // Sina期货格式: name,time,open,high,low,prevSettlement,currentPrice,bid,ask,volume,position,...
-        const currentPrice = parseFloat(parts[6]);
-        // 前收盘/昨结算可能在field 5或field 10，取非零值
-        let prevClose = parseFloat(parts[5]);
-        if (!prevClose || prevClose <= 0) prevClose = parseFloat(parts[10]);
-        if (!prevClose || prevClose <= 0) prevClose = parseFloat(parts[27]);
-        
-        if (currentPrice > 0 && prevClose > 0) {
-          result['nf_AG0'] = (currentPrice - prevClose) / prevClose * 100;
-        }
-      }
-      resolve(result);
-    };
-    
-    script.onerror = () => {
-      if (!done) {
-        done = true;
-        clearTimeout(timer);
-        script.remove();
-        resolve({});
-      }
-    };
-    
-    script.src = `https://hq.sinajs.cn/list=${sinaCodes}&_=${Date.now()}`;
-    document.head.appendChild(script);
-  });
+    }
+  } catch (e) {
+    console.log('期货数据代理请求失败:', e);
+  }
+  return {};
 }
 
 // 刷新数据
@@ -1270,8 +1234,8 @@ async function refreshData() {
   // 每次刷新都重新加载净值数据，确保数据是最新的
   await loadNavs();
   
-  // 并行获取腾讯财经、东方财富（JSONP）和新浪期货数据
-  const [tencentData, emResult, sinaResult] = await Promise.all([fetchTencentData(), fetchEastmoney(), fetchSinaFutures()]);
+  // 并行获取腾讯财经、东方财富（JSONP）和期货代理数据
+  const [tencentData, emResult, futuresResult] = await Promise.all([fetchTencentData(), fetchEastmoney(), fetchFuturesFromProxy()]);
   const emIdx = emResult.data;
   const emTimes = emResult.times;
   
@@ -1299,8 +1263,8 @@ async function refreshData() {
     }
   });
   
-  // 合并新浪期货数据（nf_AG0沪银主连）
-  Object.entries(sinaResult).forEach(([code, chg]) => {
+  // 合并期货代理数据（nf_AG0沪银主连）
+  Object.entries(futuresResult).forEach(([code, chg]) => {
     indexData[code] = chg;
     const now = new Date();
     const year = now.getFullYear();
