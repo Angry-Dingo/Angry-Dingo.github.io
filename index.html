@@ -1091,6 +1091,7 @@ function fetchEastmoney() {
     'hkHSMI':    '124.HSMI',  // 恒生综合中型股指数（501303恒生中型股LOF）
     'hkHSSI':    '124.HSSI',  // 恒生综合小型股指数（161124港股小盘LOF）
     'hkHSCI':    '124.HSCI',  // 恒生综合指数（160322港股精选LOF）
+    'hkHSI':     '124.HSI',   // 恒生指数（hkHSMI/hkHSSI/hkHSCI降级后备）
     'nf_AG0':    '113.agm',   // 沪银主连（上期所market=113，注意前一次用8.AG888是错误代码）
   };
   const prefix = '_em_' + Date.now();
@@ -1254,7 +1255,10 @@ async function refreshData() {
     indexTimes[code] = d.time || '';
   });
   Object.entries(emIdx).forEach(([code, chg]) => {
-    indexData[code] = chg;
+    // 仅当东财返回有效涨跌幅时才覆盖腾讯数据（非交易时段东财可能返回null）
+    if (chg != null) {
+      indexData[code] = chg;
+    }
     if (emTimes[code]) {
       // 处理东方财富返回的时间格式
       indexTimes[code] = emTimes[code];
