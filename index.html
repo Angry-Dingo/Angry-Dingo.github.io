@@ -4,430 +4,247 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="referrer" content="no-referrer-when-downgrade">
-<title>LOF基金监控</title>
+<title>LOF Monitor</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+/* ===== Reset & Base ===== */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px;scroll-behavior:smooth}
 
 :root {
-  --primary: #2563eb;
-  --primary-light: #3b82f6;
-  --primary-dark: #1d4ed8;
-  --secondary: #059669;
-  --secondary-light: #10b981;
-  --danger: #dc2626;
-  --danger-light: #ef4444;
-  --warning: #d97706;
-  --warning-light: #f59e0b;
-  --info: #4f46e5;
-  --info-light: #6366f1;
-  --light: #f8fafc;
-  --light-gray: #f1f5f9;
-  --medium-gray: #e2e8f0;
-  --dark-gray: #64748b;
-  --darker-gray: #334155;
-  --dark: #1e293b;
-  --darkest: #0f172a;
-  --white: #ffffff;
-  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  --border: #e2e8f0;
-  --border-radius: 8px;
-  --border-radius-sm: 4px;
-  --border-radius-lg: 12px;
-  --transition: all 0.2s ease-in-out;
-  --transition-slow: all 0.3s ease-in-out;
-  --version-font-size: 0.4375rem;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+  --bg-primary: #0b0f1a;
+  --bg-secondary: #111827;
+  --bg-card: #1a2236;
+  --bg-hover: #1e2a45;
+  --bg-active: #243056;
+  --border-color: #2a3456;
+  --border-light: #38406a;
+  --text-primary: #e8ecf4;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --gray: #64748b;
+  --accent-blue: #3b82f6;
+  --accent-blue-hover: #60a5fa;
+  --accent-blue-dim: rgba(59,130,246,0.12);
+  --up: #22c55e;
+  --up-bg: rgba(34,197,94,0.1);
+  --up-border: rgba(34,197,94,0.25);
+  --down: #ef4444;
+  --down-bg: rgba(239,68,68,0.1);
+  --down-border: rgba(239,68,68,0.25);
+  --warning: #f59e0b;
+  --warning-bg: rgba(245,158,11,0.1);
+  --warning-border: rgba(245,158,11,0.25);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --shadow-card: 0 4px 20px rgba(0,0,0,0.3);
+  --transition: all 0.2s ease;
+  --sidebar-width: 210px;
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: var(--light);
-  color: var(--dark);
-  line-height: 1.6;
+  font-family: var(--font);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg-secondary)}
+::-webkit-scrollbar-thumb{background:var(--border-color);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--border-light)}
+
+/* ===== Layout ===== */
+.app-layout {
+  display: flex;
   min-height: 100vh;
 }
 
-/* 顶部导航栏 */
-.header {
-  background: var(--white);
-  box-shadow: var(--shadow-md);
-  position: sticky;
+/* ===== Sidebar ===== */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  position: fixed;
   top: 0;
+  left: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
   z-index: 100;
-  padding: 0.75rem 1.5rem;
-  transition: var(--transition-slow);
-  border-bottom: 1px solid var(--medium-gray);
+  overflow-y: auto;
 }
 
-.header.scrolled {
-  box-shadow: var(--shadow-lg);
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-}
-
-.nav-container {
-  max-width: 1400px;
-  margin: 0 auto;
+.sidebar-logo {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  height: 56px;
-  flex-wrap: nowrap;
-  gap: 2rem;
+  gap: 10px;
+  padding: 18px 16px 14px;
+  border-bottom: 1px solid var(--border-color);
 }
 
-/* 版本切换开关 */
-.version-toggle {
+.sidebar-logo .logo-icon {
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(135deg, var(--accent-blue), #6366f1);
+  border-radius: 7px;
   display: flex;
   align-items: center;
-  gap: 0.25rem;
-  background: var(--light);
-  padding: 0.25rem;
-  border-radius: var(--border-radius);
-  transition: var(--transition);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #fff;
   flex-shrink: 0;
 }
 
-.version-toggle button {
-  padding: 0.4rem 1rem;
-  border: none;
-  border-radius: var(--border-radius);
-  font-size: 0.8rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  background: transparent;
-  color: var(--gray-dark);
-  min-width: 70px;
-  text-align: center;
-  outline: none;
+.sidebar-logo .logo-text {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
-.logo {
-  font-size: 1.75rem;
+.sidebar-logo .logo-text span { color: var(--accent-blue); }
+
+/* Sidebar Stats */
+.sidebar-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 14px 14px 10px;
+}
+
+.sidebar-stat {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  text-align: center;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.sidebar-stat:hover {
+  border-color: var(--border-light);
+}
+
+.sidebar-stat .stat-num {
+  font-size: 1.15rem;
   font-weight: 700;
-  color: var(--primary);
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+.sidebar-stat .stat-num.up{color:var(--up)}
+.sidebar-stat .stat-num.down{color:var(--down)}
+.sidebar-stat .stat-num.neutral{color:var(--text-primary)}
+.sidebar-stat .stat-num.accent{color:var(--accent-blue)}
+
+.sidebar-stat .stat-label {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-top: 2px;
+}
+
+/* Sidebar Section */
+.sidebar-section {
+  padding: 10px 14px 4px;
+}
+
+.sidebar-section-title {
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  padding: 0 4px;
+}
+
+.sidebar-nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.filter-tab {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+  outline: none;
+  font-weight: 500;
+  font-family: var(--font);
+  text-align: left;
+}
+
+.filter-tab:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.filter-tab.active {
+  background: var(--accent-blue-dim);
+  color: var(--accent-blue);
+  border-left: 3px solid var(--accent-blue);
+  font-weight: 600;
+}
+
+.sidebar-divider {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 8px 14px;
+}
+
+/* ===== Content Area ===== */
+.content-area {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.top-bar {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  text-decoration: none;
-  transition: var(--transition-slow);
-  padding: 0.5rem 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-.version {
-  font-size: 0.75rem;
-  color: var(--dark-gray);
-  font-weight: 500;
-  background: var(--light-gray);
-  padding: 0.25rem 0.5rem;
-  border-radius: var(--border-radius-sm);
-  margin-left: 0.5rem;
+  justify-content: flex-end;
+  padding: 16px 24px 0;
+  gap: 12px;
 }
 
 .generate-time {
   font-size: 0.75rem;
-  color: var(--dark-gray);
-  font-weight: 500;
-  background: var(--light-gray);
-  padding: 0.25rem 0.75rem;
-  border-radius: var(--border-radius-sm);
-  margin-left: 1rem;
+  color: var(--text-muted);
+  background: var(--bg-card);
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
   white-space: nowrap;
-  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
 }
 
-.logo:hover {
-  transform: translateY(-1px);
-  color: var(--primary-dark);
-}
-
-.logo span {
-  color: var(--dark);
-}
-
-/* 版本切换开关 */
-.version-toggle {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  background: var(--light-gray);
-  padding: 0.375rem;
-  border-radius: var(--border-radius);
-  transition: var(--transition);
-  box-shadow: var(--shadow);
-  border: 1px solid var(--medium-gray);
-}
-
-.version-toggle button {
-  padding: 0.5rem 1.25rem;
-  border: none;
-  border-radius: var(--border-radius-sm);
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: var(--transition);
-  background: transparent;
-  color: var(--darker-gray);
-  min-width: 90px;
-  text-align: center;
-  outline: none;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-.version-toggle button.active {
-  background: var(--primary);
-  color: var(--white);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
-}
-
-.version-toggle button:hover:not(.active) {
-  background: rgba(37, 99, 235, 0.1);
-  color: var(--primary);
-  transform: translateY(-1px);
-}
-
-/* 汉堡菜单 */
-.hamburger-menu {
-  display: none;
-  flex-direction: column;
-  gap: 5px;
-  cursor: pointer;
-  padding: 10px;
-  border-radius: var(--border-radius);
-  transition: var(--transition);
-  outline: none;
-  border: 1px solid var(--medium-gray);
-  background: var(--white);
-}
-
-.hamburger-menu:hover {
-  background: var(--light-gray);
-  border-color: var(--primary);
-}
-
-.hamburger-menu:focus {
-  background: rgba(37, 99, 235, 0.1);
-  border-color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
-}
-
-.hamburger-menu .bar {
-  width: 24px;
-  height: 2px;
-  background: var(--dark);
-  transition: var(--transition);
-  border-radius: 1px;
-}
-
-.hamburger-menu.active .bar:nth-child(1) {
-  transform: rotate(45deg) translate(6px, 6px);
-}
-
-.hamburger-menu.active .bar:nth-child(2) {
-  opacity: 0;
-}
-
-.hamburger-menu.active .bar:nth-child(3) {
-  transform: rotate(-45deg) translate(6px, -6px);
-}
-
-/* 导航菜单 */
-.nav-menu {
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-}
-
-/* 标签切换 */
-.filter-tabs {
-  max-width: 1400px;
-  margin: 1.5rem auto 0;
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  justify-content: center;
-  padding: 0 1.5rem;
-}
-
-.filter-tab {
-  padding: 0.625rem 1.25rem;
-  border: 1px solid var(--medium-gray);
-  border-radius: var(--border-radius);
-  background: var(--white);
-  font-size: 0.875rem;
-  color: var(--darker-gray);
-  cursor: pointer;
-  transition: var(--transition);
-  outline: none;
-  font-weight: 500;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  box-shadow: var(--shadow);
-}
-
-.filter-tab:hover {
-  border-color: var(--primary);
-  color: var(--primary);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.filter-tab.active {
-  background: var(--primary);
-  color: var(--white);
-  border-color: var(--primary);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
-}
-
-.filter-tab:focus {
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
-  border-color: var(--primary);
-}
-
-/* 响应式设计 */
-@media (max-width: 1024px) {
-  .nav-container {
-    padding: 0 0.5rem;
-    height: 40px;
-  }
-  
-  .logo {
-    font-size: 1.3rem;
-  }
-  
-  .filter-tabs {
-    gap: 0.5rem;
-  }
-  
-  .filter-tab {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.8rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .hamburger-menu {
-    display: flex;
-  }
-  
-  .nav-menu {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: var(--white);
-    box-shadow: var(--shadow-lg);
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 0.75rem;
-    gap: 0.75rem;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-10px);
-    transition: all 0.3s ease;
-    z-index: 99;
-    border-top: 1px solid var(--border);
-  }
-  
-  .nav-menu.active {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-  }
-  
-  .filter-tabs {
-    justify-content: flex-start;
-    padding: 0 0.5rem;
-  }
-  
-  .filter-tab {
-    padding: 0.375rem 0.75rem;
-    font-size: 0.75rem;
-  }
-  
-  .header {
-    padding: 0.4rem 0.5rem;
-  }
-  
-  .nav-container {
-    height: 35px;
-    gap: 0.5rem;
-  }
-  
-  .logo {
-    font-size: 1.2rem;
-    flex-shrink: 1;
-    min-width: 0;
-  }
-  
-  .version-toggle {
-    flex-shrink: 0;
-  }
-  
-  .version-toggle button {
-    padding: 0.3rem 0.8rem;
-    font-size: 0.7rem;
-    min-width: 60px;
-  }
-}
-
-@media (max-width: 480px) {
-  .logo {
-    font-size: 1.1rem;
-  }
-  
-  .version-toggle button {
-    padding: 0.25rem 0.6rem;
-    font-size: 0.65rem;
-    min-width: 55px;
-  }
-  
-  .header {
-    padding: 0.35rem 0.5rem;
-  }
-  
-  .nav-container {
-    height: 30px;
-    gap: 0.3rem;
-  }
-  
-  .filter-tabs {
-    gap: 0.3rem;
-  }
-  
-  .filter-tab {
-    padding: 0.3rem 0.6rem;
-    font-size: 0.7rem;
-  }
-}
-
-/* 主容器 */
 .main-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 1.5rem;
+  max-width: 100%;
+  padding: 16px 24px 24px;
 }
 
-/* 基金表格 */
+/* ===== Table ===== */
 .fund-table-container {
-  background: var(--white);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-md);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
   overflow: hidden;
-  margin-top: 1.5rem;
-  border: 1px solid var(--medium-gray);
+  box-shadow: var(--shadow-card);
 }
 
 .fund-table {
@@ -436,667 +253,226 @@ body {
 }
 
 .fund-table th {
-  background: var(--darkest);
-  color: var(--white);
-  padding: 1rem 0.75rem;
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  padding: 12px 10px;
   text-align: center;
   font-weight: 600;
-  font-size: 0.875rem;
-  white-space: normal;
-  word-wrap: break-word;
+  font-size: 0.73rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
   cursor: pointer;
   transition: var(--transition);
   vertical-align: middle;
-  display: table-cell;
-  vertical-align: middle;
-  min-width: 70px;
-  line-height: 1.4;
-  border-bottom: 2px solid var(--primary);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-.fund-table th:hover {
-  background: var(--dark);
-  color: var(--white);
-  box-shadow: inset 0 -2px 0 var(--primary);
-}
-
-.fund-table th.sorted {
-  background: var(--primary);
-  color: var(--white);
-}
-
-.fund-table td {
-  padding: 0.875rem 0.75rem;
-  border-bottom: 1px solid var(--medium-gray);
-  font-size: 0.875rem;
-  text-align: center;
-  vertical-align: middle;
-  transition: var(--transition);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-/* 基金参考指数列样式 */
-.fund-table th:nth-child(7),
-.fund-table td:nth-child(7) {
-  max-width: 180px;
-  white-space: normal;
-  word-wrap: break-word;
-  text-align: center;
-  vertical-align: middle;
-  font-size: 0.75rem;
-  line-height: 1.2;
-}
-
-/* 代码列宽度调整 */
-.fund-table th:nth-child(2),
-.fund-table td:nth-child(2) {
-  max-width: 90px;
-  width: 11.25%;
-  min-width: 75px;
-}
-
-/* 序号列宽度调整 */
-.fund-table th:nth-child(1),
-.fund-table td:nth-child(1) {
-  max-width: 30px;
-  width: 3%;
-  min-width: 25px;
-}
-
-.fund-table th.sorted {
-  background: var(--primary);
-}
-
-.mobile-table th.sorted {
-  background: var(--gray-dark);
-  color: var(--white);
-}
-
-.fund-table tr {
-  height: auto;
-  min-height: 60px;
-  overflow: hidden;
-}
-
-.fund-table td {
-  padding: 0.6rem 0.4rem;
-  border-bottom: 1px solid var(--border);
-  font-size: 0.8rem;
-  text-align: center;
-  vertical-align: middle;
-  height: auto;
-  min-height: 65px;
-  box-sizing: border-box;
-}
-
-/* 除基金参考指数列外的其他列保持 nowrap */
-.fund-table td:not(:nth-child(7)) {
+  border-bottom: 2px solid var(--border-color);
+  font-family: var(--font);
   white-space: nowrap;
-}
-
-/* 确保所有单元格内容居中对齐 */
-.fund-table th,
-.fund-table td {
-  text-align: center;
-  vertical-align: middle;
-  font-size: 0.875rem;
-}
-
-/* 代码列样式 */
-.code-cell {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.2rem;
-  text-align: center;
-  height: 100%;
-  padding: 0.4rem;
-  margin: 0;
-  min-height: 100%;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.code-cell .fund-name,
-.code-cell .fund-code {
-  margin: 0;
-  padding: 0;
-  line-height: 1.3;
-  width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.code-cell .fund-name {
-  font-weight: 500;
-  color: var(--dark);
-  font-size: 0.7rem;
-}
-
-.code-cell .fund-code {
-  font-size: 0.6rem;
-  color: var(--gray);
-  font-family: monospace;
-  margin-top: 0;
-  line-height: 1.3;
-}
-
-.fund-table tr {
-  transition: var(--transition);
-}
-
-.fund-table tr:hover {
-  background: rgba(37, 99, 235, 0.05);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.fund-table tr:last-child td {
-  border-bottom: none;
-}
-
-.fund-name {
-  font-weight: 500;
-  color: var(--dark);
-  font-size: 0.9rem;
-}
-
-.fund-code {
-  font-size: 0.75rem;
-  color: var(--dark-gray);
-  margin-top: 0.25rem;
-  font-family: monospace;
-}
-
-.price-change.red {
-  color: var(--danger);
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
-.price-change.green {
-  color: var(--secondary);
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
-.premium-rate.red {
-  color: var(--danger);
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
-.premium-rate.green {
-  color: var(--secondary);
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
-.premium-rate {
-  display: block;
-  margin: 0;
-  padding: 0;
-}
-
-.quota-status {
-  padding: 0.375rem 0.75rem;
-  border-radius: var(--border-radius-sm);
-  font-size: 0.75rem;
-  font-weight: 600;
-  transition: var(--transition);
-  display: inline-block;
-}
-
-.quota-status.open {
-  background: rgba(5, 150, 105, 0.1);
-  color: var(--secondary);
-  border: 1px solid rgba(5, 150, 105, 0.2);
-}
-
-.quota-status.open:hover {
-  background: rgba(5, 150, 105, 0.15);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow);
-}
-
-.quota-status.limited {
-  background: rgba(217, 119, 6, 0.1);
-  color: var(--warning);
-  border: 1px solid rgba(217, 119, 6, 0.2);
-}
-
-.quota-status.limited:hover {
-  background: rgba(217, 119, 6, 0.15);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow);
-}
-
-.quota-status.suspended {
-  background: rgba(220, 38, 38, 0.1);
-  color: var(--danger);
-  border: 1px solid rgba(220, 38, 38, 0.2);
-}
-
-/* 参考指数涨跌幅为0时的样式 */
-.zero-change {
-  background: rgba(100, 116, 139, 0.1);
-  color: var(--dark-gray);
-  padding: 0.375rem 0.75rem;
-  border-radius: var(--border-radius-sm);
-  display: inline-block;
-  border: 1px solid rgba(100, 116, 139, 0.2);
-  font-weight: 500;
-  font-size: 0.75rem;
-  transition: var(--transition);
-}
-
-.zero-change:hover {
-  background: rgba(100, 116, 139, 0.15);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow);
-}
-
-/* 加载状态 */
-.loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem;
-  color: var(--dark-gray);
-  font-size: 1rem;
-  font-weight: 500;
-}
-
-.loading::after {
-  content: '';
-  width: 24px;
-  height: 24px;
-  border: 2px solid var(--medium-gray);
-  border-top: 2px solid var(--primary);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-left: 1rem;
-  box-shadow: var(--shadow);
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* 页脚 */
-.footer {
-  background: var(--darkest);
-  color: var(--white);
-  padding: 2.5rem 1.5rem;
-  margin-top: 3rem;
-  border-top: 2px solid var(--primary);
-  box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-
-.footer-content {
-  max-width: 1400px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  align-items: center;
-  text-align: center;
-}
-
-.footer-info {
-  font-size: 0.875rem;
-  color: var(--dark-gray);
-  line-height: 1.6;
-  max-width: 800px;
-}
-
-.footer-info a {
-  color: var(--primary-light);
-  text-decoration: none;
-  transition: var(--transition);
-  font-weight: 500;
+  user-select: none;
   position: relative;
 }
 
-.footer-info a:hover {
-  color: var(--primary);
+.fund-table th:hover {
+  color: var(--text-secondary);
+  background: var(--bg-hover);
 }
 
-.footer-info a::after {
-  content: '';
-  position: absolute;
-  width: 0;
-  height: 2px;
-  bottom: -2px;
-  left: 0;
-  background-color: var(--primary);
-  transition: var(--transition);
+.fund-table th.sorted {
+  color: var(--accent-blue);
+  background: var(--accent-blue-dim);
 }
 
-.footer-info a:hover::after {
-  width: 100%;
+.fund-table th.sorted::after {
+  content: ' \25B2';
+  font-size: 0.6rem;
+  opacity: 0.7;
 }
 
-.footer .copyright {
-  margin-top: 2rem;
-  padding-top: 2rem;
-  border-top: 1px solid var(--darker-gray);
-  font-size: 0.75rem;
-  color: var(--dark-gray);
+.fund-table td {
+  padding: 10px 10px;
+  border-bottom: 1px solid rgba(42,52,86,0.5);
+  font-size: 0.82rem;
   text-align: center;
-  width: 100%;
+  vertical-align: middle;
+  color: var(--text-primary);
+  font-family: var(--font);
+  transition: background 0.15s ease;
 }
 
-/* 响应式设计 */
-@media (max-width: 1024px) {
-  .main-container {
-    padding: 0 1rem;
-  }
-  
-  .header {
-    padding: 0 1rem;
-  }
-  
-  .fund-table-container {
-    overflow-x: auto;
-  }
-  
-  .filter-tabs {
-    justify-content: center;
-  }
-  
-  .fund-table th,
-  .fund-table td {
-    padding: 0.75rem;
-    font-size: 0.75rem;
-  }
-  
-  .logo {
-    font-size: 1.25rem;
-  }
+.fund-table tr:last-child td { border-bottom: none; }
+.fund-table tr:hover td { background: rgba(59,130,246,0.04); }
+
+.fund-table th:nth-child(1), .fund-table td:nth-child(1) { width: 44px; min-width: 44px; }
+.fund-table th:nth-child(2), .fund-table td:nth-child(2) { min-width: 110px; }
+.fund-table th:nth-child(3), .fund-table td:nth-child(3) { min-width: 90px; }
+.fund-table th:nth-child(4), .fund-table td:nth-child(4) { min-width: 80px; }
+.fund-table th:nth-child(5), .fund-table td:nth-child(5) { min-width: 95px; }
+.fund-table th:nth-child(6), .fund-table td:nth-child(6) { min-width: 82px; }
+.fund-table th:nth-child(7), .fund-table td:nth-child(7) { max-width: 165px; white-space: normal; word-wrap: break-word; font-size: 0.7rem; line-height: 1.3; }
+.fund-table th:nth-child(8), .fund-table td:nth-child(8) { min-width: 95px; }
+.fund-table th:nth-child(9), .fund-table td:nth-child(9) { min-width: 75px; }
+
+/* ===== Code Cell ===== */
+.code-cell { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.code-cell .fund-name { font-weight: 500; color: var(--text-primary); font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px; }
+.code-cell .fund-code { font-size: 0.65rem; color: var(--text-muted); font-family: 'SF Mono', 'Cascadia Code', 'JetBrains Mono', monospace; letter-spacing: 0.3px; }
+
+/* ===== Price & Premium Colors ===== */
+.price-change { font-weight: 600; font-size: 0.78rem; margin-top: 2px; }
+.price-change.red, .premium-rate.red { color: var(--down); }
+.price-change.green, .premium-rate.green { color: var(--up); }
+.premium-rate { display: block; font-weight: 700; font-size: 0.9rem; }
+.premium-rate.red { color: var(--down); }
+.premium-rate.green { color: var(--up); }
+
+/* ===== Quota Badges ===== */
+.quota-status { display: inline-block; padding: 3px 12px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.2px; }
+.quota-status.open { background: var(--up-bg); color: var(--up); border: 1px solid var(--up-border); }
+.quota-status.limited { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning-border); }
+.quota-status.suspended { background: var(--down-bg); color: var(--down); border: 1px solid var(--down-border); }
+
+/* ===== Zero Change ===== */
+.zero-change { display: inline-block; padding: 3px 12px; border-radius: 12px; background: rgba(100,116,139,0.08); color: var(--text-muted); border: 1px solid rgba(100,116,139,0.15); font-weight: 500; font-size: 0.78rem; }
+
+/* ===== Loading ===== */
+.loading { display: flex; align-items: center; justify-content: center; padding: 60px 20px; color: var(--text-muted); font-size: 0.9rem; font-weight: 500; gap: 14px; }
+.loading::after { content: ''; width: 20px; height: 20px; border: 2px solid var(--border-color); border-top-color: var(--accent-blue); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===== Footer ===== */
+.footer { margin-top: 0; border-top: 1px solid var(--border-color); background: var(--bg-secondary); }
+.footer-content { max-width: 100%; margin: 0 auto; padding: 16px 24px; display: flex; align-items: center; justify-content: center; text-align: center; }
+.footer-info { font-size: 0.7rem; color: var(--text-muted); line-height: 1.8; }
+
+/* ===== Responsive ===== */
+@media (max-width: 900px) {
+  .sidebar { width: 48px; }
+  .sidebar-logo .logo-text, .sidebar-stat .stat-label, .sidebar-section-title, .filter-tab { display: none; }
+  .sidebar-stat { padding: 6px; }
+  .sidebar-stat .stat-num { font-size: 0.85rem; }
+  .sidebar-logo { justify-content: center; padding: 12px 0; }
+  .sidebar-section { padding: 6px 4px; }
+  .filter-tab { padding: 10px 0; text-align: center; }
+  .filter-tab.active { border-left: 3px solid var(--accent-blue); }
+  .content-area { margin-left: 48px; }
+  .top-bar { padding: 12px 14px 0; }
+  .main-container { padding: 12px 14px 16px; }
+  .fund-table-container { overflow-x: auto; }
+  .fund-table { min-width: 780px; }
+  .fund-table th, .fund-table td { padding: 8px 6px; font-size: 0.72rem; }
 }
 
-@media (max-width: 768px) {
-  .nav-container {
-    flex-direction: row;
-    height: 70px;
-    padding: 0;
-    gap: 1rem;
-  }
-  
-  .main-container {
-    padding: 0 0.25rem;
-  }
-  
-  .header {
-    padding: 0 0.25rem;
-  }
-  
-  .filter-tabs {
-    flex-wrap: wrap;
-    gap: 0.25rem;
-  }
-  
-  .filter-tab {
-    padding: 0.3rem 0.6rem;
-    font-size: 0.7rem;
-  }
-  
-
-  
-  .fund-table tr {
-    height: 50px;
-    overflow: hidden;
-  }
-  
-  .fund-table th {
-    padding: 0.3rem;
-    font-size: 0.7rem;
-    white-space: normal;
-    word-wrap: break-word;
-    height: auto;
-    min-height: 50px;
-    box-sizing: border-box;
-  }
-  
-  .fund-table td {
-    padding: 0.3rem;
-    font-size: 0.7rem;
-    height: 50px;
-    box-sizing: border-box;
-  }
-  
-  .fund-name {
-    font-size: 0.55rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
-  }
-  
-  .fund-code {
-    font-size: 0.45rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
-  }
-  
-  /* 手机版代码列样式 */
-  .code-cell {
-    max-width: 100%;
-    overflow: hidden;
-  }
-  
-
-  
-  .footer {
-    padding: 1rem;
-  }
-  
-  .footer-info {
-    font-size: 0.75rem;
-  }
-  
-  /* 手机版表格宽度适配 */
-  .mobile-table {
-    width: 100%;
-    table-layout: fixed;
-    border-collapse: collapse;
-  }
-  
-  .mobile-table th {
-    white-space: normal;
-    word-wrap: break-word;
-    padding: 0.2rem;
-    vertical-align: middle;
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-    border-left: none;
-    border-right: none;
-  }
-  
-  .mobile-table td {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    padding: 0.2rem;
-    vertical-align: bottom;
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-    border-left: none;
-    border-right: none;
-  }
-  
-  /* 调整各列宽度，确保完整显示内容 */
-  .mobile-table th:nth-child(1),
-  .mobile-table td:nth-child(1) {
-    width: 35%;
-  }
-  
-  .mobile-table th:nth-child(2),
-  .mobile-table td:nth-child(2) {
-    width: 20%;
-  }
-  
-  .mobile-table th:nth-child(3),
-  .mobile-table td:nth-child(3) {
-    width: 25%;
-  }
-  
-  .mobile-table th:nth-child(4),
-  .mobile-table td:nth-child(4) {
-    width: 20%;
-  }
-  
-  /* 统一手机版字体 */
-  .mobile-table th,
-  .mobile-table td {
-    font-size: 0.7rem;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  }
-  
-  /* 优化代码列布局 */
-  .mobile-table .code-cell {
-    display: table-cell;
-    vertical-align: bottom;
-    padding: 0.2rem;
-    height: 100%;
-    box-sizing: border-box;
-  }
-  
-  .mobile-table .code-cell .fund-name,
-  .mobile-table .code-cell .fund-code {
-    display: block;
-    width: 100%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    text-align: center;
-    margin: 0;
-    padding: 0;
-    line-height: 1.2;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  }
-  
-  .mobile-table .code-cell .fund-name {
-    font-weight: 500;
-    color: var(--dark);
-    font-size: 0.7rem;
-  }
-  
-  .mobile-table .code-cell .fund-code {
-    font-size: 0.65rem;
-    color: var(--gray);
-  }
-  
-  .mobile-table .price-change {
-    font-size: 0.65rem;
-    line-height: 1.1;
-    margin-top: 0.2rem;
-  }
-  
-  .mobile-table .premium-rate {
-    font-size: 0.65rem;
-  }
-  
-  .mobile-table td:nth-child(3) div {
-    font-size: 0.65rem;
-    margin-top: 0.2rem;
-  }
+@media (max-width: 680px) {
+  .sidebar { width: 44px; }
+  .content-area { margin-left: 44px; }
+  .top-bar { padding: 10px 10px 0; }
+  .main-container { padding: 10px 10px 12px; }
+  .fund-table th, .fund-table td { padding: 8px 5px; font-size: 0.7rem; }
+  .generate-time { font-size: 0.65rem; padding: 4px 8px; }
 }
 
 @media (max-width: 480px) {
-  .filter-tab {
-    padding: 0.3rem 0.6rem;
-    font-size: 0.7rem;
-  }
-  
-  .fund-table th,
-  .fund-table td {
-    padding: 0.4rem;
-    font-size: 0.65rem;
-  }
-  
-  .logo {
-    font-size: 1.1rem;
-  }
+  .fund-table th, .fund-table td { padding: 6px 4px; font-size: 0.65rem; }
 }
 </style>
 </head>
 <body>
 
-<!-- 顶部导航栏 -->
-<header class="header" id="mainHeader">
-  <div class="nav-container">
-    <div class="logo">
-      <span>LOF</span>基金监控
-    </div>
-    <div class="version-toggle">
-      <button class="active">电脑版</button>
-    </div>
-    <div id="generate-time" class="generate-time">
-      数据生成时间: 加载中...
-    </div>
+<div class="app-layout">
 
-  </div>
-</header>
-
-<!-- 主容器 -->
-<main class="main-container">
-  <!-- 标签切换 -->
-  <div class="filter-tabs">
-    <button class="filter-tab active" onclick="setFilter('all')">全部</button>
-    <button class="filter-tab" onclick="setFilter('arbitrage')">仅套利</button>
-    <button class="filter-tab" onclick="setFilter('premium')">溢价</button>
-    <button class="filter-tab" onclick="setFilter('discount')">折价</button>
-    <button class="filter-tab active" onclick="setCategory('all')">全类别</button>
-    <button class="filter-tab" onclick="setCategory('us')">美股</button>
-    <button class="filter-tab" onclick="setCategory('hk')">港股</button>
-    <button class="filter-tab" onclick="setCategory('cm')">商品</button>
-    <button class="filter-tab" onclick="setCategory('cn')">A股</button>
+<!-- ===== Left Sidebar ===== -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">LF</div>
+    <div class="logo-text"><span>LOF</span> Monitor</div>
   </div>
 
-  <!-- 基金表格 -->
-  <div class="fund-table-container">
-    <table class="fund-table desktop-table">
-      <thead>
-        <tr>
-          <th onclick="sortTable('index')">序号</th>
-          <th onclick="sortTable('code')">代码</th>
-          <th onclick="sortTable('price')">场内价格</th>
-          <th onclick="sortTable('nav')">预估净值</th>
-          <th onclick="sortTable('officialNav')">净值（T-1）</th>
-          <th onclick="sortTable('premium')" class="sorted">溢价率</th>
-          <th>基金参考指数</th>
-          <th>参考指数涨跌幅</th>
-          <th onclick="sortTable('quota')">申购限额</th>
-        </tr>
-      </thead>
-      <tbody id="fundTableBodyDesktop">
-        <tr>
-          <td colspan="9" class="loading">加载中...</td>
-        </tr>
-      </tbody>
-    </table>
-
-  </div>
-</main>
-
-<!-- 页脚 -->
-<footer class="footer">
-  <div class="footer-content">
-    <div class="footer-info">
-      <p>LOF基金监控工具</p>
-      <p>数据来源：腾讯财经、天天基金、东方财富</p>
-      <p>© 2026 LOF基金监控 | 版本：Beta</p>
+  <div class="sidebar-stats">
+    <div class="sidebar-stat" onclick="setFilter('all')">
+      <div class="stat-num neutral" id="statTotal">-</div>
+      <div class="stat-label">全部</div>
+    </div>
+    <div class="sidebar-stat" onclick="setFilter('premium')">
+      <div class="stat-num up" id="statPremium">-</div>
+      <div class="stat-label">溢价</div>
+    </div>
+    <div class="sidebar-stat" onclick="setFilter('discount')">
+      <div class="stat-num down" id="statDiscount">-</div>
+      <div class="stat-label">折价</div>
+    </div>
+    <div class="sidebar-stat" onclick="setFilter('arbitrage')">
+      <div class="stat-num accent" id="statArbitrage">-</div>
+      <div class="stat-label">套利</div>
     </div>
   </div>
-</footer>
+
+  <hr class="sidebar-divider">
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">类型筛选</div>
+    <div class="sidebar-nav-group">
+      <button class="filter-tab active" onclick="setFilter('all')">全部</button>
+      <button class="filter-tab" onclick="setFilter('arbitrage')">套利机会</button>
+      <button class="filter-tab" onclick="setFilter('premium')">溢价基金</button>
+      <button class="filter-tab" onclick="setFilter('discount')">折价基金</button>
+    </div>
+  </div>
+
+  <hr class="sidebar-divider">
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">类别筛选</div>
+    <div class="sidebar-nav-group">
+      <button class="filter-tab active" onclick="setCategory('all')">全类别</button>
+      <button class="filter-tab" onclick="setCategory('us')">美股</button>
+      <button class="filter-tab" onclick="setCategory('hk')">港股</button>
+      <button class="filter-tab" onclick="setCategory('cm')">商品</button>
+      <button class="filter-tab" onclick="setCategory('cn')">A股</button>
+    </div>
+  </div>
+</aside>
+
+<!-- ===== Right Content ===== -->
+<div class="content-area">
+
+  <div class="top-bar">
+    <div id="generate-time" class="generate-time">数据加载中...</div>
+  </div>
+
+  <main class="main-container">
+    <div class="fund-table-container">
+      <table class="fund-table desktop-table">
+        <thead>
+          <tr>
+            <th onclick="sortTable('index')">#</th>
+            <th onclick="sortTable('code')">代码</th>
+            <th onclick="sortTable('price')">场内价格</th>
+            <th onclick="sortTable('nav')">预估净值</th>
+            <th onclick="sortTable('officialNav')">T-1净值</th>
+            <th onclick="sortTable('premium')" class="sorted">溢价率</th>
+            <th>基金参考指数</th>
+            <th>指数涨跌幅</th>
+            <th onclick="sortTable('quota')">申购限额</th>
+          </tr>
+        </thead>
+        <tbody id="fundTableBodyDesktop">
+          <tr>
+            <td colspan="9" class="loading">加载中...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-info">
+        LOF Monitor · 实时溢价监控 · 数据来源：腾讯财经 · 天天基金 · 东方财富 · &copy; 2026
+      </div>
+    </div>
+  </footer>
+
+</div>
+</div>
 
 <script>
 let FUNDS = [];
@@ -1106,7 +482,10 @@ let ALL_TQ_CODES = [];
 
 async function loadFundsData() {
   try {
-    const response = await fetch('https://raw.githubusercontent.com/Angry-Dingo/Angry-Dingo.github.io/main/data/funds.json?' + Date.now());
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+    const response = await fetch('./data/funds.json?' + Date.now(), { signal: controller.signal });
+    clearTimeout(timeout);
     const data = await response.json();
     
     FUNDS = data.funds || [];
@@ -1185,6 +564,7 @@ let indexData = {};
 let indexTimes = {}; // 指数时间信息
 let navLoaded = false;
 let dataTimestamp = new Date(); // 数据时间戳
+let isRefreshing = false; // 刷新锁，防止并发
 
 // DOM 元素
 const fundTableBodyDesktop = document.getElementById('fundTableBodyDesktop');
@@ -1223,10 +603,12 @@ function init() {
 // 处理滚动效果
 function handleScroll() {
   const header = document.getElementById('mainHeader');
-  if (window.scrollY > 50) {
-    header.classList.add('scrolled');
-  } else {
-    header.classList.remove('scrolled');
+  if (header) {
+    if (window.scrollY > 50) {
+      header.classList.add('scrolled');
+    } else {
+      header.classList.remove('scrolled');
+    }
   }
 }
 
@@ -1697,40 +1079,49 @@ async function loadNavs() {
   navLoaded = true;
 }
 
-// 东方财富push2 — 用于腾讯qt不支持的指数（中证港股通高股息等）
+// 通过 JSONP script 标签获取东方财富指数数据（浏览器端 fetch 被 CORS 拦截，JSONP 可绕过）
 function fetchEastmoney() {
   const EM_CODES = {
-    'csi930917': '2.930917',  // 中证沪港深高股息指数 CSI930917（501307银河高股息，含A+H两市100只高股息）
-    'csi930914': '2.930914',  // 中证港股通高股息投资指数 CSI930914（501305/501306港股高股息，30只港股通高息股）
-    'csi930792': '2.930792',  // 中证港股通香港银行指数 CSI930792（501025香港银行，含汇丰/工行/建行/中行）
+    'csi930917': '2.930917',  // 中证沪港深高股息指数 CSI930917（501307银河高股息）
+    'csi930914': '2.930914',  // 中证港股通高股息投资指数 CSI930914（501305/501306）
+    'csi930792': '2.930792',  // 中证港股通香港银行指数 CSI930792（501025香港银行）
     'sh000985':  '1.000985',  // 中证综合债券指数（501312海外科技LOF业绩基准10%分量）
-    'sh000066':  '1.000066',  // 上证大宗商品股票指数（161715招商中证大宗商品股票指数基金基准，更及时更新）
-    'sh000945':  '1.000945',  // 中证上游资源产业指数（161217国投瑞银中证上游资源产业指数基金基准）
+    'sh000066':  '1.000066',  // 上证大宗商品股票指数（161715招商中证大宗商品）
+    'sh000945':  '1.000945',  // 中证上游资源产业指数（161217国投瑞银上游资源）
+    'hkHSMI':    '124.HSMI',  // 恒生综合中型股指数（501303恒生中型股LOF）
+    'hkHSSI':    '124.HSSI',  // 恒生综合小型股指数（161124港股小盘LOF）
+    'hkHSCI':    '124.HSCI',  // 恒生综合指数（160322港股精选LOF）
+    'hkHSI':     '124.HSI',   // 恒生指数（hkHSMI/hkHSSI/hkHSCI降级后备）
+    'nf_AG0':    '113.agm',   // 沪银主连（上期所market=113，注意前一次用8.AG888是错误代码）
   };
-  return Promise.all(Object.entries(EM_CODES).map(([key, secid]) =>
-    fetch(`https://push2.eastmoney.com/api/qt/stock/get?secid=${secid}&fields=f43,f169,f170,f3,f14&_=${Date.now()}`)
-      .then(r => r.json())
-      .then(d => {
-        if (d.data && d.data.f43 > 0) {
-          const chg = (d.data.f170 || 0) / 100;
-          const time = d.data.f14 || ''; // 获取时间信息
-          return [key, chg, time];
+  const prefix = '_em_' + Date.now();
+  let pending = Object.keys(EM_CODES).length;
+  const out = {};
+  const times = {};
+  return new Promise(resolve => {
+    Object.entries(EM_CODES).forEach(([key, secid]) => {
+      const cb = prefix + '_' + key;
+      const timer = setTimeout(() => {
+        if (window[cb]) { delete window[cb]; pending--; if (pending <= 0) resolve({ data: out, times }); }
+      }, 8000);
+      window[cb] = function(d) {
+        clearTimeout(timer);
+        delete window[cb];
+        if (d && d.data) {
+          // f3=涨跌幅百分比（如-0.02表示-0.02%），f170=涨跌点数（需除以100）
+          const chg = d.data.f3 !== undefined ? d.data.f3 : ((d.data.f170 || 0) / (d.data.f43 || 100) * 100);
+          const time = d.data.f14 || '';
+          out[key] = chg;
+          times[key] = time;
         }
-        return null;
-      })
-      .catch(e => {
-        return null;
-      })
-  )).then(results => {
-    const out = {};
-    const times = {};
-    results.forEach(r => {
-      if (r) {
-        out[r[0]] = r[1];
-        times[r[0]] = r[2] || '';
-      }
+        pending--;
+        if (pending <= 0) resolve({ data: out, times });
+      };
+      const s = document.createElement('script');
+      s.src = `https://push2.eastmoney.com/api/qt/stock/get?secid=${secid}&fields=f43,f169,f170,f3,f14&cb=${cb}&_=${Date.now()}`;
+      s.onerror = function() { clearTimeout(timer); if (window[cb]) delete window[cb]; pending--; if (pending <= 0) resolve({ data: out, times }); };
+      document.head.appendChild(s);
     });
-    return { data: out, times: times };
   });
 }
 
@@ -1818,16 +1209,41 @@ function fetchTencentData() {
   });
 }
 
+// 通过 Pages Function 服务端代理获取沪银主连期货数据
+// 浏览器端直接获取期货Data受CORS/Referer限制，服务端无此限制
+async function fetchFuturesFromProxy() {
+  try {
+    const res = await fetch('/api/futures?_=' + Date.now(), { cache: 'no-cache' });
+    if (res.ok) {
+      const data = await res.json();
+      console.log('[期货代理] 响应:', JSON.stringify(data));
+      if (data && data.nf_AG0 !== null && data.nf_AG0 !== undefined) {
+        return { nf_AG0: data.nf_AG0 };
+      }
+      console.warn('[期货代理] 返回null，数据源:', data.source, data.raw_text ? '原始片段:' + data.raw_text.substring(0,100) : '');
+    } else {
+      console.warn('[期货代理] HTTP错误:', res.status);
+    }
+  } catch (e) {
+    console.log('[期货代理] 请求失败:', e);
+  }
+  return {};
+}
+
 // 刷新数据
 async function refreshData() {
+  // 刷新锁，防止并发调用
+  if (isRefreshing) return;
+  isRefreshing = true;
+  
   // 更新数据时间戳
   dataTimestamp = new Date();
   
-  // 每次刷新都重新加载净值数据，确保数据是最新的
-  await loadNavs();
+  // 净值加载不阻塞市场数据获取，后台异步运行
+  const navPromise = loadNavs().catch(e => console.log('净值加载异常:', e));
   
-  // 并行获取腾讯财经和东方财富数据
-  const [tencentData, emResult] = await Promise.all([fetchTencentData(), fetchEastmoney()]);
+  // 并行获取腾讯财经、东方财富（JSONP）和期货代理数据
+  const [tencentData, emResult, futuresResult] = await Promise.all([fetchTencentData(), fetchEastmoney(), fetchFuturesFromProxy()]);
   const emIdx = emResult.data;
   const emTimes = emResult.times;
   
@@ -1839,7 +1255,10 @@ async function refreshData() {
     indexTimes[code] = d.time || '';
   });
   Object.entries(emIdx).forEach(([code, chg]) => {
-    indexData[code] = chg;
+    // 仅当东财返回有效涨跌幅时才覆盖腾讯数据（非交易时段东财可能返回null）
+    if (chg != null) {
+      indexData[code] = chg;
+    }
     if (emTimes[code]) {
       // 处理东方财富返回的时间格式
       indexTimes[code] = emTimes[code];
@@ -1853,6 +1272,18 @@ async function refreshData() {
       const minute = String(now.getMinutes()).padStart(2, '0');
       indexTimes[code] = `${year}-${month}-${day} ${hour}:${minute}`;
     }
+  });
+  
+  // 合并期货代理数据（nf_AG0沪银主连）
+  Object.entries(futuresResult).forEach(([code, chg]) => {
+    indexData[code] = chg;
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hour = String(now.getHours()).padStart(2, '0');
+    const minute = String(now.getMinutes()).padStart(2, '0');
+    indexTimes[code] = `${year}-${month}-${day} ${hour}:${minute}`;
   });
   
   // 为所有基准指数设置默认时间信息，确保即使获取不到数据也能显示时间
@@ -1895,6 +1326,12 @@ async function refreshData() {
       indexData['hkHSCI'] = indexData['hkHSI'];
     }
   }
+  // hkHSSI降级：恒生综合小型股指数（161124基准），腾讯不支持此代码，回落到hkHSI近似
+  if (indexData['hkHSSI'] == null || indexData['hkHSSI'] === 0) {
+    if (indexData['hkHSI'] != null) {
+      indexData['hkHSSI'] = indexData['hkHSI'];
+    }
+  }
   
   // 更新基金数据
   fundData.forEach(fund => {
@@ -1932,11 +1369,40 @@ async function refreshData() {
     }
   });
   
-  // 渲染表格
+  // 立即渲染表格（市场数据已到，净值数据后台加载中）
   renderTable();
-  
-  // 更新生成时间
   updateGenerateTime();
+  
+  // 等待净值数据加载完成（最多15秒），然后重新渲染
+  Promise.race([
+    navPromise,
+    new Promise(r => setTimeout(r, 15000))
+  ]).then(() => {
+    // 净值数据就绪后重新计算溢价率并渲染
+    fundData.forEach(fund => {
+      const marketData = fund.price ? { price: fund.price, prevClose: fund.prevClose } : null;
+      if (marketData) {
+        const baseNav = fund.officialNav || fund.prevClose;
+        const benchDef = BENCH[fund.code];
+        let benchChgPct = 0;
+        if (Array.isArray(benchDef)) {
+          let totalW = 0;
+          benchDef.forEach(b => { const chg = indexData[b.tq] || 0; benchChgPct += chg * b.w; totalW += b.w; });
+          if (totalW > 0) benchChgPct /= totalW;
+        } else if (benchDef) { benchChgPct = indexData[benchDef] || 0; }
+        if (baseNav > 0) {
+          fund.nav = baseNav * (1 + benchChgPct / 100);
+          fund.navChange = benchChgPct;
+          fund.premium = (fund.price - fund.nav) / fund.nav * 100;
+        }
+      }
+    });
+    renderTable();
+    updateGenerateTime();
+  });
+  
+  // 解锁刷新锁（市场数据渲染完成即解锁）
+  isRefreshing = false;
 }
 
 // 更新生成时间
@@ -1983,9 +1449,14 @@ function renderTable() {
   const threshold = 2; // 固定套利阈值为2%
   switch (currentFilter) {
     case 'arbitrage':
-      filteredData = filteredData.filter(fund => 
-        fund.premium !== null && Math.abs(fund.premium) >= threshold && fund.quota !== '暂停'
-      );
+      filteredData = filteredData.filter(fund => {
+        if (fund.premium === null) return false;
+        // 溢价≥2%且未暂停申购
+        if (fund.premium >= threshold && fund.quota !== '暂停') return true;
+        // 折价≥2% 任何基金都算套利机会
+        if (fund.premium <= -threshold) return true;
+        return false;
+      });
       break;
     case 'premium':
       filteredData = filteredData.filter(fund => 
@@ -2051,6 +1522,30 @@ function renderTable() {
   
   // 渲染电脑版表格
   renderDesktopTable(desktopSortedData);
+  
+  // 更新统计栏
+  updateStats();
+}
+
+// 更新顶部统计栏
+function updateStats() {
+  const total = fundData.length;
+  const premiumCount = fundData.filter(f => f.premium !== null && f.premium > 0).length;
+  const discountCount = fundData.filter(f => f.premium !== null && f.premium < 0).length;
+  const arbitrageCount = fundData.filter(f => {
+    if (f.premium === null) return false;
+    // 溢价≥2%且未暂停申购
+    if (f.premium >= 2 && f.quota !== '暂停') return true;
+    // 折价≥2% 任何基金都算套利机会
+    if (f.premium <= -2) return true;
+    return false;
+  }).length;
+  
+  const el = id => document.getElementById(id);
+  if (el('statTotal')) el('statTotal').textContent = total;
+  if (el('statPremium')) el('statPremium').textContent = premiumCount;
+  if (el('statDiscount')) el('statDiscount').textContent = discountCount;
+  if (el('statArbitrage')) el('statArbitrage').textContent = arbitrageCount;
 }
 
 // 渲染电脑版表格
@@ -2136,26 +1631,29 @@ function renderDesktopTable(sortedData) {
             let changeText = '-';
             let timeStr = '';
             let isZeroChange = false;
+            let changeValue = 0;
             if (Array.isArray(benchDef)) {
               let totalW = 0;
               let benchChgPct = 0;
-              let mainIndex = benchDef[0].tq; // 选择第一个指数作为主要指数
+              let mainIndex = benchDef[0].tq;
               benchDef.forEach(b => {
                 const chg = indexData[b.tq] || 0;
                 benchChgPct += chg * b.w;
                 totalW += b.w;
               });
               if (totalW > 0) benchChgPct /= totalW;
+              changeValue = benchChgPct;
               isZeroChange = benchChgPct === 0;
               changeText = `${benchChgPct >= 0 ? '+' : ''}${benchChgPct.toFixed(2)}%`;
               timeStr = indexTimes[mainIndex] || '';
             } else if (benchDef) {
               const chg = indexData[benchDef] || 0;
+              changeValue = chg;
               isZeroChange = chg === 0;
               changeText = `${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%`;
               timeStr = indexTimes[benchDef] || '';
             }
-            const changeClass = isZeroChange ? 'zero-change' : '';
+            const changeClass = changeValue > 0 ? 'price-change red' : changeValue < 0 ? 'price-change green' : 'zero-change';
             return `<div class="${changeClass}">${changeText}${timeStr ? `<div style="font-size: 0.65rem; color: var(--gray); margin-top: 0.2rem;">${timeStr}</div>` : ''}</div>`;
           })()}
         </td>
