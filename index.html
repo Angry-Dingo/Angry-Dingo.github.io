@@ -1823,9 +1823,14 @@ function closeNavChart() {
   currentChartFund = null;
 }
 
-// 点击遮罩层关闭
-document.getElementById('navChartModal').addEventListener('click', function(e) {
-  if (e.target === this) closeNavChart();
+// 点击遮罩层关闭（延迟绑定，确保DOM已渲染）
+window.addEventListener('DOMContentLoaded', function() {
+  const modal = document.getElementById('navChartModal');
+  if (modal) {
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) closeNavChart();
+    });
+  }
 });
 
 // 按 ESC 键关闭
