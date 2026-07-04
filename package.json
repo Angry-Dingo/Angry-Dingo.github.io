@@ -1,13 +1,12 @@
 {
-  "name": "lof-fund-monitor",
+  "name": "lof-monitor",
   "version": "1.0.0",
-  "description": "LOF基金溢价率监控工具",
-  "type": "module",
-  "main": "monitor.js",
+  "private": true,
+  "description": "LOF Smart Monitor",
   "scripts": {
-    "start": "node monitor.js"
+    "test": "node monitor.js"
   },
   "dependencies": {
-    "node-fetch": "^3.3.2"
+    "@anthropic-ai/sdk": "^0.20.0"
   }
 }

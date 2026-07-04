@@ -1,22 +1,27 @@
 name = "lof-smart-monitor"
 main = "lof-smart-monitor-worker.js"
-compatibility_date = "2026-06-02"
-compatibility_flags = ["nodejs_compat"]
+compatibility_date = "2026-04-01"
 
-[observability]
-enabled = true
+[site]
+bucket = "./public"
+
+[env.production]
+
+[env.preview]
 
 [[kv_namespaces]]
-binding = "FUNDS_KV"
-id = "0d6d2904a8aa4a859e91292d1fd9f1e2"
+ binding = "FUNDS_KV"
+ id = ""
 
-# Cron triggers (由代码按北京时间判断工作日，cron只设UTC时间):
-# - 溢价监控: */5 * * * * (每5分钟，代码isTrading判断)
-# - 申购状态同步 7:00: 0 23 * * * (UTC 23:00 = 北京时间 7:00)
-# - 申购状态同步 20:00: 0 12 * * * (UTC 12:00 = 北京时间 20:00)
-#
-# GitHub Actions 数据更新:
-# - 4:00 (UTC 20:00 周日~周四) 和 20:00 (UTC 12:00 周一~周五)
+[triggers]
+crons = ["30 4 * * 1-5", "30 8 * * 1-5"]
 
-# 敏感变量（通过 wrangler secret 设置）
-# FEISHU_WEBHOOK: 飞书Webhook地址
+[vars]
+FEISHU_WEBHOOK_URL = ""
+BN_KEY = ""
+BN_SECRET = ""
+BN_CERT = ""
+
+[[migrations]]
+tag = "v1"
+new_classes = ["LOFMonitor"]
