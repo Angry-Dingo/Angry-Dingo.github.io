@@ -64,6 +64,23 @@ export default {
       });
     }
 
+    // 净值历史数据API：浏览器端通过此端点获取基金的历史预估净值和实际净值
+    if (url.pathname.startsWith('/api/nav-history/')) {
+      const fundCode = url.pathname.split('/').pop();
+      if (!fundCode) {
+        return new Response(JSON.stringify({ error: '缺少基金代码' }), {
+          status: 400, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+        });
+      }
+      const key = `nav_hist:${fundCode}`;
+      const data = await env.FUNDS_KV?.get(key, 'json') || [];
+      // 取最近15天，按日期升序排列
+      const hist = data.slice(-15).sort((a, b) => a.date.localeCompare(b.date));
+      return new Response(JSON.stringify(hist), {
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+      });
+    }
+
     // 期货数据代理：浏览器端通过此端点获取沪银主连数据（服务端无CORS/Referer限制）
     if (url.pathname === '/api/futures') {
       return await handleFuturesProxy();
@@ -226,6 +243,26 @@ async function syncDataFromGitHub(env) {
     if (env.FUNDS_KV) {
       await env.FUNDS_KV.put('funds', JSON.stringify(fundsData, null, 2));
       console.log('[LOG] KV 存储成功');
+
+      // 回填实际净值：根据 navDate 匹配记录
+      let backfillCount = 0;
+      for (const fund of fundsData.funds) {
+        if (fund.officialNav && fund.navDate) {
+          const histKey = `nav_hist:${fund.code}`;
+          const existing = await env.FUNDS_KV.get(histKey, 'json') || [];
+          const idx = existing.findIndex(r => r.date === fund.navDate);
+          if (idx >= 0 && (existing[idx].actualNav === null || existing[idx].actualNav === undefined)) {
+            existing[idx].actualNav = fund.officialNav;
+            // 保留最近30天
+            const sorted = existing.sort((a, b) => b.date.localeCompare(a.date)).slice(0, 30);
+            await env.FUNDS_KV.put(histKey, JSON.stringify(sorted));
+            backfillCount++;
+          }
+        }
+      }
+      if (backfillCount > 0) {
+        console.log(`[LOG] 回填 ${backfillCount} 条实际净值记录`);
+      }
     }
 
     await sendQuotaUpdateAlert(env, fundsData.funds.length, changes);
@@ -375,8 +412,60 @@ async function smartMonitor(env, isTestMode = false) {
         console.log('[LOG] 动态提醒时间但无符合条件的基金，不发送');
       }
     }
+
+    // 北京时间 15:00~15:05（收盘时刻），保存每日净值快照
+    if (h === 15 && m >= 0 && m <= 5 && !isTestMode) {
+      console.log('[LOG] 收盘时间，保存净值快照');
+      await saveDailySnapshot(env, fundMarketData, indexData, fundsData);
+    }
   } catch (e) {
     console.error('[ERROR] 监控失败:', e);
+  }
+}
+
+// ==================== 每日净值快照 ====================
+// 收盘时保存每只基金的预估净值，后续由 syncDataFromGitHub 回填实际净值
+async function saveDailySnapshot(env, fundMarketData, indexData, fundsData) {
+  try {
+    const beijingDate = new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10);
+    let savedCount = 0;
+
+    for (const fund of fundsData.funds) {
+      const mi = fundMarketData[fund.tq];
+      if (!mi) continue;
+      const baseNav = fund.officialNav || mi.prevClose;
+      if (!baseNav) continue;
+      const benchChg = fund.benchmark ? calculateBenchChgPct(fund.benchmark, indexData) : 0;
+      const estNav = baseNav * (1 + benchChg / 100);
+      if (estNav <= 0) continue;
+
+      const record = {
+        date: beijingDate,
+        estNav: parseFloat(estNav.toFixed(4)),
+        actualNav: fund.officialNav || null
+      };
+
+      const histKey = `nav_hist:${fund.code}`;
+      const existing = await env.FUNDS_KV?.get(histKey, 'json') || [];
+      const todayIdx = existing.findIndex(r => r.date === beijingDate);
+      if (todayIdx >= 0) {
+        // 更新当日记录（保留已回填的 actualNav）
+        if (existing[todayIdx].actualNav !== null && existing[todayIdx].actualNav !== undefined) {
+          record.actualNav = existing[todayIdx].actualNav;
+        }
+        existing[todayIdx] = record;
+      } else {
+        existing.push(record);
+      }
+      // 保留最近30天
+      const sorted = existing.sort((a, b) => b.date.localeCompare(a.date)).slice(0, 30);
+      await env.FUNDS_KV?.put(histKey, JSON.stringify(sorted));
+      savedCount++;
+    }
+
+    console.log(`[LOG] 净值快照保存完成: ${savedCount} 只基金, 日期: ${beijingDate}`);
+  } catch (e) {
+    console.error('[ERROR] 保存净值快照失败:', e.message);
   }
 }
 

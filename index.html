@@ -299,6 +299,7 @@ body {
 }
 
 .fund-table tr:last-child td { border-bottom: none; }
+.fund-table tr { cursor: pointer; }
 .fund-table tr:hover td { background: rgba(59,130,246,0.04); }
 
 .fund-table th:nth-child(1), .fund-table td:nth-child(1) { width: 44px; min-width: 44px; }
@@ -372,6 +373,109 @@ body {
 
 @media (max-width: 480px) {
   .fund-table th, .fund-table td { padding: 6px 4px; font-size: 0.65rem; }
+}
+/* ===== 净值曲线模态窗口 ===== */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.65);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+.modal-overlay.active { display: flex; }
+.modal-box {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  width: 90vw;
+  max-width: 780px;
+  max-height: 85vh;
+  padding: 24px 28px 20px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.modal-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.modal-title .modal-code {
+  color: var(--accent-blue);
+  font-weight: 600;
+}
+.modal-close {
+  width: 32px; height: 32px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+.modal-close:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+.modal-body {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+.modal-body canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.modal-legend {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 12px;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+.modal-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.modal-legend-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.modal-legend-dot.est { background: var(--accent-blue); }
+.modal-legend-dot.actual { background: #f59e0b; }
+.modal-loading {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 60px 0;
+  font-size: 0.85rem;
+}
+.modal-no-data {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 60px 0;
+  font-size: 0.85rem;
+}
+.modal-nav-note {
+  text-align: center;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  margin-top: 6px;
 }
 </style>
 </head>
@@ -1582,7 +1686,7 @@ function renderDesktopTable(sortedData) {
     const categoryName = categoryMap[fund.category] || fund.category;
     
     return `
-      <tr>
+      <tr onclick="openNavChart('${fund.code}')">
         <td style="font-weight: 600;">${index + 1}</td>
         <td>
           <div class="code-cell">
@@ -1669,6 +1773,196 @@ function renderDesktopTable(sortedData) {
 
 
 
+// ==================== 净值曲线图 ====================
+let currentChartFund = null;
+
+// 打开净值曲线模态窗口
+async function openNavChart(code) {
+  const fund = FUNDS.find(f => f.code === code);
+  if (!fund) return;
+  currentChartFund = code;
+  document.getElementById('modalFundName').textContent = fund.name;
+  document.getElementById('modalFundCode').textContent = code;
+  document.getElementById('modalLoading').style.display = 'block';
+  document.getElementById('navChartCanvas').style.display = 'none';
+  document.getElementById('modalLegend').style.display = 'none';
+  document.getElementById('navChartModal').classList.add('active');
+
+  try {
+    // 从 Worker API 获取历史数据
+    const historyUrl = '/api/nav-history/' + code;
+    const res = await fetch(historyUrl);
+    const data = await res.json();
+    document.getElementById('modalLoading').style.display = 'none';
+
+    if (!data || data.length === 0) {
+      document.getElementById('modalBody').innerHTML = '<div class="modal-no-data">暂无净值历史数据，收盘后自动记录</div>';
+      document.getElementById('modalLegend').style.display = 'none';
+      document.getElementById('modalNote').style.display = 'none';
+      return;
+    }
+
+    // 恢复模态窗口内容
+    document.getElementById('modalBody').innerHTML = '<canvas id="navChartCanvas"></canvas>';
+    document.getElementById('modalLegend').style.display = 'flex';
+    document.getElementById('modalNote').style.display = 'block';
+    const canvas = document.getElementById('navChartCanvas');
+    canvas.style.display = 'block';
+
+    // 等 DOM 更新后绘制
+    requestAnimationFrame(() => drawNavChart(canvas, data, fund.name));
+  } catch (e) {
+    document.getElementById('modalLoading').textContent = '加载失败: ' + e.message;
+    console.error('[ERROR] 加载净值历史:', e);
+  }
+}
+
+// 关闭模态窗口
+function closeNavChart() {
+  document.getElementById('navChartModal').classList.remove('active');
+  currentChartFund = null;
+}
+
+// 点击遮罩层关闭
+document.getElementById('navChartModal').addEventListener('click', function(e) {
+  if (e.target === this) closeNavChart();
+});
+
+// 按 ESC 键关闭
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeNavChart();
+});
+
+// 绘制净值曲线图
+function drawNavChart(canvas, data, fundName) {
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const W = rect.width - 20;
+  const H = Math.max(300, rect.height - 10);
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const pad = { top: 30, bottom: 40, left: 55, right: 25 };
+  const chartW = W - pad.left - pad.right;
+  const chartH = H - pad.top - pad.bottom;
+
+  // 提取数据
+  const dates = data.map(d => d.date.slice(5)); // MM-DD
+  const estNavs = data.map(d => d.estNav);
+  const actualNavs = data.map(d => d.actualNav);
+
+  // 计算 Y 轴范围
+  const allVals = [];
+  estNavs.forEach(v => { if (v != null) allVals.push(v); });
+  actualNavs.forEach(v => { if (v != null) allVals.push(v); });
+  if (allVals.length === 0) return;
+
+  let yMin = Math.min(...allVals);
+  let yMax = Math.max(...allVals);
+  const yRange = yMax - yMin;
+  const yPadding = yRange * 0.1 || 0.01;
+  yMin -= yPadding;
+  yMax += yPadding;
+
+  // X/Y 轴映射
+  const xScale = (i) => pad.left + (i / (dates.length - 1 || 1)) * chartW;
+  const yScale = (v) => pad.top + chartH - ((v - yMin) / (yMax - yMin)) * chartH;
+
+  // 清空
+  ctx.clearRect(0, 0, W, H);
+
+  // 背景网格
+  ctx.strokeStyle = 'rgba(148,163,184,0.1)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.top + (i / 4) * chartH;
+    ctx.beginPath();
+    ctx.moveTo(pad.left, y);
+    ctx.lineTo(W - pad.right, y);
+    ctx.stroke();
+  }
+
+  // X 轴标签
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '11px -apple-system, sans-serif';
+  ctx.textAlign = 'center';
+  const labelStep = Math.max(1, Math.floor(dates.length / 7));
+  dates.forEach((d, i) => {
+    if (i % labelStep === 0 || i === dates.length - 1) {
+      ctx.fillText(d, xScale(i), H - pad.bottom + 18);
+    }
+  });
+
+  // Y 轴标签
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.top + (i / 4) * chartH;
+    const val = yMax - (i / 4) * (yMax - yMin);
+    ctx.fillText(val.toFixed(4), pad.left - 8, y);
+  }
+
+  // 绘制预估净值线（蓝色）
+  ctx.strokeStyle = '#3b82f6';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  estNavs.forEach((v, i) => {
+    if (v == null) return;
+    const x = xScale(i);
+    const y = yScale(v);
+    if (i === 0 || estNavs[i - 1] == null) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+
+  // 预估净值数据点
+  ctx.fillStyle = '#3b82f6';
+  estNavs.forEach((v, i) => {
+    if (v == null) return;
+    ctx.beginPath();
+    ctx.arc(xScale(i), yScale(v), 3, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  // 绘制实际净值线（橙色）
+  const hasActual = actualNavs.some(v => v != null);
+  if (hasActual) {
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([5, 4]);
+    ctx.beginPath();
+    actualNavs.forEach((v, i) => {
+      if (v == null) return;
+      const x = xScale(i);
+      const y = yScale(v);
+      if (i === 0 || actualNavs[i - 1] == null) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 实际净值数据点
+    ctx.fillStyle = '#f59e0b';
+    actualNavs.forEach((v, i) => {
+      if (v == null) return;
+      ctx.beginPath();
+      ctx.arc(xScale(i), yScale(v), 3, 0, Math.PI * 2);
+      ctx.fill();
+    });
+  }
+
+  // 图表标题
+  ctx.fillStyle = '#e8ecf4';
+  ctx.font = '13px -apple-system, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  ctx.fillText('近15日净值走势', pad.left, 6);
+}
+
 // 初始化应用
 async function bootstrap() {
   const success = await loadFundsData();
@@ -1681,5 +1975,26 @@ async function bootstrap() {
 
 bootstrap();
 </script>
+
+<!-- 净值曲线模态窗口 -->
+<div class="modal-overlay" id="navChartModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">
+        <span id="modalFundName"></span> <span class="modal-code" id="modalFundCode"></span>
+      </div>
+      <button class="modal-close" onclick="closeNavChart()">&times;</button>
+    </div>
+    <div class="modal-body" id="modalBody">
+      <div class="modal-loading" id="modalLoading">加载净值数据...</div>
+      <canvas id="navChartCanvas" style="display:none;"></canvas>
+    </div>
+    <div class="modal-legend" id="modalLegend" style="display:none;">
+      <div class="modal-legend-item"><span class="modal-legend-dot est"></span>预估净值</div>
+      <div class="modal-legend-item"><span class="modal-legend-dot actual"></span>实际净值</div>
+    </div>
+    <div class="modal-nav-note" id="modalNote">* 预估净值于收盘时计算，实际净值于 T+1 同步后回填</div>
+  </div>
+</div>
 </body>
 </html>
