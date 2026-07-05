@@ -1783,9 +1783,10 @@ async function openNavChart(code) {
   currentChartFund = code;
   document.getElementById('modalFundName').textContent = fund.name;
   document.getElementById('modalFundCode').textContent = code;
-  document.getElementById('modalLoading').style.display = 'block';
-  document.getElementById('navChartCanvas').style.display = 'none';
+  // 重置 modalBody 为初始结构，防止上次 innerHTML 替换导致 canvas 丢失
+  document.getElementById('modalBody').innerHTML = '<div class="modal-loading" id="modalLoading">加载净值数据...</div><canvas id="navChartCanvas" style="display:none"></canvas>';
   document.getElementById('modalLegend').style.display = 'none';
+  document.getElementById('modalNote').style.display = 'block';
   document.getElementById('navChartModal').classList.add('active');
 
   try {
