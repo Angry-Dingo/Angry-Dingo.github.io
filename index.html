@@ -423,15 +423,24 @@ body {
   .fund-table th, .fund-table td { padding: 8px 5px; font-size: 0.7rem; }
   .generate-time { font-size: 0.65rem; padding: 4px 8px; }
 
-  /* 模态窗口全屏化 */
+  /* 模态窗口全屏化：从底部弹出，填满屏幕 */
   .modal-overlay { align-items: flex-end; }
   .modal-box {
     width: 100vw;
     max-width: 100vw;
-    max-height: 92vh;
+    max-height: 100vh;
+    height: auto;
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    padding: 16px 16px 14px;
+    padding: 14px 16px max(10px, env(safe-area-inset-bottom, 0));
   }
+  .modal-body {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    max-height: 55vh;
+  }
+  .modal-body canvas { height: auto; }
+  .modal-legend { margin-top: 8px; flex-shrink: 0; }
+  .modal-nav-note { flex-shrink: 0; }
 }
 
 /* 手机：进一步紧凑 */
@@ -442,8 +451,9 @@ body {
   .fund-table th, .fund-table td { padding: 6px 4px; font-size: 0.65rem; }
   .code-cell .fund-name { font-size: 0.7rem; max-width: 90px; }
   .code-cell .fund-code { font-size: 0.6rem; }
-  .modal-box { padding: 14px 12px 12px; max-height: 90vh; }
-  .modal-header { margin-bottom: 12px; }
+  .modal-box { padding: 10px 10px max(8px, env(safe-area-inset-bottom, 0)); max-height: 100vh; }
+  .modal-body { max-height: 50vh; }
+  .modal-header { margin-bottom: 8px; }
   .modal-title { font-size: 0.95rem; }
   .modal-close { width: 28px; height: 28px; font-size: 1rem; }
   .modal-legend { gap: 12px; font-size: 0.7rem; margin-top: 8px; }
@@ -739,17 +749,17 @@ const Cache = {
 // 全局变量
 let fundData = [];
 let running = false;
-let refreshInterval = 15000; // 默认15秒
+let refreshInterval = 15000;
 let refreshTimer = null;
 let currentFilter = 'all';
 let currentCategory = 'all';
 let sortColumn = 'premium';
 let sortDirection = 'desc';
 let indexData = {};
-let indexTimes = {}; // 指数时间信息
+let indexTimes = {};
 let navLoaded = false;
-let dataTimestamp = new Date(); // 数据时间戳
-let isRefreshing = false; // 刷新锁，防止并发
+let dataTimestamp = new Date();
+let isRefreshing = false;
 
 // DOM 元素
 const fundTableBodyDesktop = document.getElementById('fundTableBodyDesktop');
@@ -757,7 +767,6 @@ const desktopTable = document.querySelector('.desktop-table');
 
 // 初始化
 function init() {
-  // 初始化基金数据
   fundData = FUNDS.map(fund => ({
     ...fund,
     price: null,
@@ -771,21 +780,15 @@ function init() {
     navDate: ''
   }));
   
-  // 渲染空表格
   renderTable();
   
-  // 添加滚动效果
   window.addEventListener('scroll', handleScroll);
   
-
-  
-  // 自动开始监控
   running = true;
   refreshData();
   startRefreshTimer();
 }
 
-// 处理滚动效果
 function handleScroll() {
   const header = document.getElementById('mainHeader');
   if (header) {
@@ -797,22 +800,17 @@ function handleScroll() {
   }
 }
 
-// 设置刷新率
 function setRefreshRate(value) {
   refreshInterval = parseInt(value);
   startRefreshTimer();
   localStorage.setItem('refreshRate', refreshInterval);
 }
 
-
-
-// 开始刷新计时器
 function startRefreshTimer() {
   stopRefreshTimer();
   refreshTimer = setInterval(refreshData, refreshInterval);
 }
 
-// 停止刷新计时器
 function stopRefreshTimer() {
   if (refreshTimer) {
     clearInterval(refreshTimer);
@@ -820,8 +818,6 @@ function stopRefreshTimer() {
   }
 }
 
-// 设置筛选类型
-// 移动端侧边栏开关
 function toggleSidebar(e) {
   if (e) e.stopPropagation();
   const sidebar = document.querySelector('.sidebar');
@@ -840,8 +836,6 @@ function closeSidebar() {
 
 function setFilter(filter) {
   currentFilter = filter;
-
-  // 更新标签状态
   document.querySelectorAll('.filter-tab').forEach(tab => {
     if (tab.onclick.toString().includes(`setFilter('${filter}')`)) {
       tab.classList.add('active');
@@ -849,16 +843,12 @@ function setFilter(filter) {
       tab.classList.remove('active');
     }
   });
-
   renderTable();
-  closeSidebar(); // 移动端选择后自动关闭侧边栏
+  closeSidebar();
 }
 
-// 设置基金类别
 function setCategory(category) {
   currentCategory = category;
-  
-  // 更新标签状态
   document.querySelectorAll('.filter-tab').forEach(tab => {
     if (tab.onclick.toString().includes(`setCategory('${category}')`)) {
       tab.classList.add('active');
@@ -866,32 +856,25 @@ function setCategory(category) {
       tab.classList.remove('active');
     }
   });
-  
   renderTable();
-  closeSidebar(); // 移动端选择后自动关闭侧边栏
+  closeSidebar();
 }
 
-// 降级基金：fundgz接口无实时估值，三接口竞速
 const NO_GSZ_FUNDS = new Set([
-  // 原有：fundgz无实时估值
   '164906','164824','501300','501225','160216','164701','160719','163208','501018','161129','160723','501021','501310','161226',
-  // 新增：fundgz dwjz净值滞后，改用pingzhongdata+lsjz双接口取最新
   '161125','161126','161127','161128','161130','162415','160140','160644',
   '160717','160924','164705','161831','160322','161124',
   '501303','501301','501302','501305','501306','501307','501311','501025',
   '161815','165513','161116',
-  // 新增：石油/油气类净值同样滞后
   '501312','162719','162411','160416',
 ]);
 
-// 时间戳转北京日期字符串（东方财富时间戳是北京时间午夜，UTC会少一天）
 function toBeijingDate(ts) {
   const d = new Date(ts);
-  const offset = 8 * 60 * 60 * 1000; // UTC+8
+  const offset = 8 * 60 * 60 * 1000;
   return new Date(d.getTime() + offset).toISOString().slice(0, 10);
 }
 
-// 接口① pingzhongdata.js —— 东方财富JS文件（允许跨域，第三方广泛使用）
 function fetchNavFromPingzhong(fund) {
   return new Promise(resolve => {
     const cb = 'pzd' + Date.now() + '_' + fund.code;
@@ -903,16 +886,12 @@ function fetchNavFromPingzhong(fund) {
         resolve(null);
       }
     }, 8000);
-    // pingzhongdata 不是jsonp，直接执行JS并赋值全局变量
-    // 需要用script标签加载后读取全局 Data_netWorthTrend
     const s = document.createElement('script');
     s.onload = () => {
       if (done) return;
       done = true;
       clearTimeout(timer);
       try {
-        // 优先读 Data_netWorthTrend（单位净值）
-        // 若y值异常偏大（>50），说明该字段存的不是单位净值，改读 Data_ACWorthTrend
         let nav = null, dt = '';
         const arr = window['Data_netWorthTrend'];
         if (arr && arr.length > 0) {
@@ -923,12 +902,10 @@ function fetchNavFromPingzhong(fund) {
             dt = last.x ? toBeijingDate(last.x) : '';
           }
         }
-        // Data_netWorthTrend异常时，读 Data_ACWorthTrend（累计净值，对白银/商品LOF等同单位净值）
         if (!nav) {
           const arr2 = window['Data_ACWorthTrend'];
           if (arr2 && arr2.length > 0) {
             const last2 = arr2[arr2.length - 1];
-            // 格式：[时间戳, 净值] 数组
             const v2 = parseFloat(Array.isArray(last2) ? last2[1] : last2.y);
             const ts = Array.isArray(last2) ? last2[0] : last2.x;
             dt = ts ? toBeijingDate(ts) : '';
@@ -963,7 +940,6 @@ function fetchNavFromPingzhong(fund) {
   });
 }
 
-// 接口② lsjz历史净值API（原方案保留）
 function fetchNavFromLsjz(fund) {
   return new Promise(resolve => {
     const cb = 'jq' + Date.now() + '_' + fund.code;
@@ -1007,9 +983,7 @@ function fetchNavFromLsjz(fund) {
   });
 }
 
-// 并行跑两个接口，取日期较新的净值
 async function fetchNavFromEM(fund) {
-  // 先检查缓存
   const cached = Cache.get(`nav_${fund.ocode}`);
   
   const [r1, r2] = await Promise.all([fetchNavFromPingzhong(fund), fetchNavFromLsjz(fund)]);
@@ -1023,38 +997,31 @@ async function fetchNavFromEM(fund) {
   } else if (!r2) {
     bestResult = r1;
   } else {
-    // 两个都有数据，取日期较新的
     const d1 = r1.date || '', d2 = r2.date || '';
     if (d2 > d1) {
       bestResult = r2;
     } else {
-      bestResult = r1; // 日期相同或pingzhongdata更新，用r1
+      bestResult = r1;
     }
   }
   
-  // 比较新数据与缓存数据的日期，如果新数据更新则使用新数据
   if (cached) {
     const cachedDate = cached.date || '';
     const newDate = bestResult.date || '';
     if (newDate > cachedDate) {
-      // 新数据日期更新，使用新数据并更新缓存
       Cache.set(`nav_${fund.ocode}`, bestResult);
       return bestResult;
     } else {
-      // 缓存数据日期更新，使用缓存数据
       return cached;
     }
   } else {
-    // 没有缓存数据，使用新数据并缓存
     Cache.set(`nav_${fund.ocode}`, bestResult);
     return bestResult;
   }
 }
 
-// 从天天基金获取场外基金最新净值
 function fetchNav(fund) {
   return new Promise(resolve => {
-    // 先检查缓存
     const cached = Cache.get(`nav_${fund.ocode}`);
 
     const iframe = document.createElement('iframe');
@@ -1072,28 +1039,22 @@ function fetchNav(fund) {
       if (!done) {
         done = true;
         cleanup();
-        // 降级到东方财富接口
         fetchNavFromEM(fund).then(result => {
           if (result && result.nav > 0) {
-            // 比较新数据与缓存数据的日期
             if (cached) {
               const cachedDate = cached.date || '';
               const newDate = result.date || '';
               if (newDate > cachedDate) {
-                // 新数据日期更新，使用新数据并更新缓存
                 Cache.set(`nav_${fund.ocode}`, result);
                 resolve(result);
               } else {
-                // 缓存数据日期更新，使用缓存数据
                 resolve(cached);
               }
             } else {
-              // 没有缓存数据，使用新数据并缓存
               Cache.set(`nav_${fund.ocode}`, result);
               resolve(result);
             }
           } else {
-            // 获取失败，使用缓存数据（如果有）
             resolve(cached || null);
           }
         });
@@ -1109,28 +1070,22 @@ function fetchNav(fund) {
         
         if (!d) {
           cleanup();
-          // 降级到东方财富接口
           fetchNavFromEM(fund).then(result => {
             if (result && result.nav > 0) {
-              // 比较新数据与缓存数据的日期
               if (cached) {
                 const cachedDate = cached.date || '';
                 const newDate = result.date || '';
                 if (newDate > cachedDate) {
-                  // 新数据日期更新，使用新数据并更新缓存
                   Cache.set(`nav_${fund.ocode}`, result);
                   resolve(result);
                 } else {
-                  // 缓存数据日期更新，使用缓存数据
                   resolve(cached);
                 }
               } else {
-                // 没有缓存数据，使用新数据并缓存
                 Cache.set(`nav_${fund.ocode}`, result);
                 resolve(result);
               }
             } else {
-              // 获取失败，使用缓存数据（如果有）
               resolve(cached || null);
             }
           });
@@ -1140,20 +1095,16 @@ function fetchNav(fund) {
         const dwjz = parseFloat(d.dwjz);
         const gsz = parseFloat(d.gsz);
         
-        // 同时获取东方财富的数据，比较日期
         fetchNavFromEM(fund).then(emResult => {
           let bestResult = null;
           
-          // 处理天天基金数据
           if (dwjz > 0) {
             bestResult = { nav: dwjz, date: d.jzrq || '' };
           } else if (gsz > 0) {
-            // dwjz缺失时用实时估值gsz，日期用gztime前10位
             const dt = (d.gztime || '').slice(0, 10);
             bestResult = { nav: gsz, date: dt };
           }
           
-          // 比较东方财富数据，如果日期更新则使用
           if (emResult && emResult.nav > 0) {
             if (!bestResult || (emResult.date && (!bestResult.date || emResult.date > bestResult.date))) {
               bestResult = emResult;
@@ -1161,25 +1112,20 @@ function fetchNav(fund) {
           }
           
           if (bestResult) {
-            // 比较新数据与缓存数据的日期
             if (cached) {
               const cachedDate = cached.date || '';
               const newDate = bestResult.date || '';
               if (newDate > cachedDate) {
-                // 新数据日期更新，使用新数据并更新缓存
                 Cache.set(`nav_${fund.ocode}`, bestResult);
                 resolve(bestResult);
               } else {
-                // 缓存数据日期更新，使用缓存数据
                 resolve(cached);
               }
             } else {
-              // 没有缓存数据，使用新数据并缓存
               Cache.set(`nav_${fund.ocode}`, bestResult);
               resolve(bestResult);
             }
           } else {
-            // 获取失败，使用缓存数据（如果有）
             resolve(cached || null);
           }
           
@@ -1193,28 +1139,22 @@ function fetchNav(fund) {
           done = true;
           clearTimeout(timer);
           cleanup();
-          // 降级到东方财富接口
           fetchNavFromEM(fund).then(result => {
             if (result && result.nav > 0) {
-              // 比较新数据与缓存数据的日期
               if (cached) {
                 const cachedDate = cached.date || '';
                 const newDate = result.date || '';
                 if (newDate > cachedDate) {
-                  // 新数据日期更新，使用新数据并更新缓存
                   Cache.set(`nav_${fund.ocode}`, result);
                   resolve(result);
                 } else {
-                  // 缓存数据日期更新，使用缓存数据
                   resolve(cached);
                 }
               } else {
-                // 没有缓存数据，使用新数据并缓存
                 Cache.set(`nav_${fund.ocode}`, result);
                 resolve(result);
               }
             } else {
-              // 获取失败，使用缓存数据（如果有）
               resolve(cached || null);
             }
           });
@@ -1225,28 +1165,22 @@ function fetchNav(fund) {
     } catch (e) {
       clearTimeout(timer);
       cleanup();
-      // 降级到东方财富接口
       fetchNavFromEM(fund).then(result => {
         if (result && result.nav > 0) {
-          // 比较新数据与缓存数据的日期
           if (cached) {
             const cachedDate = cached.date || '';
             const newDate = result.date || '';
             if (newDate > cachedDate) {
-              // 新数据日期更新，使用新数据并更新缓存
               Cache.set(`nav_${fund.ocode}`, result);
               resolve(result);
             } else {
-              // 缓存数据日期更新，使用缓存数据
               resolve(cached);
             }
           } else {
-            // 没有缓存数据，使用新数据并缓存
             Cache.set(`nav_${fund.ocode}`, result);
             resolve(result);
           }
         } else {
-          // 获取失败，使用缓存数据（如果有）
           resolve(cached || null);
         }
       });
@@ -1254,7 +1188,6 @@ function fetchNav(fund) {
   });
 }
 
-// 加载所有基金的净值数据
 async function loadNavs() {
   const BATCH_SIZE = 15;
   let loaded = 0;
@@ -1262,7 +1195,6 @@ async function loadNavs() {
   for (let i = 0; i < fundData.length; i += BATCH_SIZE) {
     const batch = fundData.slice(i, i + BATCH_SIZE);
     const results = await Promise.all(batch.map(fund => {
-      // 对降级基金使用东方财富接口
       if (NO_GSZ_FUNDS.has(fund.code)) {
         return fetchNavFromEM(fund);
       } else {
@@ -1283,20 +1215,19 @@ async function loadNavs() {
   navLoaded = true;
 }
 
-// 通过 JSONP script 标签获取东方财富指数数据（浏览器端 fetch 被 CORS 拦截，JSONP 可绕过）
 function fetchEastmoney() {
   const EM_CODES = {
-    'csi930917': '2.930917',  // 中证沪港深高股息指数 CSI930917（501307银河高股息）
-    'csi930914': '2.930914',  // 中证港股通高股息投资指数 CSI930914（501305/501306）
-    'csi930792': '2.930792',  // 中证港股通香港银行指数 CSI930792（501025香港银行）
-    'sh000985':  '1.000985',  // 中证综合债券指数（501312海外科技LOF业绩基准10%分量）
-    'sh000066':  '1.000066',  // 上证大宗商品股票指数（161715招商中证大宗商品）
-    'sh000945':  '1.000945',  // 中证上游资源产业指数（161217国投瑞银上游资源）
-    'hkHSMI':    '124.HSMI',  // 恒生综合中型股指数（501303恒生中型股LOF）
-    'hkHSSI':    '124.HSSI',  // 恒生综合小型股指数（161124港股小盘LOF）
-    'hkHSCI':    '124.HSCI',  // 恒生综合指数（160322港股精选LOF）
-    'hkHSI':     '124.HSI',   // 恒生指数（hkHSMI/hkHSSI/hkHSCI降级后备）
-    'nf_AG0':    '113.agm',   // 沪银主连（上期所market=113，注意前一次用8.AG888是错误代码）
+    'csi930917': '2.930917',
+    'csi930914': '2.930914',
+    'csi930792': '2.930792',
+    'sh000985':  '1.000985',
+    'sh000066':  '1.000066',
+    'sh000945':  '1.000945',
+    'hkHSMI':    '124.HSMI',
+    'hkHSSI':    '124.HSSI',
+    'hkHSCI':    '124.HSCI',
+    'hkHSI':     '124.HSI',
+    'nf_AG0':    '113.agm',
   };
   const prefix = '_em_' + Date.now();
   let pending = Object.keys(EM_CODES).length;
@@ -1312,7 +1243,6 @@ function fetchEastmoney() {
         clearTimeout(timer);
         delete window[cb];
         if (d && d.data) {
-          // f3=涨跌幅百分比（如-0.02表示-0.02%），f170=涨跌点数（需除以100）
           const chg = d.data.f3 !== undefined ? d.data.f3 : ((d.data.f170 || 0) / (d.data.f43 || 100) * 100);
           const time = d.data.f14 || '';
           out[key] = chg;
@@ -1329,7 +1259,6 @@ function fetchEastmoney() {
   });
 }
 
-// 从腾讯财经获取实时行情数据
 function fetchTencentData() {
   return new Promise(resolve => {
     const codes = [...new Set(getAllTqCodes())].join(',');
@@ -1353,7 +1282,6 @@ function fetchTencentData() {
       const result = { funds: {}, indices: {} };
       let ok = 0;
       
-      // 处理基金数据
       fundData.forEach(fund => {
         const data = window[`v_${fund.tq}`];
         if (!data || data.length < 10) return;
@@ -1374,7 +1302,6 @@ function fetchTencentData() {
         }
       });
       
-      // 处理指数数据（用于估值计算）
       const allIdxCodes = [...new Set(Object.values(BENCH).flatMap(b => Array.isArray(b) ? b.map(x => x.tq) : [b]))];
       allIdxCodes.forEach(indexCode => {
         const data = window[`v_${indexCode}`];
@@ -1383,7 +1310,7 @@ function fetchTencentData() {
         const parts = data.split('~');
         const price = parseFloat(parts[3]);
         const prevClose = parseFloat(parts[4]);
-        const time = parts[30] || parts[29] || ''; // 尝试获取时间信息
+        const time = parts[30] || parts[29] || '';
         
         if (price > 0) {
           result.indices[indexCode] = {
@@ -1413,8 +1340,6 @@ function fetchTencentData() {
   });
 }
 
-// 通过 Pages Function 服务端代理获取沪银主连期货数据
-// 浏览器端直接获取期货Data受CORS/Referer限制，服务端无此限制
 async function fetchFuturesFromProxy() {
   try {
     const res = await fetch('/api/futures?_=' + Date.now(), { cache: 'no-cache' });
@@ -1434,24 +1359,18 @@ async function fetchFuturesFromProxy() {
   return {};
 }
 
-// 刷新数据
 async function refreshData() {
-  // 刷新锁，防止并发调用
   if (isRefreshing) return;
   isRefreshing = true;
   
-  // 更新数据时间戳
   dataTimestamp = new Date();
   
-  // 净值加载不阻塞市场数据获取，后台异步运行
   const navPromise = loadNavs().catch(e => console.log('净值加载异常:', e));
   
-  // 并行获取腾讯财经、东方财富（JSONP）和期货代理数据
   const [tencentData, emResult, futuresResult] = await Promise.all([fetchTencentData(), fetchEastmoney(), fetchFuturesFromProxy()]);
   const emIdx = emResult.data;
   const emTimes = emResult.times;
   
-  // 缓存外盘指数涨跌幅和时间信息（腾讯qt + 东方财富）
   indexData = {};
   indexTimes = {};
   Object.entries(tencentData.indices).forEach(([code, d]) => {
@@ -1459,15 +1378,12 @@ async function refreshData() {
     indexTimes[code] = d.time || '';
   });
   Object.entries(emIdx).forEach(([code, chg]) => {
-    // 仅当东财返回有效涨跌幅时才覆盖腾讯数据（非交易时段东财可能返回null）
     if (chg != null) {
       indexData[code] = chg;
     }
     if (emTimes[code]) {
-      // 处理东方财富返回的时间格式
       indexTimes[code] = emTimes[code];
     } else {
-      // 没有时间信息，使用当前时间
       const now = new Date();
       const year = now.getFullYear();
       const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -1478,7 +1394,6 @@ async function refreshData() {
     }
   });
   
-  // 合并期货代理数据（nf_AG0沪银主连）
   Object.entries(futuresResult).forEach(([code, chg]) => {
     indexData[code] = chg;
     const now = new Date();
@@ -1490,7 +1405,6 @@ async function refreshData() {
     indexTimes[code] = `${year}-${month}-${day} ${hour}:${minute}`;
   });
   
-  // 为所有基准指数设置默认时间信息，确保即使获取不到数据也能显示时间
   Object.values(BENCH).forEach(benchDef => {
     if (Array.isArray(benchDef)) {
       benchDef.forEach(b => {
@@ -1517,27 +1431,22 @@ async function refreshData() {
     }
   });
   
-  // 指数降级逻辑（v28新增）
-  // hkHSMI降级：若腾讯返回数据无效则回落到hkHSI（恒生综合中型股指数代码待验证）
   if (indexData['hkHSMI'] == null || indexData['hkHSMI'] === 0) {
     if (indexData['hkHSI'] != null) {
       indexData['hkHSMI'] = indexData['hkHSI'];
     }
   }
-  // hkHSCI降级：恒生综合指数（160322基准），若腾讯无此代码则回落到hkHSI近似
   if (indexData['hkHSCI'] == null || indexData['hkHSCI'] === 0) {
     if (indexData['hkHSI'] != null) {
       indexData['hkHSCI'] = indexData['hkHSI'];
     }
   }
-  // hkHSSI降级：恒生综合小型股指数（161124基准），腾讯不支持此代码，回落到hkHSI近似
   if (indexData['hkHSSI'] == null || indexData['hkHSSI'] === 0) {
     if (indexData['hkHSI'] != null) {
       indexData['hkHSSI'] = indexData['hkHSI'];
     }
   }
   
-  // 更新基金数据
   fundData.forEach(fund => {
     const marketData = tencentData.funds[fund.code];
     if (marketData) {
@@ -1546,14 +1455,11 @@ async function refreshData() {
       fund.change = marketData.change;
       fund.volume = marketData.volume;
       
-      // 计算实时估值和溢价率
-      // 支持混合基准：BENCH[code] 可以是字符串或 [{tq,w}] 数组
       const baseNav = fund.officialNav || fund.prevClose;
       const benchDef = BENCH[fund.code];
       let benchChgPct = 0;
       
       if (Array.isArray(benchDef)) {
-        // 混合基准：加权平均
         let totalW = 0;
         benchDef.forEach(b => {
           const chg = indexData[b.tq] || 0;
@@ -1573,16 +1479,13 @@ async function refreshData() {
     }
   });
   
-  // 立即渲染表格（市场数据已到，净值数据后台加载中）
   renderTable();
   updateGenerateTime();
   
-  // 等待净值数据加载完成（最多15秒），然后重新渲染
   Promise.race([
     navPromise,
     new Promise(r => setTimeout(r, 15000))
   ]).then(() => {
-    // 净值数据就绪后重新计算溢价率并渲染
     fundData.forEach(fund => {
       const marketData = fund.price ? { price: fund.price, prevClose: fund.prevClose } : null;
       if (marketData) {
@@ -1605,11 +1508,9 @@ async function refreshData() {
     updateGenerateTime();
   });
   
-  // 解锁刷新锁（市场数据渲染完成即解锁）
   isRefreshing = false;
 }
 
-// 更新生成时间
 function updateGenerateTime() {
   const now = new Date().toLocaleString('zh-CN');
   const generateTimeElement = document.getElementById('generate-time');
@@ -1618,16 +1519,12 @@ function updateGenerateTime() {
   }
 }
 
-// 排序表格
 function sortTable(column) {
-  // 移除所有排序标记
   document.querySelectorAll('th.sorted').forEach(th => th.classList.remove('sorted'));
   
-  // 设置当前排序列
   const th = document.querySelector(`th[onclick="sortTable('${column}')"]`);
   th.classList.add('sorted');
   
-  // 切换排序方向
   if (sortColumn === column) {
     sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
   } else {
@@ -1635,29 +1532,22 @@ function sortTable(column) {
     sortDirection = 'desc';
   }
   
-  // 渲染表格
   renderTable();
 }
 
-// 渲染表格
 function renderTable() {
-  // 筛选数据
   let filteredData = [...fundData];
   
-  // 按类别筛选
   if (currentCategory !== 'all') {
     filteredData = filteredData.filter(fund => fund.category === currentCategory);
   }
   
-  // 按状态筛选
-  const threshold = 2; // 固定套利阈值为2%
+  const threshold = 2;
   switch (currentFilter) {
     case 'arbitrage':
       filteredData = filteredData.filter(fund => {
         if (fund.premium === null) return false;
-        // 溢价≥2%且未暂停申购
         if (fund.premium >= threshold && fund.quota !== '暂停') return true;
-        // 折价≥2% 任何基金都算套利机会
         if (fund.premium <= -threshold) return true;
         return false;
       });
@@ -1674,7 +1564,6 @@ function renderTable() {
       break;
   }
   
-  // 电脑版排序
   const desktopSortedData = filteredData.sort((a, b) => {
     let valueA, valueB;
     
@@ -1724,23 +1613,18 @@ function renderTable() {
     }
   });
   
-  // 渲染电脑版表格
   renderDesktopTable(desktopSortedData);
   
-  // 更新统计栏
   updateStats();
 }
 
-// 更新顶部统计栏
 function updateStats() {
   const total = fundData.length;
   const premiumCount = fundData.filter(f => f.premium !== null && f.premium > 0).length;
   const discountCount = fundData.filter(f => f.premium !== null && f.premium < 0).length;
   const arbitrageCount = fundData.filter(f => {
     if (f.premium === null) return false;
-    // 溢价≥2%且未暂停申购
     if (f.premium >= 2 && f.quota !== '暂停') return true;
-    // 折价≥2% 任何基金都算套利机会
     if (f.premium <= -2) return true;
     return false;
   }).length;
@@ -1752,7 +1636,6 @@ function updateStats() {
   if (el('statArbitrage')) el('statArbitrage').textContent = arbitrageCount;
 }
 
-// 渲染电脑版表格
 function renderDesktopTable(sortedData) {
   if (sortedData.length === 0) {
     fundTableBodyDesktop.innerHTML = `
@@ -1763,7 +1646,6 @@ function renderDesktopTable(sortedData) {
     return;
   }
   
-  // 类别映射
   const categoryMap = {
     'us': '美股',
     'hk': '港股',
@@ -1775,7 +1657,6 @@ function renderDesktopTable(sortedData) {
     const quotaClass = fund.quota === '开放' ? 'open' : 
                       fund.quota === '暂停' ? 'suspended' : 'limited';
     
-    // 金融行业通用的红涨绿跌颜色标识规则
     let premiumClass = '';
     if (fund.premium > 0) {
       premiumClass = 'red';
@@ -1872,30 +1753,24 @@ function renderDesktopTable(sortedData) {
 }
 
 
-
 // ==================== 净值曲线图 ====================
 let currentChartFund = null;
 
-// 打开净值曲线模态窗口
 async function openNavChart(code) {
   const fund = FUNDS.find(f => f.code === code);
   if (!fund) return;
   currentChartFund = code;
   document.getElementById('modalFundName').textContent = fund.name;
   document.getElementById('modalFundCode').textContent = code;
-  // 重置 modalBody 为初始结构，防止上次 innerHTML 替换导致 canvas 丢失
   document.getElementById('modalBody').innerHTML = '<div class="modal-loading" id="modalLoading">加载净值数据...</div><canvas id="navChartCanvas" style="display:none"></canvas>';
   document.getElementById('modalLegend').style.display = 'none';
   document.getElementById('modalNote').style.display = 'block';
   document.getElementById('navChartModal').classList.add('active');
 
   try {
-    // 从 Pages Function API 获取历史数据
-    // 注意：GitHub Pages 不支持 Pages Functions，需访问 CF Pages 部署的站点
     const historyUrl = '/api/nav-history?code=' + code;
     const res = await fetch(historyUrl);
 
-    // 检查响应类型，防止收到 HTML 页面（如 GitHub Pages 404）
     const contentType = res.headers.get('content-type') || '';
     if (!contentType.includes('application/json')) {
       throw new Error('API不可用，请在 Cloudflare Pages 站点访问');
@@ -1911,14 +1786,12 @@ async function openNavChart(code) {
       return;
     }
 
-    // 恢复模态窗口内容
     document.getElementById('modalBody').innerHTML = '<canvas id="navChartCanvas"></canvas>';
     document.getElementById('modalLegend').style.display = 'flex';
     document.getElementById('modalNote').style.display = 'block';
     const canvas = document.getElementById('navChartCanvas');
     canvas.style.display = 'block';
 
-    // 等 DOM 更新后绘制
     requestAnimationFrame(() => drawNavChart(canvas, data, fund.name));
   } catch (e) {
     document.getElementById('modalLoading').textContent = '加载失败: ' + e.message;
@@ -1926,13 +1799,11 @@ async function openNavChart(code) {
   }
 }
 
-// 关闭模态窗口
 function closeNavChart() {
   document.getElementById('navChartModal').classList.remove('active');
   currentChartFund = null;
 }
 
-// 点击遮罩层关闭（延迟绑定，确保DOM已渲染）
 window.addEventListener('DOMContentLoaded', function() {
   const modal = document.getElementById('navChartModal');
   if (modal) {
@@ -1942,17 +1813,16 @@ window.addEventListener('DOMContentLoaded', function() {
   }
 });
 
-// 按 ESC 键关闭
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') closeNavChart();
 });
 
-// 绘制净值曲线图
 function drawNavChart(canvas, data, fundName) {
   const rect = canvas.parentElement.getBoundingClientRect();
   const dpr = window.devicePixelRatio || 1;
   const W = rect.width - 20;
-  const H = Math.max(300, rect.height - 10);
+  const minH = window.innerWidth <= 680 ? 200 : 300;
+  const H = Math.max(minH, rect.height - 10);
   canvas.width = W * dpr;
   canvas.height = H * dpr;
   canvas.style.width = W + 'px';
@@ -1964,12 +1834,10 @@ function drawNavChart(canvas, data, fundName) {
   const chartW = W - pad.left - pad.right;
   const chartH = H - pad.top - pad.bottom;
 
-  // 提取数据
-  const dates = data.map(d => d.date.slice(5)); // MM-DD
+  const dates = data.map(d => d.date.slice(5));
   const estNavs = data.map(d => d.estNav);
   const actualNavs = data.map(d => d.actualNav);
 
-  // 计算 Y 轴范围
   const allVals = [];
   estNavs.forEach(v => { if (v != null) allVals.push(v); });
   actualNavs.forEach(v => { if (v != null) allVals.push(v); });
@@ -1982,14 +1850,11 @@ function drawNavChart(canvas, data, fundName) {
   yMin -= yPadding;
   yMax += yPadding;
 
-  // X/Y 轴映射
   const xScale = (i) => pad.left + (i / (dates.length - 1 || 1)) * chartW;
   const yScale = (v) => pad.top + chartH - ((v - yMin) / (yMax - yMin)) * chartH;
 
-  // 清空
   ctx.clearRect(0, 0, W, H);
 
-  // 背景网格
   ctx.strokeStyle = 'rgba(148,163,184,0.1)';
   ctx.lineWidth = 1;
   for (let i = 0; i <= 4; i++) {
@@ -2000,7 +1865,6 @@ function drawNavChart(canvas, data, fundName) {
     ctx.stroke();
   }
 
-  // X 轴标签
   ctx.fillStyle = '#94a3b8';
   ctx.font = '11px -apple-system, sans-serif';
   ctx.textAlign = 'center';
@@ -2011,7 +1875,6 @@ function drawNavChart(canvas, data, fundName) {
     }
   });
 
-  // Y 轴标签
   ctx.textAlign = 'right';
   ctx.textBaseline = 'middle';
   for (let i = 0; i <= 4; i++) {
@@ -2020,7 +1883,6 @@ function drawNavChart(canvas, data, fundName) {
     ctx.fillText(val.toFixed(4), pad.left - 8, y);
   }
 
-  // 绘制预估净值线（蓝色）
   ctx.strokeStyle = '#3b82f6';
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -2033,7 +1895,6 @@ function drawNavChart(canvas, data, fundName) {
   });
   ctx.stroke();
 
-  // 预估净值数据点
   ctx.fillStyle = '#3b82f6';
   estNavs.forEach((v, i) => {
     if (v == null) return;
@@ -2042,7 +1903,6 @@ function drawNavChart(canvas, data, fundName) {
     ctx.fill();
   });
 
-  // 绘制实际净值线（橙色）
   const hasActual = actualNavs.some(v => v != null);
   if (hasActual) {
     ctx.strokeStyle = '#f59e0b';
@@ -2059,7 +1919,6 @@ function drawNavChart(canvas, data, fundName) {
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // 实际净值数据点
     ctx.fillStyle = '#f59e0b';
     actualNavs.forEach((v, i) => {
       if (v == null) return;
@@ -2069,7 +1928,6 @@ function drawNavChart(canvas, data, fundName) {
     });
   }
 
-  // 图表标题
   ctx.fillStyle = '#e8ecf4';
   ctx.font = '13px -apple-system, sans-serif';
   ctx.textAlign = 'left';
@@ -2077,7 +1935,6 @@ function drawNavChart(canvas, data, fundName) {
   ctx.fillText('近15日净值走势', pad.left, 6);
 }
 
-// 初始化应用
 async function bootstrap() {
   const success = await loadFundsData();
   if (success) {
