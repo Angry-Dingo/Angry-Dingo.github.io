@@ -299,6 +299,7 @@ body {
 }
 
 .fund-table tr:last-child td { border-bottom: none; }
+.fund-table tr { cursor: pointer; }
 .fund-table tr:hover td { background: rgba(59,130,246,0.04); }
 
 .fund-table th:nth-child(1), .fund-table td:nth-child(1) { width: 44px; min-width: 44px; }
@@ -343,7 +344,40 @@ body {
 .footer-content { max-width: 100%; margin: 0 auto; padding: 16px 24px; display: flex; align-items: center; justify-content: center; text-align: center; }
 .footer-info { font-size: 0.7rem; color: var(--text-muted); line-height: 1.8; }
 
+/* ===== Mobile Menu Button ===== */
+.mobile-menu-btn {
+  display: none;
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 101;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 1.2rem;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+.mobile-menu-btn:hover { background: var(--bg-hover); }
+.mobile-menu-btn:active { transform: scale(0.95); }
+
+/* ===== Sidebar Overlay (mobile drawer) ===== */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 99;
+}
+.sidebar-overlay.active { display: block; }
+
 /* ===== Responsive ===== */
+/* 平板：侧边栏缩为图标模式 */
 @media (max-width: 900px) {
   .sidebar { width: 48px; }
   .sidebar-logo .logo-text, .sidebar-stat .stat-label, .sidebar-section-title, .filter-tab { display: none; }
@@ -356,26 +390,177 @@ body {
   .content-area { margin-left: 48px; }
   .top-bar { padding: 12px 14px 0; }
   .main-container { padding: 12px 14px 16px; }
-  .fund-table-container { overflow-x: auto; }
+  .fund-table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .fund-table { min-width: 780px; }
   .fund-table th, .fund-table td { padding: 8px 6px; font-size: 0.72rem; }
 }
 
+/* 大手机/小平板：侧边栏改为抽屉式 */
 @media (max-width: 680px) {
-  .sidebar { width: 44px; }
-  .content-area { margin-left: 44px; }
-  .top-bar { padding: 10px 10px 0; }
-  .main-container { padding: 10px 10px 12px; }
+  .mobile-menu-btn { display: flex; }
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    width: 200px;
+    z-index: 100;
+    box-shadow: 4px 0 24px rgba(0,0,0,0.4);
+  }
+  .sidebar.open { transform: translateX(0); }
+  /* 恢复侧边栏完整显示（抽屉打开时） */
+  .sidebar .logo-text, .sidebar .stat-label, .sidebar-section-title, .filter-tab { display: block; }
+  .sidebar-logo { justify-content: flex-start; padding: 18px 16px 14px; }
+  .sidebar-stat { padding: 10px; }
+  .sidebar-stat .stat-num { font-size: 1.15rem; }
+  .sidebar-section { padding: 10px 14px 4px; }
+  .filter-tab { padding: 8px 12px; text-align: left; }
+
+  .content-area { margin-left: 0; }
+  .top-bar { padding: 10px 12px 0; padding-left: 60px; }
+  .main-container { padding: 10px 12px 12px; }
+
+  .fund-table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: var(--radius-md); }
+  .fund-table { min-width: 720px; }
   .fund-table th, .fund-table td { padding: 8px 5px; font-size: 0.7rem; }
   .generate-time { font-size: 0.65rem; padding: 4px 8px; }
+
+  /* 模态窗口全屏化 */
+  .modal-overlay { align-items: flex-end; }
+  .modal-box {
+    width: 100vw;
+    max-width: 100vw;
+    max-height: 92vh;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 16px 16px 14px;
+  }
 }
 
+/* 手机：进一步紧凑 */
 @media (max-width: 480px) {
+  .top-bar { padding: 8px 10px 0; padding-left: 56px; }
+  .main-container { padding: 8px 8px 10px; }
+  .fund-table { min-width: 680px; }
   .fund-table th, .fund-table td { padding: 6px 4px; font-size: 0.65rem; }
+  .code-cell .fund-name { font-size: 0.7rem; max-width: 90px; }
+  .code-cell .fund-code { font-size: 0.6rem; }
+  .modal-box { padding: 14px 12px 12px; max-height: 90vh; }
+  .modal-header { margin-bottom: 12px; }
+  .modal-title { font-size: 0.95rem; }
+  .modal-close { width: 28px; height: 28px; font-size: 1rem; }
+  .modal-legend { gap: 12px; font-size: 0.7rem; margin-top: 8px; }
+  .modal-nav-note { font-size: 0.62rem; }
+  .footer-info { font-size: 0.62rem; line-height: 1.6; }
+}
+/* ===== 净值曲线模态窗口 ===== */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.65);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+.modal-overlay.active { display: flex; }
+.modal-box {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  width: 90vw;
+  max-width: 780px;
+  max-height: 85vh;
+  padding: 24px 28px 20px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.modal-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.modal-title .modal-code {
+  color: var(--accent-blue);
+  font-weight: 600;
+}
+.modal-close {
+  width: 32px; height: 32px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+.modal-close:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+.modal-body {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+.modal-body canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.modal-legend {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 12px;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+.modal-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.modal-legend-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.modal-legend-dot.est { background: var(--accent-blue); }
+.modal-legend-dot.actual { background: #f59e0b; }
+.modal-loading {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 60px 0;
+  font-size: 0.85rem;
+}
+.modal-no-data {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 60px 0;
+  font-size: 0.85rem;
+}
+.modal-nav-note {
+  text-align: center;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  margin-top: 6px;
 }
 </style>
 </head>
 <body>
+
+<!-- 移动端菜单按钮 -->
+<button class="mobile-menu-btn" onclick="toggleSidebar(event)" aria-label="菜单">☰</button>
+<!-- 侧边栏遮罩层（移动端） -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
 <div class="app-layout">
 
@@ -636,9 +821,26 @@ function stopRefreshTimer() {
 }
 
 // 设置筛选类型
+// 移动端侧边栏开关
+function toggleSidebar(e) {
+  if (e) e.stopPropagation();
+  const sidebar = document.querySelector('.sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  if (sidebar.classList.contains('open')) {
+    closeSidebar();
+  } else {
+    sidebar.classList.add('open');
+    overlay.classList.add('active');
+  }
+}
+function closeSidebar() {
+  document.querySelector('.sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('active');
+}
+
 function setFilter(filter) {
   currentFilter = filter;
-  
+
   // 更新标签状态
   document.querySelectorAll('.filter-tab').forEach(tab => {
     if (tab.onclick.toString().includes(`setFilter('${filter}')`)) {
@@ -647,8 +849,9 @@ function setFilter(filter) {
       tab.classList.remove('active');
     }
   });
-  
+
   renderTable();
+  closeSidebar(); // 移动端选择后自动关闭侧边栏
 }
 
 // 设置基金类别
@@ -665,6 +868,7 @@ function setCategory(category) {
   });
   
   renderTable();
+  closeSidebar(); // 移动端选择后自动关闭侧边栏
 }
 
 // 降级基金：fundgz接口无实时估值，三接口竞速
@@ -1582,7 +1786,7 @@ function renderDesktopTable(sortedData) {
     const categoryName = categoryMap[fund.category] || fund.category;
     
     return `
-      <tr>
+      <tr onclick="openNavChart('${fund.code}')">
         <td style="font-weight: 600;">${index + 1}</td>
         <td>
           <div class="code-cell">
@@ -1669,6 +1873,210 @@ function renderDesktopTable(sortedData) {
 
 
 
+// ==================== 净值曲线图 ====================
+let currentChartFund = null;
+
+// 打开净值曲线模态窗口
+async function openNavChart(code) {
+  const fund = FUNDS.find(f => f.code === code);
+  if (!fund) return;
+  currentChartFund = code;
+  document.getElementById('modalFundName').textContent = fund.name;
+  document.getElementById('modalFundCode').textContent = code;
+  // 重置 modalBody 为初始结构，防止上次 innerHTML 替换导致 canvas 丢失
+  document.getElementById('modalBody').innerHTML = '<div class="modal-loading" id="modalLoading">加载净值数据...</div><canvas id="navChartCanvas" style="display:none"></canvas>';
+  document.getElementById('modalLegend').style.display = 'none';
+  document.getElementById('modalNote').style.display = 'block';
+  document.getElementById('navChartModal').classList.add('active');
+
+  try {
+    // 从 Pages Function API 获取历史数据
+    // 注意：GitHub Pages 不支持 Pages Functions，需访问 CF Pages 部署的站点
+    const historyUrl = '/api/nav-history?code=' + code;
+    const res = await fetch(historyUrl);
+
+    // 检查响应类型，防止收到 HTML 页面（如 GitHub Pages 404）
+    const contentType = res.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      throw new Error('API不可用，请在 Cloudflare Pages 站点访问');
+    }
+
+    const data = await res.json();
+    document.getElementById('modalLoading').style.display = 'none';
+
+    if (!data || data.length === 0) {
+      document.getElementById('modalBody').innerHTML = '<div class="modal-no-data">暂无净值历史数据，收盘后自动记录</div>';
+      document.getElementById('modalLegend').style.display = 'none';
+      document.getElementById('modalNote').style.display = 'none';
+      return;
+    }
+
+    // 恢复模态窗口内容
+    document.getElementById('modalBody').innerHTML = '<canvas id="navChartCanvas"></canvas>';
+    document.getElementById('modalLegend').style.display = 'flex';
+    document.getElementById('modalNote').style.display = 'block';
+    const canvas = document.getElementById('navChartCanvas');
+    canvas.style.display = 'block';
+
+    // 等 DOM 更新后绘制
+    requestAnimationFrame(() => drawNavChart(canvas, data, fund.name));
+  } catch (e) {
+    document.getElementById('modalLoading').textContent = '加载失败: ' + e.message;
+    console.error('[ERROR] 加载净值历史:', e);
+  }
+}
+
+// 关闭模态窗口
+function closeNavChart() {
+  document.getElementById('navChartModal').classList.remove('active');
+  currentChartFund = null;
+}
+
+// 点击遮罩层关闭（延迟绑定，确保DOM已渲染）
+window.addEventListener('DOMContentLoaded', function() {
+  const modal = document.getElementById('navChartModal');
+  if (modal) {
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) closeNavChart();
+    });
+  }
+});
+
+// 按 ESC 键关闭
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeNavChart();
+});
+
+// 绘制净值曲线图
+function drawNavChart(canvas, data, fundName) {
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const W = rect.width - 20;
+  const H = Math.max(300, rect.height - 10);
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const pad = { top: 30, bottom: 40, left: 55, right: 25 };
+  const chartW = W - pad.left - pad.right;
+  const chartH = H - pad.top - pad.bottom;
+
+  // 提取数据
+  const dates = data.map(d => d.date.slice(5)); // MM-DD
+  const estNavs = data.map(d => d.estNav);
+  const actualNavs = data.map(d => d.actualNav);
+
+  // 计算 Y 轴范围
+  const allVals = [];
+  estNavs.forEach(v => { if (v != null) allVals.push(v); });
+  actualNavs.forEach(v => { if (v != null) allVals.push(v); });
+  if (allVals.length === 0) return;
+
+  let yMin = Math.min(...allVals);
+  let yMax = Math.max(...allVals);
+  const yRange = yMax - yMin;
+  const yPadding = yRange * 0.1 || 0.01;
+  yMin -= yPadding;
+  yMax += yPadding;
+
+  // X/Y 轴映射
+  const xScale = (i) => pad.left + (i / (dates.length - 1 || 1)) * chartW;
+  const yScale = (v) => pad.top + chartH - ((v - yMin) / (yMax - yMin)) * chartH;
+
+  // 清空
+  ctx.clearRect(0, 0, W, H);
+
+  // 背景网格
+  ctx.strokeStyle = 'rgba(148,163,184,0.1)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.top + (i / 4) * chartH;
+    ctx.beginPath();
+    ctx.moveTo(pad.left, y);
+    ctx.lineTo(W - pad.right, y);
+    ctx.stroke();
+  }
+
+  // X 轴标签
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '11px -apple-system, sans-serif';
+  ctx.textAlign = 'center';
+  const labelStep = Math.max(1, Math.floor(dates.length / 7));
+  dates.forEach((d, i) => {
+    if (i % labelStep === 0 || i === dates.length - 1) {
+      ctx.fillText(d, xScale(i), H - pad.bottom + 18);
+    }
+  });
+
+  // Y 轴标签
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.top + (i / 4) * chartH;
+    const val = yMax - (i / 4) * (yMax - yMin);
+    ctx.fillText(val.toFixed(4), pad.left - 8, y);
+  }
+
+  // 绘制预估净值线（蓝色）
+  ctx.strokeStyle = '#3b82f6';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  estNavs.forEach((v, i) => {
+    if (v == null) return;
+    const x = xScale(i);
+    const y = yScale(v);
+    if (i === 0 || estNavs[i - 1] == null) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+
+  // 预估净值数据点
+  ctx.fillStyle = '#3b82f6';
+  estNavs.forEach((v, i) => {
+    if (v == null) return;
+    ctx.beginPath();
+    ctx.arc(xScale(i), yScale(v), 3, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  // 绘制实际净值线（橙色）
+  const hasActual = actualNavs.some(v => v != null);
+  if (hasActual) {
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([5, 4]);
+    ctx.beginPath();
+    actualNavs.forEach((v, i) => {
+      if (v == null) return;
+      const x = xScale(i);
+      const y = yScale(v);
+      if (i === 0 || actualNavs[i - 1] == null) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 实际净值数据点
+    ctx.fillStyle = '#f59e0b';
+    actualNavs.forEach((v, i) => {
+      if (v == null) return;
+      ctx.beginPath();
+      ctx.arc(xScale(i), yScale(v), 3, 0, Math.PI * 2);
+      ctx.fill();
+    });
+  }
+
+  // 图表标题
+  ctx.fillStyle = '#e8ecf4';
+  ctx.font = '13px -apple-system, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  ctx.fillText('近15日净值走势', pad.left, 6);
+}
+
 // 初始化应用
 async function bootstrap() {
   const success = await loadFundsData();
@@ -1681,5 +2089,26 @@ async function bootstrap() {
 
 bootstrap();
 </script>
+
+<!-- 净值曲线模态窗口 -->
+<div class="modal-overlay" id="navChartModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">
+        <span id="modalFundName"></span> <span class="modal-code" id="modalFundCode"></span>
+      </div>
+      <button class="modal-close" onclick="closeNavChart()">&times;</button>
+    </div>
+    <div class="modal-body" id="modalBody">
+      <div class="modal-loading" id="modalLoading">加载净值数据...</div>
+      <canvas id="navChartCanvas" style="display:none;"></canvas>
+    </div>
+    <div class="modal-legend" id="modalLegend" style="display:none;">
+      <div class="modal-legend-item"><span class="modal-legend-dot est"></span>预估净值</div>
+      <div class="modal-legend-item"><span class="modal-legend-dot actual"></span>实际净值</div>
+    </div>
+    <div class="modal-nav-note" id="modalNote">* 预估净值于收盘时计算，实际净值于 T+1 同步后回填</div>
+  </div>
+</div>
 </body>
 </html>

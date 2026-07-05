@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-03T23:19:39.429Z",
+  "updatedAt": "2026-07-04T13:43:36.927Z",
   "fundCount": 47,
   "summary": {
     "total": 47,
@@ -15,11 +15,11 @@
       "status": "done",
       "lag": 0,
       "samples": 155,
-      "bestSingleR2": 0.9977398082337945,
+      "bestSingleR2": 0.9977397934845326,
       "bestIndex": "usXBI",
       "bestIndexName": "标普生物科技",
-      "bestBeta": 0.9470971336567887,
-      "multiR2": 0.9978618760239371
+      "bestBeta": 0.9470970253372715,
+      "multiR2": 0.9978618596949157
     },
     {
       "code": "164906",
@@ -32,7 +32,7 @@
       "bestIndex": "usKWEB",
       "bestIndexName": "中概互联网",
       "bestBeta": 0.6089520854838211,
-      "multiR2": 0.5773346449182227
+      "multiR2": 0.5773347003867824
     },
     {
       "code": "501312",
@@ -41,11 +41,11 @@
       "status": "done",
       "lag": 0,
       "samples": 152,
-      "bestSingleR2": 0.8195131478806159,
+      "bestSingleR2": 0.8195132908686441,
       "bestIndex": "usQQQ",
       "bestIndexName": "纳斯达克100",
-      "bestBeta": 1.1918124863655857,
-      "multiR2": 0.835585834982886
+      "bestBeta": 1.1918123911747467,
+      "multiR2": 0.8355858689360534
     },
     {
       "code": "164824",
@@ -58,7 +58,7 @@
       "bestIndex": "usINDA",
       "bestIndexName": "印度ETF",
       "bestBeta": 0.850125501739861,
-      "multiR2": 0.9222694203573374
+      "multiR2": 0.9222693923438237
     },
     {
       "code": "160644",
@@ -67,11 +67,11 @@
       "status": "done",
       "lag": 0,
       "samples": 152,
-      "bestSingleR2": 0.29339994117223966,
+      "bestSingleR2": 0.2933998566593009,
       "bestIndex": "usMCHI",
       "bestIndexName": "MSCI中国ETF",
-      "bestBeta": 0.90204657478962,
-      "multiR2": 0.32370938374305647
+      "bestBeta": 0.9020464316627292,
+      "multiR2": 0.3237093118504234
     },
     {
       "code": "162415",
@@ -84,7 +84,7 @@
       "bestIndex": "usXLY",
       "bestIndexName": "美国消费",
       "bestBeta": 0.9281085645078087,
-      "multiR2": 0.9935749603210784
+      "multiR2": 0.993574962605991
     },
     {
       "code": "161126",
@@ -93,11 +93,11 @@
       "status": "done",
       "lag": 0,
       "samples": 155,
-      "bestSingleR2": 0.1805988129040338,
+      "bestSingleR2": 0.18059829744470624,
       "bestIndex": "usSPY",
       "bestIndexName": "usSPY",
-      "bestBeta": 0.4765674547639977,
-      "multiR2": 0.18094957938796186
+      "bestBeta": 0.47656671204648604,
+      "multiR2": 0.18094905404445594
     },
     {
       "code": "161128",
@@ -106,11 +106,11 @@
       "status": "done",
       "lag": 0,
       "samples": 155,
-      "bestSingleR2": 0.9630049112287427,
+      "bestSingleR2": 0.963004898509025,
       "bestIndex": "usXLK",
       "bestIndexName": "标普信息科技",
-      "bestBeta": 0.8292598899983536,
-      "multiR2": 0.963544344854898
+      "bestBeta": 0.8292599234548796,
+      "multiR2": 0.9635443470736693
     },
     {
       "code": "161125",
@@ -123,7 +123,7 @@
       "bestIndex": "usINX",
       "bestIndexName": "标普500",
       "bestBeta": 0.9398474364911904,
-      "multiR2": 0.9934934220940582
+      "multiR2": 0.9934934317423189
     },
     {
       "code": "161130",
@@ -132,11 +132,11 @@
       "status": "done",
       "lag": 0,
       "samples": 155,
-      "bestSingleR2": 0.9952798961165804,
+      "bestSingleR2": 0.995279948388133,
       "bestIndex": "usQQQ",
       "bestIndexName": "纳斯达克100",
-      "bestBeta": 0.9421550549418143,
-      "multiR2": 0.9952839091878147
+      "bestBeta": 0.9421548857439146,
+      "multiR2": 0.9952839624152371
     },
     {
       "code": "501300",
@@ -145,11 +145,11 @@
       "status": "done",
       "lag": 0,
       "samples": 155,
-      "bestSingleR2": 0.7418340070869882,
+      "bestSingleR2": 0.7335003866074337,
       "bestIndex": "usAGG",
       "bestIndexName": "美国综合债券",
-      "bestBeta": 0.6731557959354961,
-      "multiR2": 0.7792465413422553
+      "bestBeta": 0.6641000124954409,
+      "multiR2": 0.7676597492491242
     },
     {
       "code": "160140",
@@ -162,7 +162,7 @@
       "bestIndex": "usRWR",
       "bestIndexName": "美国REIT",
       "bestBeta": 0.9392006385581689,
-      "multiR2": 0.9855676947436359
+      "multiR2": 0.9855676956139043
     },
     {
       "code": "501225",
@@ -175,7 +175,7 @@
       "bestIndex": "usSMH",
       "bestIndexName": "半导体ETF",
       "bestBeta": 0.8618959983487118,
-      "multiR2": 0.9321237898998131
+      "multiR2": 0.9321238143786744
     },
     {
       "code": "160216",
@@ -262,11 +262,11 @@
       "status": "done",
       "lag": 0,
       "samples": 155,
-      "bestSingleR2": 0.8482655808476562,
+      "bestSingleR2": 0.8482656447871377,
       "bestIndex": "usXLE",
       "bestIndexName": "能源ETF",
-      "bestBeta": 0.8645865399638968,
-      "multiR2": 0.9522704932685312
+      "bestBeta": 0.8645863473026724,
+      "multiR2": 0.9522705205840616
     },
     {
       "code": "501018",
@@ -314,11 +314,11 @@
       "status": "done",
       "lag": 0,
       "samples": 155,
-      "bestSingleR2": 0.9444420960181347,
+      "bestSingleR2": 0.9444421191311796,
       "bestIndex": "usXOP",
       "bestIndexName": "石油天然气上游",
-      "bestBeta": 0.8481974893055987,
-      "multiR2": 0.9454994472410161
+      "bestBeta": 0.8481972638827692,
+      "multiR2": 0.9454994694811144
     },
     {
       "code": "162411",
@@ -327,11 +327,11 @@
       "status": "done",
       "lag": 0,
       "samples": 155,
-      "bestSingleR2": 0.9965382987370218,
+      "bestSingleR2": 0.9965383059691214,
       "bestIndex": "usXOP",
       "bestIndexName": "石油天然气上游",
-      "bestBeta": 0.9485985758885666,
-      "multiR2": 0.9965595208832496
+      "bestBeta": 0.9485983156171648,
+      "multiR2": 0.9965595279246311
     },
     {
       "code": "160416",
@@ -353,11 +353,11 @@
       "status": "done",
       "lag": 0,
       "samples": 152,
-      "bestSingleR2": 0.22521625654152444,
+      "bestSingleR2": 0.2252161982468709,
       "bestIndex": "usMCHI",
       "bestIndexName": "MSCI中国ETF",
-      "bestBeta": 0.4513312254800542,
-      "multiR2": 0.3719614632576692
+      "bestBeta": 0.4513311604590617,
+      "multiR2": 0.3719614112080011
     },
     {
       "code": "161124",
@@ -366,11 +366,11 @@
       "status": "done",
       "lag": 0,
       "samples": 152,
-      "bestSingleR2": 0.19734037943521832,
+      "bestSingleR2": 0.19734033596016365,
       "bestIndex": "usMCHI",
       "bestIndexName": "MSCI中国ETF",
-      "bestBeta": 0.45240070869822224,
-      "multiR2": 0.32710054623579976
+      "bestBeta": 0.4524006522394827,
+      "multiR2": 0.32710050721028994
     },
     {
       "code": "160322",
@@ -385,11 +385,11 @@
       "status": "done",
       "lag": 0,
       "samples": 152,
-      "bestSingleR2": 0.2734810965489629,
+      "bestSingleR2": 0.27348103089837883,
       "bestIndex": "usMCHI",
       "bestIndexName": "MSCI中国ETF",
-      "bestBeta": 0.554641120491324,
-      "multiR2": 0.2968799895576145
+      "bestBeta": 0.5546410457959907,
+      "multiR2": 0.296880284601742
     },
     {
       "code": "501310",
@@ -411,11 +411,11 @@
       "status": "done",
       "lag": 0,
       "samples": 152,
-      "bestSingleR2": 0.30232101928491806,
+      "bestSingleR2": 0.3023209392400389,
       "bestIndex": "usMCHI",
       "bestIndexName": "MSCI中国ETF",
-      "bestBeta": 0.4999078572996717,
-      "multiR2": 0.30256675065809047
+      "bestBeta": 0.49990778379844963,
+      "multiR2": 0.302566705749848
     },
     {
       "code": "501307",
@@ -450,11 +450,11 @@
       "status": "done",
       "lag": 0,
       "samples": 152,
-      "bestSingleR2": 0.36362812100548647,
+      "bestSingleR2": 0.3636276691330481,
       "bestIndex": "usFXI",
       "bestIndexName": "中国大盘股ETF",
-      "bestBeta": 0.5568976836180468,
-      "multiR2": 0.3680178856902081
+      "bestBeta": 0.5568974717027908,
+      "multiR2": 0.3680175847911116
     },
     {
       "code": "501311",
@@ -463,11 +463,11 @@
       "status": "done",
       "lag": 0,
       "samples": 152,
-      "bestSingleR2": 0.386648678812729,
+      "bestSingleR2": 0.38664846152544974,
       "bestIndex": "usMCHI",
       "bestIndexName": "MSCI中国ETF",
-      "bestBeta": 0.8000557424744272,
-      "multiR2": 0.41091466655046927
+      "bestBeta": 0.8000555059510227,
+      "multiR2": 0.410914716945344
     },
     {
       "code": "501301",
@@ -476,11 +476,11 @@
       "status": "done",
       "lag": 0,
       "samples": 152,
-      "bestSingleR2": 0.36707511319678776,
+      "bestSingleR2": 0.36707499367768703,
       "bestIndex": "usMCHI",
       "bestIndexName": "MSCI中国ETF",
-      "bestBeta": 0.5725076591874724,
-      "multiR2": 0.37057969542088254
+      "bestBeta": 0.5725075575989236,
+      "multiR2": 0.3705794477282537
     },
     {
       "code": "164705",
@@ -489,11 +489,11 @@
       "status": "done",
       "lag": 0,
       "samples": 152,
-      "bestSingleR2": 0.29738050950547135,
+      "bestSingleR2": 0.2973804293800485,
       "bestIndex": "usMCHI",
       "bestIndexName": "MSCI中国ETF",
-      "bestBeta": 0.48526548592984575,
-      "multiR2": 0.2975325282228961
+      "bestBeta": 0.4852654134484998,
+      "multiR2": 0.2975324765510413
     },
     {
       "code": "161831",
@@ -502,11 +502,11 @@
       "status": "done",
       "lag": 0,
       "samples": 152,
-      "bestSingleR2": 0.3702927990932319,
+      "bestSingleR2": 0.37029269235906015,
       "bestIndex": "usMCHI",
       "bestIndexName": "MSCI中国ETF",
-      "bestBeta": 0.6065225166563287,
-      "multiR2": 0.37418860594981185
+      "bestBeta": 0.6065224203606013,
+      "multiR2": 0.37418836978754244
     },
     {
       "code": "501305",
@@ -528,11 +528,11 @@
       "status": "done",
       "lag": 0,
       "samples": 152,
-      "bestSingleR2": 0.29878370268798826,
+      "bestSingleR2": 0.29878361989275415,
       "bestIndex": "usMCHI",
       "bestIndexName": "MSCI中国ETF",
-      "bestBeta": 0.4912031396367191,
-      "multiR2": 0.2988966636071133
+      "bestBeta": 0.4912030643846803,
+      "multiR2": 0.29889660509795946
     },
     {
       "code": "501025",
