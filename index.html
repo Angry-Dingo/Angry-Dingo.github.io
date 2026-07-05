@@ -423,8 +423,8 @@ body {
   .fund-table th, .fund-table td { padding: 8px 5px; font-size: 0.7rem; }
   .generate-time { font-size: 0.65rem; padding: 4px 8px; }
 
-  /* 模态窗口：居中显示，自适应高度 */
-  .modal-overlay { align-items: center; }
+  /* 模态窗口：跟随点击点定位 */
+  .modal-overlay { align-items: flex-start; }
   .modal-box {
     width: 94vw;
     max-width: 94vw;
@@ -824,6 +824,7 @@ function stopRefreshTimer() {
   }
 }
 
+// 移动端侧边栏开关
 function toggleSidebar(e) {
   if (e) e.stopPropagation();
   const sidebar = document.querySelector('.sidebar');
@@ -842,6 +843,8 @@ function closeSidebar() {
 
 function setFilter(filter) {
   currentFilter = filter;
+
+  // 更新标签状态
   document.querySelectorAll('.filter-tab').forEach(tab => {
     if (tab.onclick.toString().includes(`setFilter('${filter}')`)) {
       tab.classList.add('active');
@@ -849,8 +852,9 @@ function setFilter(filter) {
       tab.classList.remove('active');
     }
   });
+
   renderTable();
-  closeSidebar();
+  closeSidebar(); // 移动端选择后自动关闭侧边栏
 }
 
 function setCategory(category) {
@@ -863,7 +867,7 @@ function setCategory(category) {
     }
   });
   renderTable();
-  closeSidebar();
+  closeSidebar(); // 移动端选择后自动关闭侧边栏
 }
 
 const NO_GSZ_FUNDS = new Set([
@@ -1673,7 +1677,7 @@ function renderDesktopTable(sortedData) {
     const categoryName = categoryMap[fund.category] || fund.category;
     
     return `
-      <tr onclick="openNavChart('${fund.code}')">
+      <tr onclick="openNavChart('${fund.code}', event)">
         <td style="font-weight: 600;">${index + 1}</td>
         <td>
           <div class="code-cell">
@@ -1762,21 +1766,40 @@ function renderDesktopTable(sortedData) {
 // ==================== 净值曲线图 ====================
 let currentChartFund = null;
 
-async function openNavChart(code) {
+// 打开净值曲线模态窗口
+async function openNavChart(code, event) {
   const fund = FUNDS.find(f => f.code === code);
   if (!fund) return;
   currentChartFund = code;
   document.getElementById('modalFundName').textContent = fund.name;
   document.getElementById('modalFundCode').textContent = code;
+  // 重置 modalBody 为初始结构，防止上次 innerHTML 替换导致 canvas 丢失
   document.getElementById('modalBody').innerHTML = '<div class="modal-loading" id="modalLoading">加载净值数据...</div><canvas id="navChartCanvas" style="display:none"></canvas>';
   document.getElementById('modalLegend').style.display = 'none';
   document.getElementById('modalNote').style.display = 'block';
+
+  // 手机端：模态窗口跟随点击点定位
+  const modalBox = document.querySelector('.modal-box');
+  if (event && window.innerWidth <= 680) {
+    const clickY = event.clientY || (event.touches && event.touches[0] ? event.touches[0].clientY : window.innerHeight / 2);
+    const boxHeight = Math.min(window.innerHeight * 0.85, 480);
+    // 以点击点为中心，确保不超出屏幕：顶部至少留 10px，底部至少留 10px
+    let top = clickY - boxHeight / 2;
+    top = Math.max(10, Math.min(top, window.innerHeight - boxHeight - 10));
+    modalBox.style.marginTop = top + 'px';
+  } else {
+    modalBox.style.marginTop = '';
+  }
+
   document.getElementById('navChartModal').classList.add('active');
 
   try {
+    // 从 Pages Function API 获取历史数据
+    // 注意：GitHub Pages 不支持 Pages Functions，需访问 CF Pages 部署的站点
     const historyUrl = '/api/nav-history?code=' + code;
     const res = await fetch(historyUrl);
 
+    // 检查响应类型，防止收到 HTML 页面（如 GitHub Pages 404）
     const contentType = res.headers.get('content-type') || '';
     if (!contentType.includes('application/json')) {
       throw new Error('API不可用，请在 Cloudflare Pages 站点访问');
