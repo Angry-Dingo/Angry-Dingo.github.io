@@ -424,12 +424,13 @@ body {
   .generate-time { font-size: 0.65rem; padding: 4px 8px; }
 
   /* 模态窗口：跟随点击点定位 */
-  .modal-overlay { align-items: flex-start; }
+  .modal-overlay { align-items: flex-start; padding-top: 0; }
   .modal-box {
-    width: 100vw;
-    max-width: 100vw;
-    max-height: 92vh;
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    width: 94vw;
+    max-width: 94vw;
+    max-height: 85vh;
+    height: auto;
+    border-radius: var(--radius-lg);
     padding: 16px 16px 14px;
   }
 }
@@ -1892,11 +1893,20 @@ async function openNavChart(code, event) {
   if (event && window.innerWidth <= 680) {
     const clickY = event.clientY || (event.touches && event.touches[0] ? event.touches[0].clientY : window.innerHeight / 2);
     const boxHeight = Math.min(window.innerHeight * 0.85, 480);
-    // 以点击点为中心，确保不超出屏幕：顶部至少留 10px，底部至少留 10px
+    // 以点击点为中心定位，确保不超出屏幕
     let top = clickY - boxHeight / 2;
     top = Math.max(10, Math.min(top, window.innerHeight - boxHeight - 10));
-    modalBox.style.marginTop = top + 'px';
+    // 用 fixed 定位脱离 flex 布局，精确控制位置
+    modalBox.style.position = 'fixed';
+    modalBox.style.top = top + 'px';
+    modalBox.style.left = '3vw';
+    modalBox.style.width = '94vw';
+    modalBox.style.marginTop = '0';
   } else {
+    modalBox.style.position = '';
+    modalBox.style.top = '';
+    modalBox.style.left = '';
+    modalBox.style.width = '';
     modalBox.style.marginTop = '';
   }
 
