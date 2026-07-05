@@ -429,6 +429,7 @@ body {
     width: 94vw;
     max-width: 94vw;
     max-height: 90vh;
+    max-height: 90dvh;
     height: auto;
     border-radius: var(--radius-lg);
     padding: 14px 16px 10px;
@@ -437,6 +438,7 @@ body {
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     max-height: 55vh;
+    max-height: 55dvh;
   }
   .modal-body canvas { height: auto; }
   .modal-legend { margin-top: 8px; flex-shrink: 0; }
@@ -451,8 +453,8 @@ body {
   .fund-table th, .fund-table td { padding: 6px 4px; font-size: 0.65rem; }
   .code-cell .fund-name { font-size: 0.7rem; max-width: 90px; }
   .code-cell .fund-code { font-size: 0.6rem; }
-  .modal-box { padding: 10px 10px 8px; max-height: 90vh; }
-  .modal-body { max-height: 50vh; }
+  .modal-box { padding: 10px 10px 8px; max-height: 90vh; max-height: 90dvh; }
+  .modal-body { max-height: 50vh; max-height: 50dvh; }
   .modal-header { margin-bottom: 8px; }
   .modal-title { font-size: 0.95rem; }
   .modal-close { width: 28px; height: 28px; font-size: 1rem; }
@@ -464,7 +466,10 @@ body {
 .modal-overlay {
   display: none;
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
   background: rgba(0,0,0,0.65);
   z-index: 1000;
   justify-content: center;
@@ -478,6 +483,7 @@ body {
   width: 90vw;
   max-width: 780px;
   max-height: 85vh;
+  max-height: 85dvh;
   padding: 24px 28px 20px;
   box-shadow: 0 8px 40px rgba(0,0,0,0.5);
   display: flex;
