@@ -1,13 +1,15 @@
-// CF Pages Function - 初始化净值历史数据
-// 一次性脚本：拉取过去15天实际净值 + 今日预估净值快照
-// 调用方式: /api/init-nav
-// 功能：
-//   1. 从天天基金 pingzhongdata 拉取每只基金过去15天的单位净值(actualNav)
-//   2. 从腾讯/东财拉取实时行情，计算今日预估净值(estNav)并写入KV
+// CF Pages Function - 初始化净值历史数据（分批模式）
+// 调用方式: /api/init-nav          → 返回总批数和基金列表
+//           /api/init-nav?batch=1  → 执行第1批（约5只基金）
+//           /api/init-nav?batch=2  → 执行第2批，以此类推
 // 明天起由 Worker saveDailySnapshot 自然积累
 
+const BATCH_SIZE = 5; // 每批处理5只，避免CF Pages Function超时
+
 export async function onRequest(context) {
-  const { env } = context;
+  const { request, env } = context;
+  const url = new URL(request.url);
+  const batchNum = parseInt(url.searchParams.get('batch') || '0');
 
   if (!env.FUNDS_KV) {
     return new Response(JSON.stringify({ error: 'FUNDS_KV 未配置' }), {
@@ -35,72 +37,101 @@ export async function onRequest(context) {
     });
   }
 
+  const totalFunds = fundsData.funds.length;
+  const totalBatches = Math.ceil(totalFunds / BATCH_SIZE);
+
+  // 无 batch 参数：返回总览信息
+  if (!batchNum) {
+    return new Response(JSON.stringify({
+      message: '分批初始化净值历史数据',
+      totalFunds,
+      totalBatches,
+      batchSize: BATCH_SIZE,
+      usage: `依次调用 /api/init-nav?batch=1 到 /api/init-nav?batch=${totalBatches}`,
+      funds: fundsData.funds.map((f, i) => ({
+        code: f.code,
+        name: f.name,
+        batch: Math.floor(i / BATCH_SIZE) + 1
+      }))
+    }, null, 2), {
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+    });
+  }
+
+  // ========== 2. 执行指定批次 ==========
+  const startIdx = (batchNum - 1) * BATCH_SIZE;
+  const endIdx = Math.min(startIdx + BATCH_SIZE, totalFunds);
+  const batchFunds = fundsData.funds.slice(startIdx, endIdx);
+
+  if (batchNum < 1 || batchNum > totalBatches) {
+    return new Response(JSON.stringify({
+      error: `批次号无效，范围 1~${totalBatches}`
+    }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+    });
+  }
+
   const results = {
-    total: fundsData.funds.length,
+    batch: batchNum,
+    totalBatches,
+    fundsInBatch: batchFunds.length,
+    date: beijingDate,
     historySuccess: 0,
     historyFailed: 0,
     snapshotCount: 0,
-    date: beijingDate,
     details: []
   };
 
-  // ========== 2. 批量拉取历史实际净值（方案3） ==========
-  const BATCH = 8;
-  for (let i = 0; i < fundsData.funds.length; i += BATCH) {
-    const batch = fundsData.funds.slice(i, i + BATCH);
-    await Promise.all(batch.map(async (fund) => {
-      try {
-        const res = await fetch(
-          `https://fund.eastmoney.com/pingzhongdata/${fund.code}.js?v=${Date.now()}`,
-          { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' } }
-        );
-        const text = await res.text();
+  // 2.1 拉取历史实际净值
+  await Promise.all(batchFunds.map(async (fund) => {
+    try {
+      const res = await fetch(
+        `https://fund.eastmoney.com/pingzhongdata/${fund.code}.js?v=${Date.now()}`,
+        { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' } }
+      );
+      const text = await res.text();
 
-        // 解析 Data_netWorthTrend 数组
-        const startIdx = text.indexOf('Data_netWorthTrend');
-        if (startIdx === -1) {
-          results.historyFailed++;
-          results.details.push({ code: fund.code, status: 'no_trend_data' });
-          return;
-        }
-        const arrStart = text.indexOf('[', startIdx);
-        const arrEnd = text.indexOf('];', arrStart);
-        if (arrStart === -1 || arrEnd === -1) {
-          results.historyFailed++;
-          results.details.push({ code: fund.code, status: 'parse_error' });
-          return;
-        }
-        const arrStr = text.substring(arrStart, arrEnd + 1);
-        const navTrend = JSON.parse(arrStr);
-
-        // 取最近15条，构建历史记录
-        const recent = navTrend.slice(-15);
-        const history = recent.map(item => {
-          const bjDate = new Date(item.x + 8 * 3600000).toISOString().slice(0, 10);
-          return {
-            date: bjDate,
-            estNav: null,
-            actualNav: parseFloat(item.y) || null
-          };
-        }).filter(r => r.actualNav !== null);
-
-        // 写入 KV
-        const key = `nav_hist:${fund.code}`;
-        await env.FUNDS_KV.put(key, JSON.stringify(history));
-        results.historySuccess++;
-        results.details.push({ code: fund.code, status: 'ok', days: history.length });
-      } catch (e) {
+      const startIdx2 = text.indexOf('Data_netWorthTrend');
+      if (startIdx2 === -1) {
         results.historyFailed++;
-        results.details.push({ code: fund.code, status: 'error', error: e.message });
+        results.details.push({ code: fund.code, name: fund.name, status: 'no_trend_data' });
+        return;
       }
-    }));
-  }
+      const arrStart = text.indexOf('[', startIdx2);
+      const arrEnd = text.indexOf('];', arrStart);
+      if (arrStart === -1 || arrEnd === -1) {
+        results.historyFailed++;
+        results.details.push({ code: fund.code, name: fund.name, status: 'parse_error' });
+        return;
+      }
+      const arrStr = text.substring(arrStart, arrEnd + 1);
+      const navTrend = JSON.parse(arrStr);
 
-  // ========== 3. 拉取实时行情，计算今日预估净值快照（方案2） ==========
+      const recent = navTrend.slice(-15);
+      const history = recent.map(item => {
+        const bjDate = new Date(item.x + 8 * 3600000).toISOString().slice(0, 10);
+        return {
+          date: bjDate,
+          estNav: null,
+          actualNav: parseFloat(item.y) || null
+        };
+      }).filter(r => r.actualNav !== null);
+
+      const key = `nav_hist:${fund.code}`;
+      await env.FUNDS_KV.put(key, JSON.stringify(history));
+      results.historySuccess++;
+      results.details.push({ code: fund.code, name: fund.name, status: 'ok', days: history.length });
+    } catch (e) {
+      results.historyFailed++;
+      results.details.push({ code: fund.code, name: fund.name, status: 'error', error: e.message });
+    }
+  }));
+
+  // 2.2 拉取实时行情，计算今日预估净值快照
   try {
-    // 3.1 腾讯行情
-    const fundTqs = fundsData.funds.map(f => f.tq);
-    const idxTqs = [...new Set(fundsData.funds.flatMap(f =>
+    const fundTqs = batchFunds.map(f => f.tq);
+    const idxTqs = [...new Set(batchFunds.flatMap(f =>
       Array.isArray(f.benchmark) ? f.benchmark.map(b => b.tq) :
       f.benchmark ? [f.benchmark] : []
     ))];
@@ -130,18 +161,11 @@ export async function onRequest(context) {
       }
     });
 
-    // 3.2 东方财富补充指数
+    // 东方财富补充指数
     const EM_CODES = [
-      ['csi930917', '2.930917'],
-      ['csi930914', '2.930914'],
-      ['csi930792', '2.930792'],
-      ['sh000985',  '1.000985'],
-      ['sh000066',  '1.000066'],
-      ['sh000945',  '1.000945'],
-      ['hkHSMI',    '124.HSMI'],
-      ['hkHSSI',    '124.HSSI'],
-      ['hkHSCI',    '124.HSCI'],
-      ['hkHSI',     '124.HSI'],
+      ['csi930917', '2.930917'], ['csi930914', '2.930914'], ['csi930792', '2.930792'],
+      ['sh000985', '1.000985'], ['sh000066', '1.000066'], ['sh000945', '1.000945'],
+      ['hkHSMI', '124.HSMI'], ['hkHSSI', '124.HSSI'], ['hkHSCI', '124.HSCI'], ['hkHSI', '124.HSI'],
     ];
     await Promise.all(EM_CODES.map(async ([key, secid]) => {
       try {
@@ -151,13 +175,12 @@ export async function onRequest(context) {
         );
         const d = await r.json();
         if (d.data) {
-          const chg = d.data.f3 !== undefined ? d.data.f3 : ((d.data.f170 || 0) / 100);
-          indexData[key] = chg;
+          indexData[key] = d.data.f3 !== undefined ? d.data.f3 : ((d.data.f170 || 0) / 100);
         }
       } catch (e) {}
     }));
 
-    // 3.3 沪银主连期货
+    // 沪银主连期货
     try {
       const futRes = await fetch(
         `https://push2.eastmoney.com/api/qt/stock/get?secid=113.AGM&fields=f43,f170,f3&_=${Date.now()}`,
@@ -169,7 +192,7 @@ export async function onRequest(context) {
       }
     } catch (e) {}
 
-    // 3.4 指数降级
+    // 指数降级
     if (indexData['hkHSMI'] == null || indexData['hkHSMI'] === 0) {
       if (indexData['hkHSI'] != null) indexData['hkHSMI'] = indexData['hkHSI'];
     }
@@ -180,8 +203,8 @@ export async function onRequest(context) {
       if (indexData['hkHSI'] != null) indexData['hkHSSI'] = indexData['hkHSI'];
     }
 
-    // 3.5 计算今日 estNav 并更新 KV
-    for (const fund of fundsData.funds) {
+    // 计算今日 estNav
+    for (const fund of batchFunds) {
       const mi = fundMarketData[fund.tq];
       if (!mi) continue;
       const baseNav = fund.officialNav || mi.prevClose;
@@ -202,7 +225,6 @@ export async function onRequest(context) {
       const todayIdx = existing.findIndex(r => r.date === beijingDate);
 
       if (todayIdx >= 0) {
-        // 保留已回填的 actualNav
         if (existing[todayIdx].actualNav !== null && existing[todayIdx].actualNav !== undefined) {
           record.actualNav = existing[todayIdx].actualNav;
         }
