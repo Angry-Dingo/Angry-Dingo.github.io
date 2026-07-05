@@ -423,9 +423,13 @@ body {
   .fund-table th, .fund-table td { padding: 8px 5px; font-size: 0.7rem; }
   .generate-time { font-size: 0.65rem; padding: 4px 8px; }
 
-  /* 模态窗口：跟随点击点定位 */
-  .modal-overlay { align-items: flex-start; padding-top: 0; }
+  /* 模态窗口：跟随点击点定位 - 使用block+fixed脱离flex布局 */
+  .modal-overlay { display: block; align-items: unset; padding-top: 0; }
   .modal-box {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     width: 94vw;
     max-width: 94vw;
     max-height: 85vh;
@@ -1896,18 +1900,14 @@ async function openNavChart(code, event) {
     // 以点击点为中心定位，确保不超出屏幕
     let top = clickY - boxHeight / 2;
     top = Math.max(10, Math.min(top, window.innerHeight - boxHeight - 10));
-    // 用 fixed 定位脱离 flex 布局，精确控制位置
-    modalBox.style.position = 'fixed';
+    // 覆盖CSS默认的居中样式，精确定位到点击点
     modalBox.style.top = top + 'px';
     modalBox.style.left = '3vw';
-    modalBox.style.width = '94vw';
-    modalBox.style.marginTop = '0';
+    modalBox.style.transform = 'none';
   } else {
-    modalBox.style.position = '';
     modalBox.style.top = '';
     modalBox.style.left = '';
-    modalBox.style.width = '';
-    modalBox.style.marginTop = '';
+    modalBox.style.transform = '';
   }
 
   document.getElementById('navChartModal').classList.add('active');
