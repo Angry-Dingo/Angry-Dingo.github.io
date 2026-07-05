@@ -344,7 +344,40 @@ body {
 .footer-content { max-width: 100%; margin: 0 auto; padding: 16px 24px; display: flex; align-items: center; justify-content: center; text-align: center; }
 .footer-info { font-size: 0.7rem; color: var(--text-muted); line-height: 1.8; }
 
+/* ===== Mobile Menu Button ===== */
+.mobile-menu-btn {
+  display: none;
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 101;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 1.2rem;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+.mobile-menu-btn:hover { background: var(--bg-hover); }
+.mobile-menu-btn:active { transform: scale(0.95); }
+
+/* ===== Sidebar Overlay (mobile drawer) ===== */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 99;
+}
+.sidebar-overlay.active { display: block; }
+
 /* ===== Responsive ===== */
+/* 平板：侧边栏缩为图标模式 */
 @media (max-width: 900px) {
   .sidebar { width: 48px; }
   .sidebar-logo .logo-text, .sidebar-stat .stat-label, .sidebar-section-title, .filter-tab { display: none; }
@@ -357,22 +390,65 @@ body {
   .content-area { margin-left: 48px; }
   .top-bar { padding: 12px 14px 0; }
   .main-container { padding: 12px 14px 16px; }
-  .fund-table-container { overflow-x: auto; }
+  .fund-table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .fund-table { min-width: 780px; }
   .fund-table th, .fund-table td { padding: 8px 6px; font-size: 0.72rem; }
 }
 
+/* 大手机/小平板：侧边栏改为抽屉式 */
 @media (max-width: 680px) {
-  .sidebar { width: 44px; }
-  .content-area { margin-left: 44px; }
-  .top-bar { padding: 10px 10px 0; }
-  .main-container { padding: 10px 10px 12px; }
+  .mobile-menu-btn { display: flex; }
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    width: 200px;
+    z-index: 100;
+    box-shadow: 4px 0 24px rgba(0,0,0,0.4);
+  }
+  .sidebar.open { transform: translateX(0); }
+  /* 恢复侧边栏完整显示（抽屉打开时） */
+  .sidebar .logo-text, .sidebar .stat-label, .sidebar-section-title, .filter-tab { display: block; }
+  .sidebar-logo { justify-content: flex-start; padding: 18px 16px 14px; }
+  .sidebar-stat { padding: 10px; }
+  .sidebar-stat .stat-num { font-size: 1.15rem; }
+  .sidebar-section { padding: 10px 14px 4px; }
+  .filter-tab { padding: 8px 12px; text-align: left; }
+
+  .content-area { margin-left: 0; }
+  .top-bar { padding: 10px 12px 0; padding-left: 60px; }
+  .main-container { padding: 10px 12px 12px; }
+
+  .fund-table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: var(--radius-md); }
+  .fund-table { min-width: 720px; }
   .fund-table th, .fund-table td { padding: 8px 5px; font-size: 0.7rem; }
   .generate-time { font-size: 0.65rem; padding: 4px 8px; }
+
+  /* 模态窗口全屏化 */
+  .modal-overlay { align-items: flex-end; }
+  .modal-box {
+    width: 100vw;
+    max-width: 100vw;
+    max-height: 92vh;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 16px 16px 14px;
+  }
 }
 
+/* 手机：进一步紧凑 */
 @media (max-width: 480px) {
+  .top-bar { padding: 8px 10px 0; padding-left: 56px; }
+  .main-container { padding: 8px 8px 10px; }
+  .fund-table { min-width: 680px; }
   .fund-table th, .fund-table td { padding: 6px 4px; font-size: 0.65rem; }
+  .code-cell .fund-name { font-size: 0.7rem; max-width: 90px; }
+  .code-cell .fund-code { font-size: 0.6rem; }
+  .modal-box { padding: 14px 12px 12px; max-height: 90vh; }
+  .modal-header { margin-bottom: 12px; }
+  .modal-title { font-size: 0.95rem; }
+  .modal-close { width: 28px; height: 28px; font-size: 1rem; }
+  .modal-legend { gap: 12px; font-size: 0.7rem; margin-top: 8px; }
+  .modal-nav-note { font-size: 0.62rem; }
+  .footer-info { font-size: 0.62rem; line-height: 1.6; }
 }
 /* ===== 净值曲线模态窗口 ===== */
 .modal-overlay {
@@ -480,6 +556,11 @@ body {
 </style>
 </head>
 <body>
+
+<!-- 移动端菜单按钮 -->
+<button class="mobile-menu-btn" onclick="toggleSidebar(event)" aria-label="菜单">☰</button>
+<!-- 侧边栏遮罩层（移动端） -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
 <div class="app-layout">
 
@@ -740,9 +821,26 @@ function stopRefreshTimer() {
 }
 
 // 设置筛选类型
+// 移动端侧边栏开关
+function toggleSidebar(e) {
+  if (e) e.stopPropagation();
+  const sidebar = document.querySelector('.sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  if (sidebar.classList.contains('open')) {
+    closeSidebar();
+  } else {
+    sidebar.classList.add('open');
+    overlay.classList.add('active');
+  }
+}
+function closeSidebar() {
+  document.querySelector('.sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('active');
+}
+
 function setFilter(filter) {
   currentFilter = filter;
-  
+
   // 更新标签状态
   document.querySelectorAll('.filter-tab').forEach(tab => {
     if (tab.onclick.toString().includes(`setFilter('${filter}')`)) {
@@ -751,8 +849,9 @@ function setFilter(filter) {
       tab.classList.remove('active');
     }
   });
-  
+
   renderTable();
+  closeSidebar(); // 移动端选择后自动关闭侧边栏
 }
 
 // 设置基金类别
@@ -769,6 +868,7 @@ function setCategory(category) {
   });
   
   renderTable();
+  closeSidebar(); // 移动端选择后自动关闭侧边栏
 }
 
 // 降级基金：fundgz接口无实时估值，三接口竞速
