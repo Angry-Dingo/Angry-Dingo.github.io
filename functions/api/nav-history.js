@@ -1,15 +1,17 @@
 // CF Pages Function - 净值历史数据API
 // 从 KV 读取基金的历史预估净值和实际净值
 // 需要 Cloudflare Pages Dashboard 中配置 KV 绑定：FUNDS_KV
+// 调用方式: /api/nav-history?code=161127
+// 注意: CF Pages v2 中 nav-history.js 只匹配 /api/nav-history 精确路径
+//        子路径模式 /api/nav-history/{code} 不匹配，故使用查询参数
 
 export async function onRequest(context) {
   const { request, env } = context;
   const url = new URL(request.url);
-  const fundCode = url.pathname.split('/').pop();
+  const fundCode = url.searchParams.get('code');
 
   if (!fundCode) {
-    return new Response(JSON.stringify({ error: '缺少基金代码' }), {
-      status: 400,
+    return new Response(JSON.stringify([]), {
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
     });
   }
