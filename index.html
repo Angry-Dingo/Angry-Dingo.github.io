@@ -424,7 +424,7 @@ body {
   .generate-time { font-size: 0.65rem; padding: 4px 8px; }
 
   /* 模态窗口：跟随点击点定位 - 使用block+fixed脱离flex布局 */
-  .modal-overlay { display: block; align-items: unset; }
+  .modal-overlay, .modal-overlay.active { display: block; align-items: unset; }
   .modal-box {
     position: fixed;
     top: 50%;
