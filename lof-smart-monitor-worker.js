@@ -11,6 +11,13 @@ export default {
 
     console.log(`[LOG] UTC: ${hour}:${minute}, 星期: ${day}, 北京: ${beijingHour}:${minute}, 星期: ${beijingDay}, Cron: ${cron}`);
 
+    // 收盘快照：北京时间 15:00（UTC 07:00），交易日执行
+    if (cron.startsWith('0 7') && beijingDay >= 1 && beijingDay <= 5) {
+      console.log('[LOG] 执行收盘快照任务');
+      ctx.waitUntil(saveDailySnapshot(env));
+      return;
+    }
+
     // 使用 startsWith 前缀匹配，兼容 Dashboard 上的各种 cron 变体（如 0 23 * * 0-4 / 0 23 * * *）
     if (cron.startsWith('0 23') || cron.startsWith('10 13')) {
       console.log('[LOG] 执行数据同步任务');
@@ -31,6 +38,10 @@ export default {
       ctx.waitUntil(syncDataFromGitHub(env));
       return new Response('数据同步已触发', { status: 200 });
     }
+    if (url.pathname === '/snapshot') {
+      ctx.waitUntil(saveDailySnapshot(env));
+      return new Response('收盘快照已触发', { status: 200 });
+    }
     // 指数数据代理：浏览器端通过此端点获取东方财富指数数据（服务端无CORS限制）
     if (url.pathname === '/api/indices') {
       const EM_CODES = [
@@ -43,7 +54,6 @@ export default {
         ['hkHSMI',    '124.HSMI'],
         ['hkHSSI',    '124.HSSI'],
         ['hkHSCI',    '124.HSCI'],
-        // nf_AG0（沪银主连）通过 /api/futures 端点获取，stock API不支持期货
       ];
       const results = {};
       const times = {};
@@ -64,7 +74,6 @@ export default {
       });
     }
 
-    // 期货数据代理：浏览器端通过此端点获取沪银主连数据（服务端无CORS/Referer限制）
     if (url.pathname === '/api/futures') {
       return await handleFuturesProxy();
     }
@@ -72,9 +81,6 @@ export default {
   }
 };
 
-// ==================== 期货数据代理 ====================
-// 浏览器端无法直接获取沪银主连数据（东财stock API不支持期货，Sina有Referer限制）
-// 此函数从服务端获取数据，供浏览器端和Worker内部使用
 async function handleFuturesProxy() {
   const headers = {
     'Content-Type': 'application/json',
@@ -82,7 +88,6 @@ async function handleFuturesProxy() {
     'Cache-Control': 'no-cache'
   };
 
-  // 数据源1：东方财富stock API（大写secid=113.AGM）
   try {
     const emRes = await fetch(
       `https://push2.eastmoney.com/api/qt/stock/get?secid=113.AGM&fields=f43,f170,f3,f14&_=${Date.now()}`,
@@ -99,7 +104,6 @@ async function handleFuturesProxy() {
     }
   } catch (e) {}
 
-  // 数据源2：东方财富stock API（小写secid=113.agm）
   try {
     const emRes = await fetch(
       `https://push2.eastmoney.com/api/qt/stock/get?secid=113.agm&fields=f43,f170,f3,f14&_=${Date.now()}`,
@@ -116,7 +120,6 @@ async function handleFuturesProxy() {
     }
   } catch (e) {}
 
-  // 数据源3：新浪财经期货数据（服务端无Referer限制）
   try {
     const sinaRes = await fetch('https://hq.sinajs.cn/list=nf_AG0', {
       headers: { 'Referer': 'https://finance.sina.com.cn', 'User-Agent': 'Mozilla/5.0' }
@@ -138,9 +141,7 @@ async function handleFuturesProxy() {
   return new Response(JSON.stringify({ nf_AG0: null, source: 'none' }), { headers });
 }
 
-// 从新浪获取沪银主连涨跌幅（用于Worker内部监控计算）
 async function fetchFuturesData() {
-  // 尝试东财大写secid
   try {
     const emRes = await fetch(
       `https://push2.eastmoney.com/api/qt/stock/get?secid=113.AGM&fields=f43,f3&_=${Date.now()}`,
@@ -153,7 +154,6 @@ async function fetchFuturesData() {
       }
     }
   } catch (e) {}
-  // 尝试东财小写secid
   try {
     const emRes = await fetch(
       `https://push2.eastmoney.com/api/qt/stock/get?secid=113.agm&fields=f43,f3&_=${Date.now()}`,
@@ -187,7 +187,6 @@ async function fetchFuturesData() {
   return {};
 }
 
-// ==================== 工具函数 ====================
 function quotaIcon(quota) {
   if (!quota) return '⚪';
   if (quota === '暂停') return '🔴';
@@ -195,7 +194,6 @@ function quotaIcon(quota) {
   return '🟠';
 }
 
-// ==================== 数据同步任务 ====================
 async function syncDataFromGitHub(env) {
   try {
     console.log('[LOG] === 开始数据同步任务 ===');
@@ -229,6 +227,9 @@ async function syncDataFromGitHub(env) {
       await env.FUNDS_KV.put('funds', JSON.stringify(fundsData, null, 2));
       console.log('[LOG] KV 存储成功');
     }
+
+    // 回填 actualNav：根据 funds.json 中的 officialNav 和 navDate 更新 nav_hist
+    await backfillActualNav(env, fundsData.funds);
 
     await sendQuotaUpdateAlert(env, fundsData.funds.length, changes);
     console.log('[LOG] 数据同步任务完成');
@@ -283,7 +284,6 @@ async function sendQuotaUpdateAlert(env, totalCount, changes) {
   }
 }
 
-// ==================== 溢价监控 ====================
 const PREMIUM_HISTORY = {};
 const LAST_ALERT_TIME = {};
 
@@ -321,7 +321,6 @@ async function smartMonitor(env, isTestMode = false) {
     const alerts = [];
     const allAbnormalFunds = [];
 
-    // CF cron 触发时间有 ±1 分钟漂移，用范围匹配代替精确匹配
     const isGlobalAlert = isTestMode || (
       (h === 9 && m >= 25 && m <= 26) ||
       (h === 10 && (m <= 1 || (m >= 30 && m <= 31))) ||
@@ -455,7 +454,6 @@ async function fetchMarketData(fundsData) {
     }
   });
 
-  // 补充东方财富数据源（腾讯qt不支持的指数：中证自定义指数、债券指数等）
   const EM_CODES = [
     ['csi930917', '2.930917'],
     ['csi930914', '2.930914'],
@@ -463,24 +461,22 @@ async function fetchMarketData(fundsData) {
     ['sh000985',  '1.000985'],
     ['sh000066',  '1.000066'],
     ['sh000945',  '1.000945'],
-    ['hkHSMI',    '124.HSMI'],    // 恒生综合中型股指数（501303恒生中型股LOF基准，腾讯无数据）
-    ['hkHSSI',    '124.HSSI'],    // 恒生综合小型股指数（161124港股小盘LOF基准，腾讯无数据）
-    ['hkHSCI',    '124.HSCI'],    // 恒生综合指数（160322港股精选LOF基准，腾讯无数据）
-    ['hkHSI',     '124.HSI'],     // 恒生指数（hkHSMI/hkHSSI/hkHSCI降级后备）
+    ['hkHSMI',    '124.HSMI'],
+    ['hkHSSI',    '124.HSSI'],
+    ['hkHSCI',    '124.HSCI'],
+    ['hkHSI',     '124.HSI'],
   ];
   await Promise.all(EM_CODES.map(async ([tq, secid]) => {
     try {
       const r = await fetch(`https://push2.eastmoney.com/api/qt/stock/get?secid=${secid}&fields=f43,f170,f3&_=${Date.now()}`);
       const d = await r.json();
       if (d.data) {
-        // f3=涨跌幅百分比，f170=涨跌点数→需除以当前价得到百分比
         const chg = d.data.f3 !== undefined ? d.data.f3 : ((d.data.f170 || 0) / (d.data.f43 || 100) * 100);
         if (chg != null) indexData[tq] = chg;
       }
     } catch (e) {}
   }));
 
-  // 补充沪银期货数据（161226 国投白银LOF基准，腾讯qt和东财stock API均不支持）
   try {
     const futuresData = await fetchFuturesData();
     if (futuresData['nf_AG0'] !== undefined && futuresData['nf_AG0'] !== null) {
@@ -488,7 +484,6 @@ async function fetchMarketData(fundsData) {
     }
   } catch (e) {}
 
-  // 指数降级：腾讯或东方财富查不到的指数，用相近指数替代
   if (indexData['hkHSMI'] == null || indexData['hkHSMI'] === 0) {
     if (indexData['hkHSI'] != null) indexData['hkHSMI'] = indexData['hkHSI'];
   }
@@ -584,4 +579,93 @@ async function sendDynamicAlerts(env, alerts, fundsData) {
   } catch (error) {
     console.error('[ERROR] 发送动态溢价提醒失败:', error.message);
   }
+}
+
+// ==================== 收盘快照：保存预估净值 ====================
+async function saveDailySnapshot(env) {
+  try {
+    console.log('[LOG] === 开始收盘快照任务 ===');
+    const fundsData = await loadFundsData(env);
+    const { fundMarketData, indexData } = await fetchMarketData(fundsData);
+
+    // 获取北京时间日期字符串
+    const now = new Date();
+    const beijingDate = new Date(now.getTime() + 8 * 60 * 60 * 1000).toISOString().slice(0, 10);
+    console.log(`[LOG] 快照日期: ${beijingDate}`);
+
+    let saved = 0;
+    for (const fund of fundsData.funds) {
+      const mi = fundMarketData[fund.tq];
+      if (!mi) continue;
+
+      const baseNav = fund.officialNav || mi.prevClose;
+      if (!baseNav) continue;
+
+      const benchChg = fund.benchmark ? calculateBenchChgPct(fund.benchmark, indexData) : 0;
+      const estNav = baseNav * (1 + benchChg / 100);
+      if (estNav <= 0) continue;
+
+      const key = `nav_hist:${fund.code}`;
+      let history = [];
+      try {
+        const raw = await env.FUNDS_KV.get(key);
+        if (raw) history = JSON.parse(raw);
+      } catch (e) {}
+
+      // 查找今天的记录
+      let todayEntry = history.find(h => h.date === beijingDate);
+      if (todayEntry) {
+        todayEntry.estNav = parseFloat(estNav.toFixed(4));
+      } else {
+        history.push({ date: beijingDate, estNav: parseFloat(estNav.toFixed(4)), actualNav: null });
+      }
+
+      // 保留最新15天
+      if (history.length > 15) history = history.slice(-15);
+
+      await env.FUNDS_KV.put(key, JSON.stringify(history));
+      saved++;
+    }
+
+    console.log(`[LOG] 收盘快照完成，共保存 ${saved} 只基金的预估净值`);
+  } catch (e) {
+    console.error('[ERROR] 收盘快照失败:', e.message);
+  }
+}
+
+// ==================== 回填实际净值 ====================
+async function backfillActualNav(env, funds) {
+  if (!env.FUNDS_KV) return;
+  let updated = 0;
+  for (const fund of funds) {
+    if (!fund.officialNav || !fund.navDate) continue;
+
+    const key = `nav_hist:${fund.code}`;
+    let history = [];
+    try {
+      const raw = await env.FUNDS_KV.get(key);
+      if (raw) history = JSON.parse(raw);
+    } catch (e) {}
+
+    if (history.length === 0) continue;
+
+    let found = false;
+    for (const entry of history) {
+      if (entry.date === fund.navDate) {
+        entry.actualNav = fund.officialNav;
+        found = true;
+        break;
+      }
+    }
+
+    // 如果 navDate 不在历史记录中，追加一条
+    if (!found) {
+      history.push({ date: fund.navDate, estNav: null, actualNav: fund.officialNav });
+      if (history.length > 15) history = history.slice(-15);
+    }
+
+    await env.FUNDS_KV.put(key, JSON.stringify(history));
+    updated++;
+  }
+  console.log(`[LOG] 回填实际净值完成，共更新 ${updated} 只基金`);
 }
