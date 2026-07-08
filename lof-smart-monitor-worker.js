@@ -567,30 +567,62 @@ async function saveDailySnapshot(env) {
 async function backfillActualNav(env, funds) {
   if (!env.FUNDS_KV) return;
   let updated = 0;
-  for (const fund of funds) {
-    if (!fund.officialNav || !fund.navDate) continue;
-    const key = `nav_hist:${fund.code}`;
-    let history = [];
-    try {
-      const raw = await env.FUNDS_KV.get(key);
-      if (raw) history = JSON.parse(raw);
-    } catch (e) {}
+  // 分批处理，避免超时（每批10只）
+  const batchSize = 10;
+  for (let i = 0; i < funds.length; i += batchSize) {
+    const batch = funds.slice(i, i + batchSize);
+    await Promise.all(batch.map(async (fund) => {
+      try {
+        // 优先从东方财富 fundgz 接口获取最新实际净值
+        let actualNav = null;
+        let navDate = null;
+        try {
+          const res = await fetch(`https://fundgz.1234567.com.cn/js/${fund.code}.js?rt=${Date.now()}`, {
+            headers: { 'User-Agent': 'Mozilla/5.0' }
+          });
+          const text = await res.text();
+          const match = text.match(/jsonpgz\((.+)\)/);
+          if (match) {
+            const data = JSON.parse(match[1]);
+            if (data.dwjz) actualNav = parseFloat(data.dwjz);
+            if (data.jzrq) navDate = data.jzrq;
+          }
+        } catch (e) {
+          console.log(`[LOG] fundgz接口获取 ${fund.code} 失败，回退到funds.json`);
+        }
+        // 回退：使用 funds.json 中的 officialNav
+        if (actualNav === null && fund.officialNav && fund.navDate) {
+          actualNav = fund.officialNav;
+          navDate = fund.navDate;
+        }
+        if (actualNav === null || !navDate) return;
 
-    if (history.length === 0) continue;
-    let found = false;
-    for (const entry of history) {
-      if (entry.date === fund.navDate) {
-        entry.actualNav = fund.officialNav;
-        found = true;
-        break;
+        const key = `nav_hist:${fund.code}`;
+        let history = [];
+        try {
+          const raw = await env.FUNDS_KV.get(key);
+          if (raw) history = JSON.parse(raw);
+        } catch (e) {}
+        if (history.length === 0) return;
+
+        let found = false;
+        for (const entry of history) {
+          if (entry.date === navDate) {
+            entry.actualNav = actualNav;
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          history.push({ date: navDate, estNav: null, actualNav: actualNav });
+          if (history.length > 15) history = history.slice(-15);
+        }
+        await env.FUNDS_KV.put(key, JSON.stringify(history));
+        updated++;
+      } catch (e) {
+        console.error(`[ERROR] 回填 ${fund.code} 失败:`, e.message);
       }
-    }
-    if (!found) {
-      history.push({ date: fund.navDate, estNav: null, actualNav: fund.officialNav });
-      if (history.length > 15) history = history.slice(-15);
-    }
-    await env.FUNDS_KV.put(key, JSON.stringify(history));
-    updated++;
+    }));
   }
   console.log(`[LOG] 回填实际净值完成，共更新 ${updated} 只基金`);
 }
