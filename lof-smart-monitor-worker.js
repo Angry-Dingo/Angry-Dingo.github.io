@@ -231,9 +231,22 @@ async function syncDataFromGitHub(env) {
   }
 }
 
+// 判断当前北京时间是否为工作日（周一至周五）
+function isBeijingTradingDay() {
+  const now = new Date();
+  const hour = now.getUTCHours();
+  const day = now.getUTCDay();
+  const beijingDay = (hour + 8 >= 24) ? (day + 1) % 7 : day;
+  return beijingDay >= 1 && beijingDay <= 5;
+}
+
 async function sendQuotaUpdateAlert(env, totalCount, changes) {
   if (!env.FEISHU_WEBHOOK) {
     console.log('[LOG] 未配置飞书Webhook，跳过发送');
+    return;
+  }
+  if (!isBeijingTradingDay()) {
+    console.log('[LOG] 非工作日，跳过飞书推送');
     return;
   }
   const now = Date.now();
@@ -459,6 +472,10 @@ async function sendGlobalAlert(env, funds) {
     console.log('[LOG] 未配置飞书Webhook，跳过发送');
     return;
   }
+  if (!isBeijingTradingDay()) {
+    console.log('[LOG] 非工作日，跳过飞书推送');
+    return;
+  }
   const now = new Date();
   const timeKey = `${now.getHours()}:${now.getMinutes()}`;
   const lockKey = `globalAlertLock_${timeKey}`;
@@ -492,6 +509,10 @@ async function sendGlobalAlert(env, funds) {
 async function sendDynamicAlerts(env, alerts, fundsData) {
   if (!env.FEISHU_WEBHOOK) {
     console.log('[LOG] 未配置飞书Webhook，跳过发送');
+    return;
+  }
+  if (!isBeijingTradingDay()) {
+    console.log('[LOG] 非工作日，跳过飞书推送');
     return;
   }
   const lockKey = 'dynamicAlertLock';
