@@ -8,12 +8,12 @@
       "category": "us",
       "quota": "暂停",
       "purchaseLimit": 0,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.130Z",
       "fee": "1.20%",
       "rfee": "1.00%",
       "benchmark": "usXBI",
-      "officialNav": 2.065,
-      "navDate": "2026-07-13"
+      "officialNav": 2.0674,
+      "navDate": "2026-07-14"
     },
     {
       "code": "164906",
@@ -23,12 +23,12 @@
       "category": "us",
       "quota": "开放",
       "purchaseLimit": null,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.130Z",
       "fee": "1.20%",
       "rfee": "1.50%",
       "benchmark": "usKWEB",
-      "officialNav": 0.9411,
-      "navDate": "2026-07-13"
+      "officialNav": 0.9394,
+      "navDate": "2026-07-14"
     },
     {
       "code": "501312",
@@ -38,7 +38,7 @@
       "category": "us",
       "quota": "限20",
       "purchaseLimit": 20,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.130Z",
       "fee": "1.20%",
       "rfee": "1.20%",
       "benchmark": [
@@ -55,8 +55,8 @@
           "w": 0.1
         }
       ],
-      "officialNav": 2.2842,
-      "navDate": "2026-07-13"
+      "officialNav": 2.3152,
+      "navDate": "2026-07-14"
     },
     {
       "code": "164824",
@@ -66,12 +66,12 @@
       "category": "us",
       "quota": "限50万",
       "purchaseLimit": 500000,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.130Z",
       "fee": "1.20%",
       "rfee": "1.50%",
       "benchmark": "usINDA",
-      "officialNav": 1.302,
-      "navDate": "2026-07-13"
+      "officialNav": 1.2988,
+      "navDate": "2026-07-14"
     },
     {
       "code": "160644",
@@ -81,12 +81,12 @@
       "category": "hk",
       "quota": "暂停",
       "purchaseLimit": 0,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.130Z",
       "fee": "1.50%",
       "rfee": "1.50%",
       "benchmark": "usMCHI",
-      "officialNav": 1.7906,
-      "navDate": "2026-07-13"
+      "officialNav": 1.8609,
+      "navDate": "2026-07-14"
     },
     {
       "code": "162415",
@@ -96,12 +96,12 @@
       "category": "us",
       "quota": "限1千",
       "purchaseLimit": 1000,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.130Z",
       "fee": "1.20%",
       "rfee": "1.50%",
       "benchmark": "usXLY",
-      "officialNav": 2.859,
-      "navDate": "2026-07-13"
+      "officialNav": 2.857,
+      "navDate": "2026-07-14"
     },
     {
       "code": "161126",
@@ -111,12 +111,12 @@
       "category": "us",
       "quota": "暂停",
       "purchaseLimit": 0,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.130Z",
       "fee": "1.20%",
       "rfee": "1.00%",
       "benchmark": "usRSPH",
-      "officialNav": 1.9883,
-      "navDate": "2026-07-13"
+      "officialNav": 1.9558,
+      "navDate": "2026-07-14"
     },
     {
       "code": "161128",
@@ -126,12 +126,12 @@
       "category": "us",
       "quota": "暂停",
       "purchaseLimit": 0,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.130Z",
       "fee": "1.20%",
       "rfee": "1.00%",
       "benchmark": "usXLK",
-      "officialNav": 6.5101,
-      "navDate": "2026-07-13"
+      "officialNav": 6.5885,
+      "navDate": "2026-07-14"
     },
     {
       "code": "161125",
@@ -141,12 +141,12 @@
       "category": "us",
       "quota": "暂停",
       "purchaseLimit": 0,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.130Z",
       "fee": "1.20%",
       "rfee": "1.50%",
       "benchmark": "usINX",
-      "officialNav": 3.0975,
-      "navDate": "2026-07-13"
+      "officialNav": 3.1092,
+      "navDate": "2026-07-14"
     },
     {
       "code": "161130",
@@ -156,12 +156,12 @@
       "category": "us",
       "quota": "暂停",
       "purchaseLimit": 0,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.130Z",
       "fee": "1.20%",
       "rfee": "0.60%",
       "benchmark": "usQQQ",
-      "officialNav": 4.4191,
-      "navDate": "2026-07-13"
+      "officialNav": 4.4665,
+      "navDate": "2026-07-14"
     },
     {
       "code": "501300",
@@ -171,12 +171,12 @@
       "category": "us",
       "quota": "暂停",
       "purchaseLimit": 0,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.130Z",
       "fee": "0.80%",
       "rfee": "1.50%",
       "benchmark": "usAGG",
-      "officialNav": 0.9379,
-      "navDate": "2026-07-13"
+      "officialNav": 0.9395,
+      "navDate": "2026-07-14"
     },
     {
       "code": "160140",
@@ -186,12 +186,12 @@
       "category": "us",
       "quota": "暂停",
       "purchaseLimit": 0,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.130Z",
       "fee": "1.20%",
       "rfee": "1.00%",
       "benchmark": "usRWR",
-      "officialNav": 1.4623,
-      "navDate": "2026-07-13"
+      "officialNav": 1.4606,
+      "navDate": "2026-07-14"
     },
     {
       "code": "501225",
@@ -201,12 +201,12 @@
       "category": "us",
       "quota": "暂停",
       "purchaseLimit": 0,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.130Z",
       "fee": "1.50%",
       "rfee": "1.50%",
       "benchmark": "usSMH",
-      "officialNav": 3.2771,
-      "navDate": "2026-07-13"
+      "officialNav": 3.3554,
+      "navDate": "2026-07-14"
     },
     {
       "code": "160216",
@@ -216,7 +216,7 @@
       "category": "cm",
       "quota": "限30万",
       "purchaseLimit": 300000,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.130Z",
       "fee": "1.50%",
       "rfee": "1.50%",
       "benchmark": [
@@ -249,8 +249,8 @@
           "w": 0.038
         }
       ],
-      "officialNav": 0.613,
-      "navDate": "2026-07-13"
+      "officialNav": 0.619,
+      "navDate": "2026-07-14"
     },
     {
       "code": "161116",
@@ -260,12 +260,12 @@
       "category": "cm",
       "quota": "暂停",
       "purchaseLimit": 0,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.130Z",
       "fee": "0%",
       "rfee": "1.50%",
       "benchmark": "sh518880",
-      "officialNav": 1.4942,
-      "navDate": "2026-07-13"
+      "officialNav": 1.5143,
+      "navDate": "2026-07-14"
     },
     {
       "code": "164701",
@@ -275,12 +275,12 @@
       "category": "cm",
       "quota": "暂停",
       "purchaseLimit": 0,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.130Z",
       "fee": "0.80%",
       "rfee": "1.50%",
       "benchmark": "usGLD",
-      "officialNav": 1.563,
-      "navDate": "2026-07-13"
+      "officialNav": 1.585,
+      "navDate": "2026-07-14"
     },
     {
       "code": "165513",
@@ -290,12 +290,12 @@
       "category": "cm",
       "quota": "开放",
       "purchaseLimit": null,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.130Z",
       "fee": "1.60%",
       "rfee": "1.50%",
       "benchmark": "usGLD",
-      "officialNav": 0.9469,
-      "navDate": "2026-07-13"
+      "officialNav": 0.9589,
+      "navDate": "2026-07-14"
     },
     {
       "code": "160719",
@@ -305,12 +305,12 @@
       "category": "cm",
       "quota": "暂停",
       "purchaseLimit": 0,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.130Z",
       "fee": "1.20%",
       "rfee": "1.50%",
       "benchmark": "sh518880",
-      "officialNav": 1.797,
-      "navDate": "2026-07-13"
+      "officialNav": 1.822,
+      "navDate": "2026-07-14"
     },
     {
       "code": "161815",
@@ -320,7 +320,7 @@
       "category": "cm",
       "quota": "开放",
       "purchaseLimit": null,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.130Z",
       "fee": "1.60%",
       "rfee": "1.50%",
       "benchmark": [
@@ -365,8 +365,8 @@
           "w": 0.053
         }
       ],
-      "officialNav": 1.017,
-      "navDate": "2026-07-13"
+      "officialNav": 1.03,
+      "navDate": "2026-07-14"
     },
     {
       "code": "163208",
@@ -376,12 +376,12 @@
       "category": "cm",
       "quota": "暂停",
       "purchaseLimit": 0,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.130Z",
       "fee": "1.50%",
       "rfee": "1.50%",
       "benchmark": "usXLE",
-      "officialNav": 1.269,
-      "navDate": "2026-07-13"
+      "officialNav": 1.276,
+      "navDate": "2026-07-14"
     },
     {
       "code": "501018",
@@ -391,7 +391,7 @@
       "category": "cm",
       "quota": "暂停",
       "purchaseLimit": 0,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.130Z",
       "fee": "1.20%",
       "rfee": "1.50%",
       "benchmark": [
@@ -404,8 +404,8 @@
           "w": 0.4
         }
       ],
-      "officialNav": 1.6134,
-      "navDate": "2026-07-13"
+      "officialNav": 1.6666,
+      "navDate": "2026-07-14"
     },
     {
       "code": "161129",
@@ -415,12 +415,12 @@
       "category": "cm",
       "quota": "暂停",
       "purchaseLimit": 0,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.130Z",
       "fee": "1.20%",
       "rfee": "1.50%",
       "benchmark": "usUSO",
-      "officialNav": 1.5393,
-      "navDate": "2026-07-13"
+      "officialNav": 1.5886,
+      "navDate": "2026-07-14"
     },
     {
       "code": "160723",
@@ -430,12 +430,12 @@
       "category": "cm",
       "quota": "暂停",
       "purchaseLimit": 0,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.130Z",
       "fee": "1.20%",
       "rfee": "1.50%",
       "benchmark": "usUSO",
-      "officialNav": 1.8574,
-      "navDate": "2026-07-13"
+      "officialNav": 1.9058,
+      "navDate": "2026-07-14"
     },
     {
       "code": "162719",
@@ -445,12 +445,12 @@
       "category": "cm",
       "quota": "暂停",
       "purchaseLimit": 0,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.130Z",
       "fee": "1.20%",
       "rfee": "1.50%",
       "benchmark": "usXOP",
-      "officialNav": 2.6996,
-      "navDate": "2026-07-13"
+      "officialNav": 2.7104,
+      "navDate": "2026-07-14"
     },
     {
       "code": "162411",
@@ -460,12 +460,12 @@
       "category": "cm",
       "quota": "暂停",
       "purchaseLimit": 0,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.131Z",
       "fee": "1.50%",
       "rfee": "1.50%",
       "benchmark": "usXOP",
-      "officialNav": 0.8752,
-      "navDate": "2026-07-13"
+      "officialNav": 0.8788,
+      "navDate": "2026-07-14"
     },
     {
       "code": "160416",
@@ -475,12 +475,12 @@
       "category": "cm",
       "quota": "暂停",
       "purchaseLimit": 0,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.131Z",
       "fee": "1.20%",
       "rfee": "1.20%",
       "benchmark": "usIXC",
-      "officialNav": 2.0298,
-      "navDate": "2026-07-13"
+      "officialNav": 2.0406,
+      "navDate": "2026-07-14"
     },
     {
       "code": "501303",
@@ -490,12 +490,12 @@
       "category": "hk",
       "quota": "暂停",
       "purchaseLimit": 0,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.131Z",
       "fee": "1.20%",
       "rfee": "0.60%",
       "benchmark": "hkHSMI",
-      "officialNav": 0.9441,
-      "navDate": "2026-07-14"
+      "officialNav": 0.9542,
+      "navDate": "2026-07-15"
     },
     {
       "code": "161124",
@@ -505,12 +505,12 @@
       "category": "hk",
       "quota": "限3千",
       "purchaseLimit": 3000,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.131Z",
       "fee": "1.20%",
       "rfee": "1.00%",
       "benchmark": "hkHSSI",
-      "officialNav": 0.8728,
-      "navDate": "2026-07-13"
+      "officialNav": 0.8852,
+      "navDate": "2026-07-14"
     },
     {
       "code": "160322",
@@ -520,12 +520,12 @@
       "category": "hk",
       "quota": "暂停",
       "purchaseLimit": 0,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.131Z",
       "fee": "1.20%",
       "rfee": "1.50%",
       "benchmark": "hkHSCI",
-      "officialNav": 1.0777,
-      "navDate": "2026-07-14"
+      "officialNav": 1.0934,
+      "navDate": "2026-07-15"
     },
     {
       "code": "501021",
@@ -535,12 +535,12 @@
       "category": "hk",
       "quota": "暂停",
       "purchaseLimit": 0,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.131Z",
       "fee": "1.20%",
       "rfee": "1.20%",
       "benchmark": "usMCHI",
-      "officialNav": 1.2809,
-      "navDate": "2026-07-14"
+      "officialNav": 1.2975,
+      "navDate": "2026-07-15"
     },
     {
       "code": "501310",
@@ -550,12 +550,12 @@
       "category": "hk",
       "quota": "暂停",
       "purchaseLimit": 0,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.131Z",
       "fee": "1.20%",
       "rfee": "0.90%",
       "benchmark": "usFXI",
-      "officialNav": 1.2778,
-      "navDate": "2026-07-14"
+      "officialNav": 1.2824,
+      "navDate": "2026-07-15"
     },
     {
       "code": "501302",
@@ -565,12 +565,12 @@
       "category": "hk",
       "quota": "暂停",
       "purchaseLimit": 0,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.131Z",
       "fee": "1.20%",
       "rfee": "0.60%",
       "benchmark": "usMCHI",
-      "officialNav": 1.1058,
-      "navDate": "2026-07-14"
+      "officialNav": 1.1196,
+      "navDate": "2026-07-15"
     },
     {
       "code": "501307",
@@ -580,12 +580,12 @@
       "category": "hk",
       "quota": "开放",
       "purchaseLimit": null,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.131Z",
       "fee": "1.00%",
       "rfee": "0.68%",
       "benchmark": "usFXI",
-      "officialNav": 1.1676,
-      "navDate": "2026-07-13"
+      "officialNav": 1.1915,
+      "navDate": "2026-07-14"
     },
     {
       "code": "501306",
@@ -595,12 +595,12 @@
       "category": "hk",
       "quota": "暂停",
       "purchaseLimit": 0,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.131Z",
       "fee": "0.00%",
       "rfee": "0.60%",
       "benchmark": "usFXI",
-      "officialNav": 1.1664,
-      "navDate": "2026-07-13"
+      "officialNav": 1.1863,
+      "navDate": "2026-07-14"
     },
     {
       "code": "160717",
@@ -610,12 +610,12 @@
       "category": "hk",
       "quota": "暂停",
       "purchaseLimit": 0,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.131Z",
       "fee": "1.20%",
       "rfee": "0.95%",
       "benchmark": "usMCHI",
-      "officialNav": 0.7002,
-      "navDate": "2026-07-14"
+      "officialNav": 0.706,
+      "navDate": "2026-07-15"
     },
     {
       "code": "501311",
@@ -625,12 +625,12 @@
       "category": "hk",
       "quota": "暂停",
       "purchaseLimit": 0,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.131Z",
       "fee": "1.20%",
       "rfee": "0.90%",
       "benchmark": "usMCHI",
-      "officialNav": 0.9245,
-      "navDate": "2026-07-13"
+      "officialNav": 0.9305,
+      "navDate": "2026-07-14"
     },
     {
       "code": "501301",
@@ -640,12 +640,12 @@
       "category": "hk",
       "quota": "暂停",
       "purchaseLimit": 0,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.131Z",
       "fee": "1.20%",
       "rfee": "0.90%",
       "benchmark": "usMCHI",
-      "officialNav": 1.1842,
-      "navDate": "2026-07-14"
+      "officialNav": 1.1951,
+      "navDate": "2026-07-15"
     },
     {
       "code": "164705",
@@ -655,12 +655,12 @@
       "category": "hk",
       "quota": "暂停",
       "purchaseLimit": 0,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.131Z",
       "fee": "1.20%",
       "rfee": "1.00%",
       "benchmark": "usMCHI",
-      "officialNav": 1.0953,
-      "navDate": "2026-07-14"
+      "officialNav": 1.1086,
+      "navDate": "2026-07-15"
     },
     {
       "code": "161831",
@@ -670,12 +670,12 @@
       "category": "hk",
       "quota": "开放",
       "purchaseLimit": null,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.131Z",
       "fee": "1.20%",
       "rfee": "1.20%",
       "benchmark": "usMCHI",
-      "officialNav": 0.7081,
-      "navDate": "2026-07-14"
+      "officialNav": 0.715,
+      "navDate": "2026-07-15"
     },
     {
       "code": "501305",
@@ -685,12 +685,12 @@
       "category": "hk",
       "quota": "暂停",
       "purchaseLimit": 0,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.131Z",
       "fee": "1.20%",
       "rfee": "0.60%",
       "benchmark": "usFXI",
-      "officialNav": 1.2084,
-      "navDate": "2026-07-13"
+      "officialNav": 1.2289,
+      "navDate": "2026-07-14"
     },
     {
       "code": "160924",
@@ -700,12 +700,12 @@
       "category": "hk",
       "quota": "暂停",
       "purchaseLimit": 0,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.131Z",
       "fee": "1.20%",
       "rfee": "1.20%",
       "benchmark": "usMCHI",
-      "officialNav": 0.97,
-      "navDate": "2026-07-14"
+      "officialNav": 0.9817,
+      "navDate": "2026-07-15"
     },
     {
       "code": "501025",
@@ -715,12 +715,12 @@
       "category": "hk",
       "quota": "开放",
       "purchaseLimit": null,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.131Z",
       "fee": "1.20%",
       "rfee": "0.90%",
       "benchmark": "usFXI",
-      "officialNav": 1.7367,
-      "navDate": "2026-07-14"
+      "officialNav": 1.7435,
+      "navDate": "2026-07-15"
     },
     {
       "code": "161226",
@@ -730,12 +730,12 @@
       "category": "cm",
       "quota": "暂停",
       "purchaseLimit": 0,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.131Z",
       "fee": "1.50%",
       "rfee": "0.50%",
       "benchmark": "nf_AG0",
-      "officialNav": 1.5973,
-      "navDate": "2026-07-14"
+      "officialNav": 1.6289,
+      "navDate": "2026-07-15"
     },
     {
       "code": "161217",
@@ -745,12 +745,12 @@
       "category": "cm",
       "quota": "开放",
       "purchaseLimit": null,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.131Z",
       "fee": "1.50%",
       "rfee": "0.50%",
       "benchmark": "sh000945",
-      "officialNav": 2.1628,
-      "navDate": "2026-07-14"
+      "officialNav": 2.1319,
+      "navDate": "2026-07-15"
     },
     {
       "code": "161715",
@@ -760,12 +760,12 @@
       "category": "cm",
       "quota": "开放",
       "purchaseLimit": null,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.131Z",
       "fee": "1.50%",
       "rfee": "0.50%",
       "benchmark": "sh000066",
-      "officialNav": 2.1704,
-      "navDate": "2026-07-14"
+      "officialNav": 2.1592,
+      "navDate": "2026-07-15"
     },
     {
       "code": "161725",
@@ -775,12 +775,12 @@
       "category": "cn",
       "quota": "限50万",
       "purchaseLimit": 500000,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.131Z",
       "fee": "1.50%",
       "rfee": "0.50%",
       "benchmark": "sh000852",
-      "officialNav": 0.5112,
-      "navDate": "2026-07-14"
+      "officialNav": 0.537,
+      "navDate": "2026-07-15"
     },
     {
       "code": "161032",
@@ -790,12 +790,12 @@
       "category": "cn",
       "quota": "开放",
       "purchaseLimit": null,
-      "quotaUpdatedAt": "2026-07-14T21:07:56.402Z",
+      "quotaUpdatedAt": "2026-07-15T13:42:36.131Z",
       "fee": "1.50%",
       "rfee": "0.50%",
       "benchmark": "sz399998",
-      "officialNav": 2.127,
-      "navDate": "2026-07-14"
+      "officialNav": 2.164,
+      "navDate": "2026-07-15"
     }
   ],
   "indexNames": {
@@ -849,5 +849,5 @@
     "csi931573": "港股通科技指数",
     "csi930839": "港股通高股息精选"
   },
-  "updatedAt": "2026-07-14T21:07:56.402Z"
+  "updatedAt": "2026-07-15T13:42:36.131Z"
 }
