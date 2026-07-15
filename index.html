@@ -542,6 +542,7 @@ body {
 }
 .modal-legend-dot.est { background: var(--accent-blue); }
 .modal-legend-dot.actual { background: #f59e0b; }
+.modal-legend-dot.error { background: #10b981; }
 .modal-loading {
   text-align: center;
   color: var(--text-muted);
@@ -1298,12 +1299,22 @@ function drawNavChart(canvas, data, fundName) {
   canvas.style.height = H + 'px';
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
-  const pad = { top: 30, bottom: 40, left: 55, right: 25 };
+  const pad = { top: 30, bottom: 40, left: 55, right: 55 };
   const chartW = W - pad.left - pad.right;
   const chartH = H - pad.top - pad.bottom;
   const dates = data.map(d => d.date.slice(5));
   const estNavs = data.map(d => d.estNav);
   const actualNavs = data.map(d => d.actualNav);
+
+  // 计算误差率：(estNav - actualNav) / actualNav * 100，仅当同一天两者都有值时才计算
+  const errorRates = data.map(d => {
+    if (d.estNav != null && d.actualNav != null && d.actualNav !== 0) {
+      return (d.estNav - d.actualNav) / d.actualNav * 100;
+    }
+    return null;
+  });
+  const hasError = errorRates.some(v => v != null);
+
   const allVals = [];
   estNavs.forEach(v => { if (v != null) allVals.push(v); });
   actualNavs.forEach(v => { if (v != null) allVals.push(v); });
@@ -1314,20 +1325,59 @@ function drawNavChart(canvas, data, fundName) {
   const yPadding = yRange * 0.1 || 0.01;
   yMin -= yPadding;
   yMax += yPadding;
+
+  // 右轴误差率范围
+  let erMin = 0, erMax = 0;
+  if (hasError) {
+    erMin = Math.min(0, ...errorRates.filter(v => v != null));
+    erMax = Math.max(0, ...errorRates.filter(v => v != null));
+    const erRange = erMax - erMin || 1;
+    erMin -= erRange * 0.15;
+    erMax += erRange * 0.15;
+  }
+
   const xScale = (i) => pad.left + (i / (dates.length - 1 || 1)) * chartW;
   const yScale = (v) => pad.top + chartH - ((v - yMin) / (yMax - yMin)) * chartH;
+  const erScale = (v) => pad.top + chartH - ((v - erMin) / (erMax - erMin || 1)) * chartH;
+
   ctx.clearRect(0, 0, W, H);
   ctx.strokeStyle = 'rgba(148,163,184,0.1)';
   ctx.lineWidth = 1;
   for (let i = 0; i <= 4; i++) { const y = pad.top + (i / 4) * chartH; ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke(); }
+
+  // X轴日期标签
   ctx.fillStyle = '#94a3b8';
   ctx.font = '11px -apple-system, sans-serif';
   ctx.textAlign = 'center';
   const labelStep = Math.max(1, Math.floor(dates.length / 7));
   dates.forEach((d, i) => { if (i % labelStep === 0 || i === dates.length - 1) ctx.fillText(d, xScale(i), H - pad.bottom + 18); });
+
+  // 左Y轴净值标签
   ctx.textAlign = 'right';
   ctx.textBaseline = 'middle';
   for (let i = 0; i <= 4; i++) { const y = pad.top + (i / 4) * chartH; const val = yMax - (i / 4) * (yMax - yMin); ctx.fillText(val.toFixed(4), pad.left - 8, y); }
+
+  // 右Y轴误差率标签
+  if (hasError) {
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#10b981';
+    for (let i = 0; i <= 4; i++) { const y = pad.top + (i / 4) * chartH; const val = erMax - (i / 4) * (erMax - erMin); ctx.fillText(val.toFixed(2) + '%', W - pad.right + 8, y); }
+  }
+
+  // 误差率0%基准线
+  if (hasError) {
+    const zeroY = erScale(0);
+    ctx.strokeStyle = 'rgba(148,163,184,0.4)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(pad.left, zeroY);
+    ctx.lineTo(W - pad.right, zeroY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // 预估净值曲线（蓝色）
   ctx.strokeStyle = '#3b82f6';
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -1335,6 +1385,8 @@ function drawNavChart(canvas, data, fundName) {
   ctx.stroke();
   ctx.fillStyle = '#3b82f6';
   estNavs.forEach((v, i) => { if (v == null) return; ctx.beginPath(); ctx.arc(xScale(i), yScale(v), 3, 0, Math.PI * 2); ctx.fill(); });
+
+  // 实际净值曲线（橙色虚线）
   const hasActual = actualNavs.some(v => v != null);
   if (hasActual) {
     ctx.strokeStyle = '#f59e0b';
@@ -1347,6 +1399,19 @@ function drawNavChart(canvas, data, fundName) {
     ctx.fillStyle = '#f59e0b';
     actualNavs.forEach((v, i) => { if (v == null) return; ctx.beginPath(); ctx.arc(xScale(i), yScale(v), 3, 0, Math.PI * 2); ctx.fill(); });
   }
+
+  // 误差率曲线（绿色）
+  if (hasError) {
+    ctx.strokeStyle = '#10b981';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    errorRates.forEach((v, i) => { if (v == null) return; const x = xScale(i); const y = erScale(v); if (i === 0 || errorRates[i - 1] == null) ctx.moveTo(x, y); else ctx.lineTo(x, y); });
+    ctx.stroke();
+    ctx.fillStyle = '#10b981';
+    errorRates.forEach((v, i) => { if (v == null) return; ctx.beginPath(); ctx.arc(xScale(i), erScale(v), 2.5, 0, Math.PI * 2); ctx.fill(); });
+  }
+
+  // 标题
   ctx.fillStyle = '#e8ecf4';
   ctx.font = '13px -apple-system, sans-serif';
   ctx.textAlign = 'left';
@@ -1380,6 +1445,7 @@ bootstrap();
   <div class="modal-legend" id="modalLegend" style="display:none;">
     <div class="modal-legend-item"><span class="modal-legend-dot est"></span>预估净值</div>
     <div class="modal-legend-item"><span class="modal-legend-dot actual"></span>实际净值</div>
+    <div class="modal-legend-item"><span class="modal-legend-dot error"></span>误差率</div>
   </div>
   <div class="modal-nav-note" id="modalNote">* 预估净值于收盘时计算，实际净值于 T+1 同步后回填</div>
 </div>
