@@ -381,7 +381,7 @@ function checkDynamicChange(code, premium) {
   if (recent.length < 2) return null;
   const avg = recent.reduce((s, h) => s + h.p, 0) / recent.length;
   const change = premium - avg;
-  if (Math.abs(change) >= 1.5 && Math.abs(premium) >= 2 && (now - (LAST_ALERT_TIME[code] || 0) > 10 * 60 * 1000)) {
+  if (Math.abs(change) >= 0.8 && Math.abs(premium) >= 2 && (now - (LAST_ALERT_TIME[code] || 0) > 5 * 60 * 1000)) {
     LAST_ALERT_TIME[code] = now;
     return { fundCode: code, premium, change, type: change > 0 ? '溢价上升' : '折价加深' };
   }
