@@ -575,7 +575,7 @@ async function saveDailySnapshot(env) {
         history.push({ date: beijingDate, estNav: parseFloat(estNav.toFixed(4)), actualNav: null });
       }
 
-      if (history.length > 15) history = history.slice(-15);
+      if (history.length > 20) history = history.slice(-20);
       await env.FUNDS_KV.put(key, JSON.stringify(history));
       saved++;
     }
@@ -636,7 +636,7 @@ async function backfillActualNav(env, funds) {
         }
         if (!found) {
           history.push({ date: navDate, estNav: null, actualNav: actualNav });
-          if (history.length > 15) history = history.slice(-15);
+          if (history.length > 20) history = history.slice(-20);
         }
         await env.FUNDS_KV.put(key, JSON.stringify(history));
         updated++;
