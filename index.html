@@ -519,8 +519,10 @@ body {
 }
 .modal-body canvas {
   width: 100%;
-  height: 100%;
   display: block;
+}
+.modal-body canvas + canvas {
+  margin-top: 10px;
 }
 .modal-legend {
   display: flex;
@@ -1221,7 +1223,7 @@ async function openNavChart(code, event) {
   currentChartFund = code;
   document.getElementById('modalFundName').textContent = fund.name;
   document.getElementById('modalFundCode').textContent = code;
-  document.getElementById('modalBody').innerHTML = '<div class="modal-loading" id="modalLoading">加载净值数据...</div><canvas id="navChartCanvas" style="display:none"></canvas>';
+  document.getElementById('modalBody').innerHTML = '<div class="modal-loading" id="modalLoading">加载净值数据...</div><canvas id="navChartCanvas" style="display:none"></canvas><canvas id="errorChartCanvas" style="display:none"></canvas>';
   document.getElementById('modalLegend').style.display = 'none';
   document.getElementById('modalNote').style.display = 'block';
 
@@ -1229,7 +1231,7 @@ async function openNavChart(code, event) {
   const modalBox = document.getElementById('navChartModalBox');
   if (event && window.innerWidth <= 680) {
     const clickY = event.clientY || (event.touches && event.touches[0] ? event.touches[0].clientY : window.innerHeight / 2);
-    const boxHeight = Math.min(window.innerHeight * 0.85, 480);
+    const boxHeight = Math.min(window.innerHeight * 0.9, 600);
     let top = clickY - boxHeight / 2;
     top = Math.max(10, Math.min(top, window.innerHeight - boxHeight - 10));
     modalBox.style.top = top + 'px';
@@ -1257,12 +1259,14 @@ async function openNavChart(code, event) {
       document.getElementById('modalNote').style.display = 'none';
       return;
     }
-    document.getElementById('modalBody').innerHTML = '<canvas id="navChartCanvas"></canvas>';
+    document.getElementById('modalBody').innerHTML = '<canvas id="navChartCanvas"></canvas><canvas id="errorChartCanvas"></canvas>';
     document.getElementById('modalLegend').style.display = 'flex';
     document.getElementById('modalNote').style.display = 'block';
-    const canvas = document.getElementById('navChartCanvas');
-    canvas.style.display = 'block';
-    requestAnimationFrame(() => drawNavChart(canvas, data, fund.name));
+    const canvas1 = document.getElementById('navChartCanvas');
+    const canvas2 = document.getElementById('errorChartCanvas');
+    canvas1.style.display = 'block';
+    canvas2.style.display = 'block';
+    requestAnimationFrame(() => { drawNavChart(canvas1, data, fund.name); drawErrorChart(canvas2, data); });
   } catch (e) {
     document.getElementById('modalLoading').textContent = '加载失败: ' + e.message;
     console.error('[ERROR] 加载净值历史:', e);
@@ -1292,28 +1296,19 @@ function drawNavChart(canvas, data, fundName) {
   const rect = canvas.parentElement.getBoundingClientRect();
   const dpr = window.devicePixelRatio || 1;
   const W = rect.width - 20;
-  const H = Math.max(300, rect.height - 10);
+  const H = 220;
   canvas.width = W * dpr;
   canvas.height = H * dpr;
   canvas.style.width = W + 'px';
   canvas.style.height = H + 'px';
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
-  const pad = { top: 30, bottom: 40, left: 55, right: 55 };
+  const pad = { top: 30, bottom: 30, left: 55, right: 20 };
   const chartW = W - pad.left - pad.right;
   const chartH = H - pad.top - pad.bottom;
   const dates = data.map(d => d.date.slice(5));
   const estNavs = data.map(d => d.estNav);
   const actualNavs = data.map(d => d.actualNav);
-
-  // 计算误差率：(estNav - actualNav) / actualNav * 100，仅当同一天两者都有值时才计算
-  const errorRates = data.map(d => {
-    if (d.estNav != null && d.actualNav != null && d.actualNav !== 0) {
-      return (d.estNav - d.actualNav) / d.actualNav * 100;
-    }
-    return null;
-  });
-  const hasError = errorRates.some(v => v != null);
 
   const allVals = [];
   estNavs.forEach(v => { if (v != null) allVals.push(v); });
@@ -1326,19 +1321,8 @@ function drawNavChart(canvas, data, fundName) {
   yMin -= yPadding;
   yMax += yPadding;
 
-  // 右轴误差率范围
-  let erMin = 0, erMax = 0;
-  if (hasError) {
-    erMin = Math.min(0, ...errorRates.filter(v => v != null));
-    erMax = Math.max(0, ...errorRates.filter(v => v != null));
-    const erRange = erMax - erMin || 1;
-    erMin -= erRange * 0.15;
-    erMax += erRange * 0.15;
-  }
-
   const xScale = (i) => pad.left + (i / (dates.length - 1 || 1)) * chartW;
   const yScale = (v) => pad.top + chartH - ((v - yMin) / (yMax - yMin)) * chartH;
-  const erScale = (v) => pad.top + chartH - ((v - erMin) / (erMax - erMin || 1)) * chartH;
 
   ctx.clearRect(0, 0, W, H);
   ctx.strokeStyle = 'rgba(148,163,184,0.1)';
@@ -1356,26 +1340,6 @@ function drawNavChart(canvas, data, fundName) {
   ctx.textAlign = 'right';
   ctx.textBaseline = 'middle';
   for (let i = 0; i <= 4; i++) { const y = pad.top + (i / 4) * chartH; const val = yMax - (i / 4) * (yMax - yMin); ctx.fillText(val.toFixed(4), pad.left - 8, y); }
-
-  // 右Y轴误差率标签
-  if (hasError) {
-    ctx.textAlign = 'left';
-    ctx.fillStyle = '#10b981';
-    for (let i = 0; i <= 4; i++) { const y = pad.top + (i / 4) * chartH; const val = erMax - (i / 4) * (erMax - erMin); ctx.fillText(val.toFixed(2) + '%', W - pad.right + 8, y); }
-  }
-
-  // 误差率0%基准线
-  if (hasError) {
-    const zeroY = erScale(0);
-    ctx.strokeStyle = 'rgba(148,163,184,0.4)';
-    ctx.lineWidth = 1;
-    ctx.setLineDash([3, 3]);
-    ctx.beginPath();
-    ctx.moveTo(pad.left, zeroY);
-    ctx.lineTo(W - pad.right, zeroY);
-    ctx.stroke();
-    ctx.setLineDash([]);
-  }
 
   // 预估净值曲线（蓝色）
   ctx.strokeStyle = '#3b82f6';
@@ -1400,23 +1364,104 @@ function drawNavChart(canvas, data, fundName) {
     actualNavs.forEach((v, i) => { if (v == null) return; ctx.beginPath(); ctx.arc(xScale(i), yScale(v), 3, 0, Math.PI * 2); ctx.fill(); });
   }
 
-  // 误差率曲线（绿色）
-  if (hasError) {
-    ctx.strokeStyle = '#10b981';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    errorRates.forEach((v, i) => { if (v == null) return; const x = xScale(i); const y = erScale(v); if (i === 0 || errorRates[i - 1] == null) ctx.moveTo(x, y); else ctx.lineTo(x, y); });
-    ctx.stroke();
-    ctx.fillStyle = '#10b981';
-    errorRates.forEach((v, i) => { if (v == null) return; ctx.beginPath(); ctx.arc(xScale(i), erScale(v), 2.5, 0, Math.PI * 2); ctx.fill(); });
+  // 标题
+  ctx.fillStyle = '#e8ecf4';
+  ctx.font = '13px -apple-system, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  ctx.fillText('近20日净值走势', pad.left, 6);
+}
+
+function drawErrorChart(canvas, data) {
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const W = rect.width - 20;
+  const H = 160;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const pad = { top: 25, bottom: 30, left: 55, right: 20 };
+  const chartW = W - pad.left - pad.right;
+  const chartH = H - pad.top - pad.bottom;
+  const dates = data.map(d => d.date.slice(5));
+
+  // 计算误差率：(estNav - actualNav) / actualNav * 100
+  const errorRates = data.map(d => {
+    if (d.estNav != null && d.actualNav != null && d.actualNav !== 0) {
+      return (d.estNav - d.actualNav) / d.actualNav * 100;
+    }
+    return null;
+  });
+  const hasError = errorRates.some(v => v != null);
+
+  if (!hasError) {
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#64748b';
+    ctx.font = '12px -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('暂无误差率数据（需同时有预估和实际净值）', W / 2, H / 2);
+    return;
   }
+
+  let erMin = Math.min(0, ...errorRates.filter(v => v != null));
+  let erMax = Math.max(0, ...errorRates.filter(v => v != null));
+  const erRange = erMax - erMin || 1;
+  erMin -= erRange * 0.15;
+  erMax += erRange * 0.15;
+
+  const xScale = (i) => pad.left + (i / (dates.length - 1 || 1)) * chartW;
+  const erScale = (v) => pad.top + chartH - ((v - erMin) / (erMax - erMin || 1)) * chartH;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // 网格线
+  ctx.strokeStyle = 'rgba(148,163,184,0.1)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) { const y = pad.top + (i / 4) * chartH; ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke(); }
+
+  // X轴日期标签
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '11px -apple-system, sans-serif';
+  ctx.textAlign = 'center';
+  const labelStep = Math.max(1, Math.floor(dates.length / 7));
+  dates.forEach((d, i) => { if (i % labelStep === 0 || i === dates.length - 1) ctx.fillText(d, xScale(i), H - pad.bottom + 18); });
+
+  // Y轴误差率标签
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#10b981';
+  for (let i = 0; i <= 4; i++) { const y = pad.top + (i / 4) * chartH; const val = erMax - (i / 4) * (erMax - erMin); ctx.fillText(val.toFixed(2) + '%', pad.left - 8, y); }
+
+  // 0%基准线
+  const zeroY = erScale(0);
+  ctx.strokeStyle = 'rgba(148,163,184,0.4)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3, 3]);
+  ctx.beginPath();
+  ctx.moveTo(pad.left, zeroY);
+  ctx.lineTo(W - pad.right, zeroY);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // 误差率曲线（绿色）
+  ctx.strokeStyle = '#10b981';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  errorRates.forEach((v, i) => { if (v == null) return; const x = xScale(i); const y = erScale(v); if (i === 0 || errorRates[i - 1] == null) ctx.moveTo(x, y); else ctx.lineTo(x, y); });
+  ctx.stroke();
+  ctx.fillStyle = '#10b981';
+  errorRates.forEach((v, i) => { if (v == null) return; ctx.beginPath(); ctx.arc(xScale(i), erScale(v), 2.5, 0, Math.PI * 2); ctx.fill(); });
 
   // 标题
   ctx.fillStyle = '#e8ecf4';
   ctx.font = '13px -apple-system, sans-serif';
   ctx.textAlign = 'left';
   ctx.textBaseline = 'top';
-  ctx.fillText('近15日净值走势', pad.left, 6);
+  ctx.fillText('误差率走势', pad.left, 4);
 }
 
 async function bootstrap() {
