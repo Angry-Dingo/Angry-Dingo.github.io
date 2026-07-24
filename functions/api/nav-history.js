@@ -19,7 +19,7 @@ export async function onRequest(context) {
   try {
     const key = `nav_hist:${fundCode}`;
     const data = await env.FUNDS_KV?.get(key, 'json') || [];
-    const hist = data.slice(-15).sort((a, b) => a.date.localeCompare(b.date));
+    const hist = data.slice(-20).sort((a, b) => a.date.localeCompare(b.date));
     return new Response(JSON.stringify(hist), {
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
     });
