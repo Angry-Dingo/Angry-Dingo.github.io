@@ -19,9 +19,13 @@ export default {
     }
 
     // 使用 startsWith 前缀匹配，兼容 Dashboard 上的各种 cron 变体（如 0 23 * * 0-4 / 0 23 * * *）
-    if (cron.startsWith('0 23') || cron.startsWith('10 13')) {
+    if (cron.startsWith('0 23')) {
       console.log('[LOG] 执行数据同步任务');
       ctx.waitUntil(syncDataFromGitHub(env));
+    } else if (cron.startsWith('10 13')) {
+      // 晚上21:10数据同步已停用
+      console.log('[LOG] 晚上21:10数据同步已停用，跳过');
+      return;
     } else {
       console.log('[LOG] 执行溢价监控任务');
       ctx.waitUntil(smartMonitor(env));
