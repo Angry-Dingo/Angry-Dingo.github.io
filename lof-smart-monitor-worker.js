@@ -613,9 +613,37 @@ async function backfillActualNav(env, funds) {
             if (data.jzrq) navDate = data.jzrq;
           }
         } catch (e) {
-          console.log(`[LOG] fundgz接口获取 ${fund.code} 失败，回退到funds.json`);
+          console.log(`[LOG] fundgz接口获取 ${fund.code} 失败`);
         }
-        // 回退：使用 funds.json 中的 officialNav
+        // 第二后备：东财 lsjz 接口
+        if (actualNav === null) {
+          try {
+            const lsjzRes = await fetch(`https://api.fund.eastmoney.com/f10/lsjz?fundCode=${fund.code}&pageIndex=1&pageSize=1&_=${Date.now()}`, {
+              headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': 'https://fund.eastmoney.com/' }
+            });
+            const lsjzText = await lsjzRes.text();
+            const lsjzMatch = lsjzText.match(/Callback\((.+)\)/);
+            if (lsjzMatch) {
+              const lsjzData = JSON.parse(lsjzMatch[1]);
+              const item = lsjzData?.Data?.LSJZList?.[0];
+              if (item && item.DWJZ) {
+                actualNav = parseFloat(item.DWJZ);
+                navDate = item.FSRQ || '';
+              }
+            } else {
+              // 非JSONP格式，直接JSON
+              const lsjzData = JSON.parse(lsjzText);
+              const item = lsjzData?.Data?.LSJZList?.[0];
+              if (item && item.DWJZ) {
+                actualNav = parseFloat(item.DWJZ);
+                navDate = item.FSRQ || '';
+              }
+            }
+          } catch (e) {
+            console.log(`[LOG] lsjz接口获取 ${fund.code} 失败，回退到funds.json`);
+          }
+        }
+        // 最终回退：使用 funds.json 中的 officialNav
         if (actualNav === null && fund.officialNav && fund.navDate) {
           actualNav = fund.officialNav;
           navDate = fund.navDate;
