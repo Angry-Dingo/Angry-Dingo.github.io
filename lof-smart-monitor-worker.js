@@ -22,8 +22,8 @@ export default {
     if (cron.startsWith('0 23')) {
       console.log('[LOG] 执行数据同步任务');
       ctx.waitUntil(syncDataFromGitHub(env));
-    } else if (cron.startsWith('10 13')) {
-      // 晚上21:10数据同步，执行同步但不推送飞书
+    } else if (cron.startsWith('0 12')) {
+      // 晚上20:00数据同步，执行同步但不推送飞书
       console.log('[LOG] 执行数据同步任务（不推送飞书）');
       ctx.waitUntil(syncDataFromGitHub(env, false));
     } else {
