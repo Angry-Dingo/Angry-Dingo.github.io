@@ -320,10 +320,10 @@ async function smartMonitor(env, isTestMode = false) {
 
     const isGlobalAlert = isTestMode || (
       (h === 9 && m >= 25 && m <= 26) ||
-      (h === 10 && (m <= 1 || (m >= 30 && m <= 31))) ||
-      (h === 11 && (m <= 1 || (m >= 30 && m <= 31))) ||
-      (h === 13 && (m <= 1 || (m >= 30 && m <= 31))) ||
-      (h === 14 && (m <= 1 || (m >= 30 && m <= 31)))
+      (h === 10 && (m >= 30 && m <= 31)) ||
+      (h === 11 && (m >= 30 && m <= 31)) ||
+      (h === 13 && (m >= 30 && m <= 31)) ||
+      (h === 14 && (m >= 30 && m <= 31))
     );
     console.log(`[LOG] isGlobalAlert: ${isGlobalAlert}`);
 
