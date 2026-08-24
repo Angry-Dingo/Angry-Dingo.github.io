@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-17T03:08:17.413Z",
+  "updatedAt": "2026-08-24T03:12:20.449Z",
   "totalFunds": 22,
   "results": {
     "160322": {
@@ -150,22 +150,22 @@
           "simpleWeight": 0.08685121107266436
         }
       ],
-      "regressionR2": 0.1819379199222112,
-      "constrainedR2": -0.10498515191565017,
+      "regressionR2": 0.1482101404507964,
+      "constrainedR2": -0.13764110193199408,
       "constrainedWeights": [
         {
           "tq": "hk00981",
           "code": "00981",
           "name": "中芯国际",
           "publishedPct": null,
-          "finalWeight": 0.11375040620456152
+          "finalWeight": 0.08596140459510652
         },
         {
           "tq": "hk00005",
           "code": "00005",
           "name": "汇丰控股",
           "publishedPct": null,
-          "finalWeight": 0.010747971088978433
+          "finalWeight": 0.05827510133501554
         },
         {
           "tq": "hk01347",
@@ -179,14 +179,14 @@
           "code": "00700",
           "name": "腾讯控股",
           "publishedPct": null,
-          "finalWeight": 0.06907862595645041
+          "finalWeight": 0.035659038558953034
         },
         {
           "tq": "hk00883",
           "code": "00883",
           "name": "中国海洋石油",
           "publishedPct": null,
-          "finalWeight": 0.055585135157690216
+          "finalWeight": 0.10004601464842822
         },
         {
           "tq": "hk03690",
@@ -200,14 +200,14 @@
           "code": "02319",
           "name": "蒙牛乳业",
           "publishedPct": null,
-          "finalWeight": 0.04446615320975235
+          "finalWeight": 0
         },
         {
           "tq": "hk01024",
           "code": "01024",
           "name": "快手-W",
           "publishedPct": null,
-          "finalWeight": 0.016051114317277036
+          "finalWeight": 0
         },
         {
           "tq": "hk02423",
@@ -221,42 +221,42 @@
           "code": "02015",
           "name": "理想汽车-W",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.0011234484593020844
         },
         {
           "tq": "hk00883",
           "code": "00883",
           "name": "中国海洋石油",
           "publishedPct": 7.11,
-          "finalWeight": 0.05558513602533969
+          "finalWeight": 0.10004601946471363
         },
         {
           "tq": "hk00005",
           "code": "00005",
           "name": "汇丰控股",
           "publishedPct": 7.02,
-          "finalWeight": 0.01074797118345232
+          "finalWeight": 0.058275102440886815
         },
         {
           "tq": "hk00700",
           "code": "00700",
           "name": "腾讯控股",
           "publishedPct": 6.6,
-          "finalWeight": 0.06907862628662172
+          "finalWeight": 0.03565905550076879
         },
         {
           "tq": "hk02015",
           "code": "02015",
           "name": "理想汽车-W",
           "publishedPct": 5.93,
-          "finalWeight": 0
+          "finalWeight": 0.0011234449785102972
         },
         {
           "tq": "hk09988",
           "code": "09988",
           "name": "阿里巴巴-W",
           "publishedPct": 5.39,
-          "finalWeight": 0.17541321068818344
+          "finalWeight": 0.06517329921057208
         },
         {
           "tq": "hk03690",
@@ -270,14 +270,14 @@
           "code": "01299",
           "name": "友邦保险",
           "publishedPct": 5.2,
-          "finalWeight": 0.2657452396172256
+          "finalWeight": 0.2865540796934571
         },
         {
           "tq": "hk00981",
           "code": "00981",
           "name": "中芯国际",
           "publishedPct": 5.14,
-          "finalWeight": 0.11375041026446729
+          "finalWeight": 0.08596139833999554
         },
         {
           "tq": "hk02331",
@@ -291,7 +291,7 @@
           "code": "02099",
           "name": "中国黄金国际",
           "publishedPct": 5.02,
-          "finalWeight": 0
+          "finalWeight": 0.08614259277429018
         }
       ]
     },
@@ -443,43 +443,43 @@
           "simpleWeight": 0.04637162382037097
         }
       ],
-      "regressionR2": 0.8176678204068574,
-      "constrainedR2": 0.595930371630916,
+      "regressionR2": 0.834102052713805,
+      "constrainedR2": 0.6428059708254248,
       "constrainedWeights": [
         {
           "tq": "usMU",
           "code": "MU",
           "name": "美光科技",
           "publishedPct": null,
-          "finalWeight": 0.1571573414650429
+          "finalWeight": 0.11671331435541861
         },
         {
           "tq": "usSNDK",
           "code": "SNDK",
           "name": "闪迪",
           "publishedPct": null,
-          "finalWeight": 0.0953747439840515
+          "finalWeight": 0.09672436124079903
         },
         {
           "tq": "hk01888",
           "code": "01888",
           "name": "建滔积层板",
           "publishedPct": null,
-          "finalWeight": 0.0203704214921482
+          "finalWeight": 0.03501904656624611
         },
         {
           "tq": "hk00992",
           "code": "00992",
           "name": "联想集团",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.07765454045841273
         },
         {
           "tq": "hk00148",
           "code": "00148",
           "name": "建滔集团",
           "publishedPct": null,
-          "finalWeight": 0.02603182216378715
+          "finalWeight": 0.022237781158421264
         },
         {
           "tq": "hk03690",
@@ -493,56 +493,56 @@
           "code": "09988",
           "name": "阿里巴巴-W",
           "publishedPct": null,
-          "finalWeight": 0.05626858839194878
+          "finalWeight": 0
         },
         {
           "tq": "usNVDA",
           "code": "NVDA",
           "name": "英伟达",
           "publishedPct": null,
-          "finalWeight": 0.07877152698989633
+          "finalWeight": 0.10616993655284127
         },
         {
           "tq": "usTSM",
           "code": "TSM",
           "name": "台积电",
           "publishedPct": null,
-          "finalWeight": 0.045797215153416226
+          "finalWeight": 0.029077767776653808
         },
         {
           "tq": "usAMD",
           "code": "AMD",
           "name": "超威半导体",
           "publishedPct": null,
-          "finalWeight": 0.00943469920516194
+          "finalWeight": 0.01830181000070205
         },
         {
           "tq": "usTSM",
           "code": "TSM",
           "name": "台积电",
           "publishedPct": 9.09,
-          "finalWeight": 0.045797219432321144
+          "finalWeight": 0.029077776230515873
         },
         {
           "tq": "usNVDA",
           "code": "NVDA",
           "name": "英伟达",
           "publishedPct": 9.05,
-          "finalWeight": 0.07877152964894758
+          "finalWeight": 0.10616994324208526
         },
         {
           "tq": "usSNDK",
           "code": "SNDK",
           "name": "闪迪",
           "publishedPct": 8.57,
-          "finalWeight": 0.09537481971091241
+          "finalWeight": 0.09672436961111117
         },
         {
           "tq": "usMU",
           "code": "MU",
           "name": "美光科技",
           "publishedPct": 7.49,
-          "finalWeight": 0.1571573829975824
+          "finalWeight": 0.11671335696187855
         },
         {
           "tq": "hk00700",
@@ -556,14 +556,14 @@
           "code": "GOOGL",
           "name": "谷歌-A",
           "publishedPct": 5.69,
-          "finalWeight": 0.023561360884199238
+          "finalWeight": 0.02078669257078093
         },
         {
           "tq": "hk09988",
           "code": "09988",
           "name": "阿里巴巴-W",
           "publishedPct": 4.69,
-          "finalWeight": 0.05626859289798141
+          "finalWeight": 0
         },
         {
           "tq": "hk00883",
@@ -577,14 +577,14 @@
           "code": "AVGO",
           "name": "博通",
           "publishedPct": 3.49,
-          "finalWeight": 0.02877192372476395
+          "finalWeight": 0.07659094944321754
         },
         {
           "tq": "usASML",
           "code": "ASML",
           "name": "阿斯麦",
           "publishedPct": 2.85,
-          "finalWeight": 0.025090811857838676
+          "finalWeight": 0.052038353830915735
         }
       ]
     },
@@ -736,148 +736,148 @@
           "simpleWeight": 0.06815020862308761
         }
       ],
-      "regressionR2": 0.18623121224109607,
-      "constrainedR2": -0.7858093933354859,
+      "regressionR2": 0.2384572313415294,
+      "constrainedR2": -0.6895010544730193,
       "constrainedWeights": [
         {
           "tq": "hk00700",
           "code": "00700",
           "name": "腾讯控股",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.07797189503896478
         },
         {
           "tq": "hk00939",
           "code": "00939",
           "name": "建设银行",
           "publishedPct": null,
-          "finalWeight": 0.11689808779599686
+          "finalWeight": 0.059932488786975095
         },
         {
           "tq": "hk09988",
           "code": "09988",
           "name": "阿里巴巴-W",
           "publishedPct": null,
-          "finalWeight": 0.04093532331199478
+          "finalWeight": 0.04512860985494863
         },
         {
           "tq": "hk01398",
           "code": "01398",
           "name": "工商银行",
           "publishedPct": null,
-          "finalWeight": 0.0075422740208727045
+          "finalWeight": 0.04124631208476014
         },
         {
           "tq": "hk00941",
           "code": "00941",
           "name": "中国移动",
           "publishedPct": null,
-          "finalWeight": 0.015804478915908773
+          "finalWeight": 0.02406694409859556
         },
         {
           "tq": "hk01810",
           "code": "01810",
           "name": "小米集团-W",
           "publishedPct": null,
-          "finalWeight": 0.08341024587223005
+          "finalWeight": 0.09477828631524969
         },
         {
           "tq": "hk03690",
           "code": "03690",
           "name": "美团-W",
           "publishedPct": null,
-          "finalWeight": 0.03957651038201547
+          "finalWeight": 0
         },
         {
           "tq": "hk00981",
           "code": "00981",
           "name": "中芯国际",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.05294931249676156
         },
         {
           "tq": "hk03988",
           "code": "03988",
           "name": "中国银行",
           "publishedPct": null,
-          "finalWeight": 0.08555091056927779
+          "finalWeight": 0.06307573454496486
         },
         {
           "tq": "hk02318",
           "code": "02318",
           "name": "中国平安",
           "publishedPct": null,
-          "finalWeight": 0.1016688536779219
+          "finalWeight": 0.034763727218154225
         },
         {
           "tq": "hk00700",
           "code": "00700",
           "name": "腾讯控股",
           "publishedPct": 7.26,
-          "finalWeight": 0
+          "finalWeight": 0.07797189730566155
         },
         {
           "tq": "hk00939",
           "code": "00939",
           "name": "建设银行",
           "publishedPct": 7.1,
-          "finalWeight": 0.11689809361921581
+          "finalWeight": 0.05993249161326541
         },
         {
           "tq": "hk09988",
           "code": "09988",
           "name": "阿里巴巴-W",
           "publishedPct": 6.74,
-          "finalWeight": 0.040935329754027396
+          "finalWeight": 0.04512862217482913
         },
         {
           "tq": "hk01810",
           "code": "01810",
           "name": "小米集团-W",
           "publishedPct": 5.1,
-          "finalWeight": 0.08341024233915265
+          "finalWeight": 0.09477828812557379
         },
         {
           "tq": "hk01398",
           "code": "01398",
           "name": "工商银行",
           "publishedPct": 4.98,
-          "finalWeight": 0.007542277253868067
+          "finalWeight": 0.04124631694525931
         },
         {
           "tq": "hk00941",
           "code": "00941",
           "name": "中国移动",
           "publishedPct": 4.34,
-          "finalWeight": 0.015804480188894316
+          "finalWeight": 0.02406694480390389
         },
         {
           "tq": "hk03690",
           "code": "03690",
           "name": "美团-W",
           "publishedPct": 4.02,
-          "finalWeight": 0.03957650536104951
+          "finalWeight": 0
         },
         {
           "tq": "hk00883",
           "code": "00883",
           "name": "中国海洋石油",
           "publishedPct": 3.85,
-          "finalWeight": 0
+          "finalWeight": 0.03224065874941757
         },
         {
           "tq": "hk02318",
           "code": "02318",
           "name": "中国平安",
           "publishedPct": 3.51,
-          "finalWeight": 0.10166885357179875
+          "finalWeight": 0.034763729594351644
         },
         {
           "tq": "hk01211",
           "code": "01211",
           "name": "比亚迪股份",
           "publishedPct": 3.43,
-          "finalWeight": 0.10277753336577537
+          "finalWeight": 0.09595774024836319
         }
       ]
     },
@@ -1029,148 +1029,148 @@
           "simpleWeight": 0.05844602337840935
         }
       ],
-      "regressionR2": 0.23828597164308352,
-      "constrainedR2": -0.08638761073256962,
+      "regressionR2": 0.2924836515043233,
+      "constrainedR2": -0.16048729703183406,
       "constrainedWeights": [
         {
           "tq": "hk00005",
           "code": "00005",
           "name": "汇丰控股",
           "publishedPct": null,
-          "finalWeight": 0.06998404999154473
+          "finalWeight": 0.03148462555007262
         },
         {
           "tq": "hk00700",
           "code": "00700",
           "name": "腾讯控股",
           "publishedPct": null,
-          "finalWeight": 0.0009252396916999006
+          "finalWeight": 0.06501450274376319
         },
         {
           "tq": "hk09988",
           "code": "09988",
           "name": "阿里巴巴-W",
           "publishedPct": null,
-          "finalWeight": 0.037099202168732845
+          "finalWeight": 0.04037732762330986
         },
         {
           "tq": "hk00939",
           "code": "00939",
           "name": "建设银行",
           "publishedPct": null,
-          "finalWeight": 0.08118814077020718
+          "finalWeight": 0.043793229674097406
         },
         {
           "tq": "hk01299",
           "code": "01299",
           "name": "友邦保险",
           "publishedPct": null,
-          "finalWeight": 0.16525404329641977
+          "finalWeight": 0.1488208648482906
         },
         {
           "tq": "hk01398",
           "code": "01398",
           "name": "工商银行",
           "publishedPct": null,
-          "finalWeight": 0.00879074538058154
+          "finalWeight": 0.0374870238823212
         },
         {
           "tq": "hk00941",
           "code": "00941",
           "name": "中国移动",
           "publishedPct": null,
-          "finalWeight": 0.015374572188477563
+          "finalWeight": 0.02556525040390909
         },
         {
           "tq": "hk00388",
           "code": "00388",
           "name": "香港交易所",
           "publishedPct": null,
-          "finalWeight": 0.06418431355637942
+          "finalWeight": 0.062319512874076735
         },
         {
           "tq": "hk01810",
           "code": "01810",
           "name": "小米集团-W",
           "publishedPct": null,
-          "finalWeight": 0.03388627866032664
+          "finalWeight": 0.04513766201723153
         },
         {
           "tq": "hk03690",
           "code": "03690",
           "name": "美团-W",
           "publishedPct": null,
-          "finalWeight": 0.0233134009975737
+          "finalWeight": 0
         },
         {
           "tq": "hk00700",
           "code": "00700",
           "name": "腾讯控股",
           "publishedPct": 6.84,
-          "finalWeight": 0.0009252453232600533
+          "finalWeight": 0.06501450339182585
         },
         {
           "tq": "hk00005",
           "code": "00005",
           "name": "汇丰控股",
           "publishedPct": 6.68,
-          "finalWeight": 0.06998404853954009
+          "finalWeight": 0.03148462388542834
         },
         {
           "tq": "hk09988",
           "code": "09988",
           "name": "阿里巴巴-W",
           "publishedPct": 6.37,
-          "finalWeight": 0.03709920950235599
+          "finalWeight": 0.040377329456950335
         },
         {
           "tq": "hk01299",
           "code": "01299",
           "name": "友邦保险",
           "publishedPct": 4.97,
-          "finalWeight": 0.1652540426935425
+          "finalWeight": 0.14882086537712436
         },
         {
           "tq": "hk00939",
           "code": "00939",
           "name": "建设银行",
           "publishedPct": 4.5,
-          "finalWeight": 0.08118814325301862
+          "finalWeight": 0.04379323092708694
         },
         {
           "tq": "hk01810",
           "code": "01810",
           "name": "小米集团-W",
           "publishedPct": 3.23,
-          "finalWeight": 0.033886285605618134
+          "finalWeight": 0.04513765791059672
         },
         {
           "tq": "hk01398",
           "code": "01398",
           "name": "工商银行",
           "publishedPct": 3.14,
-          "finalWeight": 0.008790747146522188
+          "finalWeight": 0.03748702473356404
         },
         {
           "tq": "hk00941",
           "code": "00941",
           "name": "中国移动",
           "publishedPct": 2.74,
-          "finalWeight": 0.015374572692292763
+          "finalWeight": 0.025565250493112743
         },
         {
           "tq": "hk00388",
           "code": "00388",
           "name": "香港交易所",
           "publishedPct": 2.61,
-          "finalWeight": 0.06418431589784308
+          "finalWeight": 0.06231951420723839
         },
         {
           "tq": "hk03690",
           "code": "03690",
           "name": "美团-W",
           "publishedPct": 2.55,
-          "finalWeight": 0.023313402644063258
+          "finalWeight": 0
         }
       ]
     },
@@ -1322,15 +1322,15 @@
           "simpleWeight": 0.05932605600379686
         }
       ],
-      "regressionR2": 0.08610151270202315,
-      "constrainedR2": -0.01278208175799267,
+      "regressionR2": 0.08220825000551224,
+      "constrainedR2": -1.1130621665141893,
       "constrainedWeights": [
         {
           "tq": "sh601088",
           "code": "601088",
           "name": "中国神华",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.35302456520195385
         },
         {
           "tq": "sh601225",
@@ -1358,7 +1358,7 @@
           "code": "600256",
           "name": "广汇能源",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.006413379858674039
         },
         {
           "tq": "sh601699",
@@ -1379,7 +1379,7 @@
           "code": "600985",
           "name": "淮北矿业",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.14376874590367708
         },
         {
           "tq": "sh601001",
@@ -1400,7 +1400,7 @@
           "code": "601088",
           "name": "中国神华",
           "publishedPct": 10.15,
-          "finalWeight": 0
+          "finalWeight": 0.35302456721053116
         },
         {
           "tq": "sh600188",
@@ -1449,7 +1449,7 @@
           "code": "600985",
           "name": "淮北矿业",
           "publishedPct": 3.98,
-          "finalWeight": 0
+          "finalWeight": 0.14376874182516383
         },
         {
           "tq": "sz000723",
@@ -1615,8 +1615,8 @@
           "simpleWeight": 0.053530226119058597
         }
       ],
-      "regressionR2": 0.33948461695805787,
-      "constrainedR2": -6.757888025558941,
+      "regressionR2": 0.24224275733317047,
+      "constrainedR2": -6.495165963735759,
       "constrainedWeights": [
         {
           "tq": "hk06869",
@@ -1644,7 +1644,7 @@
           "code": "02162",
           "name": "康诺亚-B",
           "publishedPct": null,
-          "finalWeight": 0.13973436373430892
+          "finalWeight": 0.12397724250263253
         },
         {
           "tq": "hk09969",
@@ -1665,7 +1665,7 @@
           "code": "00290",
           "name": "国富量子",
           "publishedPct": null,
-          "finalWeight": 0.1701276752686188
+          "finalWeight": 0.2671376544998585
         },
         {
           "tq": "hk03618",
@@ -1686,7 +1686,7 @@
           "code": "01729",
           "name": "汇聚科技",
           "publishedPct": null,
-          "finalWeight": 0.38048835863674485
+          "finalWeight": 0.07646376438386822
         },
         {
           "tq": "hk06869",
@@ -1707,7 +1707,7 @@
           "code": "00290",
           "name": "国富量子",
           "publishedPct": 2.67,
-          "finalWeight": 0.17012777342742408
+          "finalWeight": 0.26713777628475466
         },
         {
           "tq": "hk01138",
@@ -1728,7 +1728,7 @@
           "code": "03330",
           "name": "灵宝黄金",
           "publishedPct": 1.4,
-          "finalWeight": 0.13952182893290344
+          "finalWeight": 0.26528356232888595
         },
         {
           "tq": "hk09969",
@@ -1762,7 +1762,7 @@
     },
     "161126": {
       "status": "done",
-      "samples": 16,
+      "samples": 19,
       "reportDate": "",
       "availableStocks": 20,
       "totalStocks": 20,
@@ -1908,148 +1908,148 @@
           "simpleWeight": 0.09817754262198708
         }
       ],
-      "regressionR2": 0.3993542946755796,
-      "constrainedR2": 0.418984888123473,
+      "regressionR2": 0.8012243830987337,
+      "constrainedR2": -0.2178381198187216,
       "constrainedWeights": [
         {
           "tq": "usMRNA",
           "code": "MRNA",
           "name": "Moderna Inc",
           "publishedPct": null,
-          "finalWeight": 0.044633498557039186
+          "finalWeight": 0.05894933595822553
         },
         {
           "tq": "usTECH",
           "code": "TECH",
           "name": "Bio-Techne Corp",
           "publishedPct": null,
-          "finalWeight": 0.013979674995372218
+          "finalWeight": 0.009253622813043767
         },
         {
           "tq": "usCRL",
           "code": "CRL",
           "name": "查尔斯河",
           "publishedPct": null,
-          "finalWeight": 0.08320719552367105
+          "finalWeight": 0.0577542471225978
         },
         {
           "tq": "usVRTX",
           "code": "VRTX",
           "name": "福泰制药",
           "publishedPct": null,
-          "finalWeight": 0.09903923651950099
+          "finalWeight": 0.07620746184608794
         },
         {
           "tq": "usMTD",
           "code": "MTD",
           "name": "梅特勒-托利多",
           "publishedPct": null,
-          "finalWeight": 0.09094832316855278
+          "finalWeight": 0.08194457209220712
         },
         {
           "tq": "usDVA",
           "code": "DVA",
           "name": "达维塔保健",
           "publishedPct": null,
-          "finalWeight": 0.07376613805036591
+          "finalWeight": 0.052933443763124345
         },
         {
           "tq": "usABBV",
           "code": "ABBV",
           "name": "艾伯维",
           "publishedPct": null,
-          "finalWeight": 0.03087355197975117
+          "finalWeight": 0.05229604601473222
         },
         {
           "tq": "usBIIB",
           "code": "BIIB",
           "name": "生化基因",
           "publishedPct": null,
-          "finalWeight": 0.0543770842378861
+          "finalWeight": 0.06585720429757452
         },
         {
           "tq": "usCAH",
           "code": "CAH",
           "name": "卡地纳健康",
           "publishedPct": null,
-          "finalWeight": 0.0552253324935465
+          "finalWeight": 0.049095296836582834
         },
         {
           "tq": "usRVTY",
           "code": "RVTY",
           "name": "Revvity Inc",
           "publishedPct": null,
-          "finalWeight": 0.014879465595387015
+          "finalWeight": 0.011484596143875278
         },
         {
           "tq": "usWST",
           "code": "WST",
           "name": "西氏医药服务",
           "publishedPct": 1.75,
-          "finalWeight": 0.012931285923258727
+          "finalWeight": 0.035524504144659026
         },
         {
           "tq": "usMRK",
           "code": "MRK",
           "name": "默沙东",
           "publishedPct": 1.72,
-          "finalWeight": 0.0015719590400568029
+          "finalWeight": 0.010736833945175918
         },
         {
           "tq": "usPFE",
           "code": "PFE",
           "name": "辉瑞",
           "publishedPct": 1.71,
-          "finalWeight": 0.06814317023238162
+          "finalWeight": 0.05950633570964941
         },
         {
           "tq": "usMTD",
           "code": "MTD",
           "name": "梅特勒-托利多",
           "publishedPct": 1.71,
-          "finalWeight": 0.09094832043592609
+          "finalWeight": 0.08194457243263525
         },
         {
           "tq": "usCI",
           "code": "CI",
           "name": "信诺",
           "publishedPct": 1.7,
-          "finalWeight": 0.06266799008189193
+          "finalWeight": 0.08080995559117825
         },
         {
           "tq": "usCRL",
           "code": "CRL",
           "name": "查尔斯河",
           "publishedPct": 1.7,
-          "finalWeight": 0.08320717699325476
+          "finalWeight": 0.057754247756815216
         },
         {
           "tq": "usHUM",
           "code": "HUM",
           "name": "哈门那",
           "publishedPct": 1.69,
-          "finalWeight": 0.02756930501247708
+          "finalWeight": 0.01399458464327373
         },
         {
           "tq": "usBMY",
           "code": "BMY",
           "name": "百时美施贵宝",
           "publishedPct": 1.68,
-          "finalWeight": 0.030343243016361737
+          "finalWeight": 0.043612190856370754
         },
         {
           "tq": "usELV",
           "code": "ELV",
           "name": "Elevance Health Inc",
           "publishedPct": 1.68,
-          "finalWeight": 0.030716056168328034
+          "finalWeight": 0.04968508965245417
         },
         {
           "tq": "usJNJ",
           "code": "JNJ",
           "name": "强生",
           "publishedPct": 1.67,
-          "finalWeight": 0.03097199197499042
+          "finalWeight": 0.05065585837973673
         }
       ]
     },
@@ -2201,36 +2201,36 @@
           "simpleWeight": 0.05668541756815232
         }
       ],
-      "regressionR2": 0.16313795377924467,
-      "constrainedR2": -0.5666542873076554,
+      "regressionR2": 0.21565188252115897,
+      "constrainedR2": -0.6974261497787395,
       "constrainedWeights": [
         {
           "tq": "sh601899",
           "code": "601899",
           "name": "紫金矿业",
           "publishedPct": null,
-          "finalWeight": 0.05627761611801187
+          "finalWeight": 0.011052495954940648
         },
         {
           "tq": "sh600176",
           "code": "600176",
           "name": "中国巨石",
           "publishedPct": null,
-          "finalWeight": 0.10200721896354122
+          "finalWeight": 0.2825476262443023
         },
         {
           "tq": "sh603993",
           "code": "603993",
           "name": "洛阳钼业",
           "publishedPct": null,
-          "finalWeight": 0.20234261194239342
+          "finalWeight": 0.03076155381626846
         },
         {
           "tq": "sh600111",
           "code": "600111",
           "name": "北方稀土",
           "publishedPct": null,
-          "finalWeight": 0.128817308931145
+          "finalWeight": 0.08718263609863504
         },
         {
           "tq": "sh601857",
@@ -2244,21 +2244,21 @@
           "code": "601088",
           "name": "中国神华",
           "publishedPct": null,
-          "finalWeight": 0.041341628764247795
+          "finalWeight": 0.04321924013745411
         },
         {
           "tq": "sz002353",
           "code": "002353",
           "name": "杰瑞股份",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.13759997219334077
         },
         {
           "tq": "sh600549",
           "code": "600549",
           "name": "厦门钨业",
           "publishedPct": null,
-          "finalWeight": 0.012891948071275416
+          "finalWeight": 0.06797794322524113
         },
         {
           "tq": "sh601225",
@@ -2279,21 +2279,21 @@
           "code": "601899",
           "name": "紫金矿业",
           "publishedPct": 15.67,
-          "finalWeight": 0.056277576753809025
+          "finalWeight": 0.011052529398404768
         },
         {
           "tq": "sh601088",
           "code": "601088",
           "name": "中国神华",
           "publishedPct": 4.62,
-          "finalWeight": 0.04134163103344632
+          "finalWeight": 0.04321923759319985
         },
         {
           "tq": "sh603993",
           "code": "603993",
           "name": "洛阳钼业",
           "publishedPct": 4.38,
-          "finalWeight": 0.20234259586631767
+          "finalWeight": 0.030761548448012068
         },
         {
           "tq": "sh601857",
@@ -2307,7 +2307,7 @@
           "code": "600111",
           "name": "北方稀土",
           "publishedPct": 3.56,
-          "finalWeight": 0.12881730403012487
+          "finalWeight": 0.08718262538218517
         },
         {
           "tq": "sh601225",
@@ -2328,7 +2328,7 @@
           "code": "603799",
           "name": "华友钴业",
           "publishedPct": 2.68,
-          "finalWeight": 0.02754255952568736
+          "finalWeight": 0.007302080695113245
         },
         {
           "tq": "sh601600",
@@ -2342,13 +2342,13 @@
           "code": "002460",
           "name": "赣锋锂业",
           "publishedPct": 2.62,
-          "finalWeight": 0
+          "finalWeight": 0.16014051081290231
         }
       ]
     },
     "161715": {
       "status": "done",
-      "samples": 19,
+      "samples": 17,
       "reportDate": "",
       "availableStocks": 20,
       "totalStocks": 20,
@@ -2494,8 +2494,8 @@
           "simpleWeight": 0.09111791730474733
         }
       ],
-      "regressionR2": 0.20934313756118206,
-      "constrainedR2": -3.3168271969862664,
+      "regressionR2": 0.29928147759255663,
+      "constrainedR2": -4.801973278833711,
       "constrainedWeights": [
         {
           "tq": "sz301526",
@@ -2509,7 +2509,7 @@
           "code": "600176",
           "name": "中国巨石",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.1675863808270214
         },
         {
           "tq": "sh600141",
@@ -2523,14 +2523,14 @@
           "code": "600497",
           "name": "驰宏锌锗",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.07304272234167548
         },
         {
           "tq": "sh600549",
           "code": "600549",
           "name": "厦门钨业",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.10747067982056571
         },
         {
           "tq": "sz000657",
@@ -2544,14 +2544,14 @@
           "code": "603256",
           "name": "宏和科技",
           "publishedPct": null,
-          "finalWeight": 0.29392759781130906
+          "finalWeight": 0.1019616746519692
         },
         {
           "tq": "sh601958",
           "code": "601958",
           "name": "金钼股份",
           "publishedPct": null,
-          "finalWeight": 0.23666470035860412
+          "finalWeight": 0.01533847543658654
         },
         {
           "tq": "sh603260",
@@ -2586,7 +2586,7 @@
           "code": "002756",
           "name": "永兴材料",
           "publishedPct": 1.34,
-          "finalWeight": 0
+          "finalWeight": 0.23603695700282892
         },
         {
           "tq": "sh600989",
@@ -2600,28 +2600,28 @@
           "code": "601212",
           "name": "白银有色",
           "publishedPct": 1.3,
-          "finalWeight": 0.1398908663719313
+          "finalWeight": 0.023506074974511754
         },
         {
           "tq": "sh600176",
           "code": "600176",
           "name": "中国巨石",
           "publishedPct": 1.28,
-          "finalWeight": 0
+          "finalWeight": 0.1675863292794158
         },
         {
           "tq": "sh600549",
           "code": "600549",
           "name": "厦门钨业",
           "publishedPct": 1.24,
-          "finalWeight": 0
+          "finalWeight": 0.10747070566542512
         },
         {
           "tq": "sz002155",
           "code": "002155",
           "name": "湖南黄金",
           "publishedPct": 1.21,
-          "finalWeight": 0.3295168354581554
+          "finalWeight": 0
         },
         {
           "tq": "sh600299",
@@ -2787,15 +2787,15 @@
           "simpleWeight": 0.021222014925373137
         }
       ],
-      "regressionR2": 0.10219293670645158,
-      "constrainedR2": -3.7009584922856824,
+      "regressionR2": 0.13515270345528518,
+      "constrainedR2": -0.5327587883358191,
       "constrainedWeights": [
         {
           "tq": "sh600519",
           "code": "600519",
           "name": "贵州茅台",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.026484586829305254
         },
         {
           "tq": "sh600809",
@@ -2809,21 +2809,21 @@
           "code": "000568",
           "name": "泸州老窖",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.10761929929867406
         },
         {
           "tq": "sz000858",
           "code": "000858",
           "name": "五粮液",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.028927959562282345
         },
         {
           "tq": "sz002304",
           "code": "002304",
           "name": "洋河股份",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.03220735325257196
         },
         {
           "tq": "sz000596",
@@ -2837,7 +2837,7 @@
           "code": "603369",
           "name": "今世缘",
           "publishedPct": null,
-          "finalWeight": 0.5000000229559323
+          "finalWeight": 0.17234508673970167
         },
         {
           "tq": "sh603198",
@@ -2851,35 +2851,35 @@
           "code": "000799",
           "name": "酒鬼酒",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.08572513012809399
         },
         {
           "tq": "sh600702",
           "code": "600702",
           "name": "舍得酒业",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.089553151729146
         },
         {
           "tq": "sh600519",
           "code": "600519",
           "name": "贵州茅台",
           "publishedPct": 18.33,
-          "finalWeight": 0
+          "finalWeight": 0.026484594884180424
         },
         {
           "tq": "sz000858",
           "code": "000858",
           "name": "五粮液",
           "publishedPct": 16.14,
-          "finalWeight": 0
+          "finalWeight": 0.028927963272403826
         },
         {
           "tq": "sz000568",
           "code": "000568",
           "name": "泸州老窖",
           "publishedPct": 14.7,
-          "finalWeight": 0
+          "finalWeight": 0.1076193040173008
         },
         {
           "tq": "sh600809",
@@ -2893,7 +2893,7 @@
           "code": "002304",
           "name": "洋河股份",
           "publishedPct": 7.74,
-          "finalWeight": 0
+          "finalWeight": 0.032207351375319146
         },
         {
           "tq": "sz000596",
@@ -2907,7 +2907,7 @@
           "code": "603369",
           "name": "今世缘",
           "publishedPct": 4.07,
-          "finalWeight": 0.49999997704406773
+          "finalWeight": 0.17234507622805398
         },
         {
           "tq": "sh603198",
@@ -2921,7 +2921,7 @@
           "code": "600702",
           "name": "舍得酒业",
           "publishedPct": 1.85,
-          "finalWeight": 0
+          "finalWeight": 0.08955314268296666
         },
         {
           "tq": "sh603589",
@@ -3080,148 +3080,148 @@
           "simpleWeight": 0.048462852263023055
         }
       ],
-      "regressionR2": 0.21319306664450877,
-      "constrainedR2": -0.6884078994585279,
+      "regressionR2": 0.2527331991473687,
+      "constrainedR2": -0.5403798312688701,
       "constrainedWeights": [
         {
           "tq": "hk00700",
           "code": "00700",
           "name": "腾讯控股",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.06132288522328126
         },
         {
           "tq": "hk09988",
           "code": "09988",
           "name": "阿里巴巴-W",
           "publishedPct": null,
-          "finalWeight": 0.035797073348645514
+          "finalWeight": 0.05008209052808811
         },
         {
           "tq": "hk01398",
           "code": "01398",
           "name": "工商银行",
           "publishedPct": null,
-          "finalWeight": 0.001810264493211942
+          "finalWeight": 0.029408726614178912
         },
         {
           "tq": "hk01810",
           "code": "01810",
           "name": "小米集团-W",
           "publishedPct": null,
-          "finalWeight": 0.044865596657641386
+          "finalWeight": 0.06828987132571052
         },
         {
           "tq": "hk03690",
           "code": "03690",
           "name": "美团-W",
           "publishedPct": null,
-          "finalWeight": 0.024946917459067536
+          "finalWeight": 0
         },
         {
           "tq": "hk00981",
           "code": "00981",
           "name": "中芯国际",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.05517032175458165
         },
         {
           "tq": "hk03988",
           "code": "03988",
           "name": "中国银行",
           "publishedPct": null,
-          "finalWeight": 0.08736913577625877
+          "finalWeight": 0.05321377411892514
         },
         {
           "tq": "hk02318",
           "code": "02318",
           "name": "中国平安",
           "publishedPct": null,
-          "finalWeight": 0.09943367254262421
+          "finalWeight": 0.03235715582740923
         },
         {
           "tq": "hk09999",
           "code": "09999",
           "name": "网易",
           "publishedPct": null,
-          "finalWeight": 0.16876487414347874
+          "finalWeight": 0.09587984089515766
         },
         {
           "tq": "hk00883",
           "code": "00883",
           "name": "中国海洋石油",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.03725150441179698
         },
         {
           "tq": "hk00700",
           "code": "00700",
           "name": "腾讯控股",
           "publishedPct": 7.68,
-          "finalWeight": 0
+          "finalWeight": 0.06132287417310887
         },
         {
           "tq": "hk09988",
           "code": "09988",
           "name": "阿里巴巴-W",
           "publishedPct": 7.17,
-          "finalWeight": 0.03579707530500693
+          "finalWeight": 0.050082085331960874
         },
         {
           "tq": "hk01810",
           "code": "01810",
           "name": "小米集团-W",
           "publishedPct": 5.42,
-          "finalWeight": 0.04486561075749415
+          "finalWeight": 0.06828987453343943
         },
         {
           "tq": "hk01398",
           "code": "01398",
           "name": "工商银行",
           "publishedPct": 5.29,
-          "finalWeight": 0.0018102636180111489
+          "finalWeight": 0.029408723075158884
         },
         {
           "tq": "hk03690",
           "code": "03690",
           "name": "美团-W",
           "publishedPct": 4.27,
-          "finalWeight": 0.024946926425404466
+          "finalWeight": 0
         },
         {
           "tq": "hk00883",
           "code": "00883",
           "name": "中国海洋石油",
           "publishedPct": 4.07,
-          "finalWeight": 0
+          "finalWeight": 0.03725150583249265
         },
         {
           "tq": "hk02318",
           "code": "02318",
           "name": "中国平安",
           "publishedPct": 3.72,
-          "finalWeight": 0.09943367511930545
+          "finalWeight": 0.03235715564582335
         },
         {
           "tq": "hk01211",
           "code": "01211",
           "name": "比亚迪股份",
           "publishedPct": 3.64,
-          "finalWeight": 0.07402489330517986
+          "finalWeight": 0.08921799181643433
         },
         {
           "tq": "hk03988",
           "code": "03988",
           "name": "中国银行",
           "publishedPct": 3.31,
-          "finalWeight": 0.08736913743950657
+          "finalWeight": 0.053213773997718566
         },
         {
           "tq": "hk09999",
           "code": "09999",
           "name": "网易-S",
           "publishedPct": 2.27,
-          "finalWeight": 0.16876488360916342
+          "finalWeight": 0.09587984489473346
         }
       ]
     },
@@ -3373,148 +3373,148 @@
           "simpleWeight": 0.05823378839590444
         }
       ],
-      "regressionR2": 0.23918132169182593,
-      "constrainedR2": -0.08793252676953078,
+      "regressionR2": 0.292697158345004,
+      "constrainedR2": -0.17086748759508663,
       "constrainedWeights": [
         {
           "tq": "hk00005",
           "code": "00005",
           "name": "汇丰控股",
           "publishedPct": null,
-          "finalWeight": 0.07001476433303677
+          "finalWeight": 0.03232425248619413
         },
         {
           "tq": "hk00700",
           "code": "00700",
           "name": "腾讯控股",
           "publishedPct": null,
-          "finalWeight": 0.0012263556982357376
+          "finalWeight": 0.0653446354344356
         },
         {
           "tq": "hk09988",
           "code": "09988",
           "name": "阿里巴巴-W",
           "publishedPct": null,
-          "finalWeight": 0.03849402800984847
+          "finalWeight": 0.04102732535004201
         },
         {
           "tq": "hk00939",
           "code": "00939",
           "name": "建设银行",
           "publishedPct": null,
-          "finalWeight": 0.081875104789687
+          "finalWeight": 0.0435716130766804
         },
         {
           "tq": "hk01299",
           "code": "01299",
           "name": "友邦保险",
           "publishedPct": null,
-          "finalWeight": 0.1643955441473632
+          "finalWeight": 0.149306170098515
         },
         {
           "tq": "hk01398",
           "code": "01398",
           "name": "工商银行",
           "publishedPct": null,
-          "finalWeight": 0.008854691859348502
+          "finalWeight": 0.037161697920537716
         },
         {
           "tq": "hk00941",
           "code": "00941",
           "name": "中国移动",
           "publishedPct": null,
-          "finalWeight": 0.015229599211914418
+          "finalWeight": 0.025488095635025517
         },
         {
           "tq": "hk00388",
           "code": "00388",
           "name": "香港交易所",
           "publishedPct": null,
-          "finalWeight": 0.06348196311138912
+          "finalWeight": 0.06154170740051433
         },
         {
           "tq": "hk01810",
           "code": "01810",
           "name": "小米集团-W",
           "publishedPct": null,
-          "finalWeight": 0.03290469086825256
+          "finalWeight": 0.04423450221532634
         },
         {
           "tq": "hk03690",
           "code": "03690",
           "name": "美团-W",
           "publishedPct": null,
-          "finalWeight": 0.02352324415957466
+          "finalWeight": 0
         },
         {
           "tq": "hk00700",
           "code": "00700",
           "name": "腾讯控股",
           "publishedPct": 7.36,
-          "finalWeight": 0.001226361213055905
+          "finalWeight": 0.06534463610000592
         },
         {
           "tq": "hk00005",
           "code": "00005",
           "name": "汇丰控股",
           "publishedPct": 7.19,
-          "finalWeight": 0.07001476285986621
+          "finalWeight": 0.032324250783933146
         },
         {
           "tq": "hk09988",
           "code": "09988",
           "name": "阿里巴巴-W",
           "publishedPct": 6.86,
-          "finalWeight": 0.03849403558808163
+          "finalWeight": 0.041027327222961076
         },
         {
           "tq": "hk01299",
           "code": "01299",
           "name": "友邦保险",
           "publishedPct": 5.33,
-          "finalWeight": 0.16439554351341154
+          "finalWeight": 0.14930617063808824
         },
         {
           "tq": "hk00939",
           "code": "00939",
           "name": "建设银行",
           "publishedPct": 4.83,
-          "finalWeight": 0.08187510730846913
+          "finalWeight": 0.043571614359513434
         },
         {
           "tq": "hk01810",
           "code": "01810",
           "name": "小米集团-W",
           "publishedPct": 3.46,
-          "finalWeight": 0.03290469833558192
+          "finalWeight": 0.04423449799962534
         },
         {
           "tq": "hk01398",
           "code": "01398",
           "name": "工商银行",
           "publishedPct": 3.38,
-          "finalWeight": 0.008854693671436814
+          "finalWeight": 0.037161698790194375
         },
         {
           "tq": "hk00941",
           "code": "00941",
           "name": "中国移动",
           "publishedPct": 2.94,
-          "finalWeight": 0.015229599727577656
+          "finalWeight": 0.025488095726020763
         },
         {
           "tq": "hk00388",
           "code": "00388",
           "name": "香港交易所",
           "publishedPct": 2.8,
-          "finalWeight": 0.06348196553150381
+          "finalWeight": 0.061541708762386564
         },
         {
           "tq": "hk03690",
           "code": "03690",
           "name": "美团-W",
           "publishedPct": 2.73,
-          "finalWeight": 0.023523246062365156
+          "finalWeight": 0
         }
       ]
     },
@@ -3666,8 +3666,8 @@
           "simpleWeight": 0.07783921735431733
         }
       ],
-      "regressionR2": 0.3623104209141834,
-      "constrainedR2": -2.696037449409003,
+      "regressionR2": 0.24565516203696136,
+      "constrainedR2": -2.3948421452071504,
       "constrainedWeights": [
         {
           "tq": "hk00992",
@@ -3681,28 +3681,28 @@
           "code": "01347",
           "name": "华虹宏力",
           "publishedPct": null,
-          "finalWeight": 0.2801926541091763
+          "finalWeight": 0
         },
         {
           "tq": "hk02269",
           "code": "02269",
           "name": "药明生物",
           "publishedPct": null,
-          "finalWeight": 0.20132687021103715
+          "finalWeight": 0.11892570148908577
         },
         {
           "tq": "hk01801",
           "code": "01801",
           "name": "信达生物",
           "publishedPct": null,
-          "finalWeight": 0.02700883194192573
+          "finalWeight": 0
         },
         {
           "tq": "hk09987",
           "code": "09987",
           "name": "百胜中国",
           "publishedPct": null,
-          "finalWeight": 0.019009212989551338
+          "finalWeight": 0.14524275035861417
         },
         {
           "tq": "hk00175",
@@ -3716,14 +3716,14 @@
           "code": "01109",
           "name": "华润置地",
           "publishedPct": null,
-          "finalWeight": 0.04968973939869774
+          "finalWeight": 0.1110364523105616
         },
         {
           "tq": "hk01888",
           "code": "01888",
           "name": "建滔积层板",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.20765326935366824
         },
         {
           "tq": "hk06869",
@@ -3744,21 +3744,21 @@
           "code": "09987",
           "name": "百胜中国",
           "publishedPct": 3.21,
-          "finalWeight": 0.01900921432247547
+          "finalWeight": 0.14524275001081657
         },
         {
           "tq": "hk01801",
           "code": "01801",
           "name": "信达生物",
           "publishedPct": 2.88,
-          "finalWeight": 0.027008814894559464
+          "finalWeight": 0
         },
         {
           "tq": "hk02269",
           "code": "02269",
           "name": "药明生物",
           "publishedPct": 2.8,
-          "finalWeight": 0.2013268549784966
+          "finalWeight": 0.11892569483650142
         },
         {
           "tq": "hk00175",
@@ -3786,14 +3786,14 @@
           "code": "01109",
           "name": "华润置地",
           "publishedPct": 1.92,
-          "finalWeight": 0.04968973896944423
+          "finalWeight": 0.11103645228616268
         },
         {
           "tq": "hk02015",
           "code": "02015",
           "name": "理想汽车-W",
           "publishedPct": 1.9,
-          "finalWeight": 0
+          "finalWeight": 0.04193692935458968
         },
         {
           "tq": "hk00288",
@@ -3807,7 +3807,7 @@
           "code": "02057",
           "name": "中通快递-W",
           "publishedPct": 1.83,
-          "finalWeight": 0.12573806818463587
+          "finalWeight": 0
         }
       ]
     },
@@ -3959,29 +3959,29 @@
           "simpleWeight": 0.03388696912272879
         }
       ],
-      "regressionR2": 0.11759352704467785,
-      "constrainedR2": -0.32058200290927297,
+      "regressionR2": 0.20260087893248602,
+      "constrainedR2": -0.20058618976768172,
       "constrainedWeights": [
         {
           "tq": "hk00005",
           "code": "00005",
           "name": "汇丰控股",
           "publishedPct": null,
-          "finalWeight": 0.08378913718548932
+          "finalWeight": 0
         },
         {
           "tq": "hk00939",
           "code": "00939",
           "name": "建设银行",
           "publishedPct": null,
-          "finalWeight": 0.04331513296056754
+          "finalWeight": 0.07231419402029726
         },
         {
           "tq": "hk01398",
           "code": "01398",
           "name": "工商银行",
           "publishedPct": null,
-          "finalWeight": 0.0813196989408477
+          "finalWeight": 0.08969789072065906
         },
         {
           "tq": "hk02888",
@@ -3995,70 +3995,70 @@
           "code": "03988",
           "name": "中国银行",
           "publishedPct": null,
-          "finalWeight": 0.03385701587874783
+          "finalWeight": 0.04662621147520084
         },
         {
           "tq": "hk03968",
           "code": "03968",
           "name": "招商银行",
           "publishedPct": null,
-          "finalWeight": 0.005939153157186998
+          "finalWeight": 0.04104700160899207
         },
         {
           "tq": "hk01288",
           "code": "01288",
           "name": "农业银行",
           "publishedPct": null,
-          "finalWeight": 0.08866120407746268
+          "finalWeight": 0.12348300656884133
         },
         {
           "tq": "hk02388",
           "code": "02388",
           "name": "中银香港",
           "publishedPct": null,
-          "finalWeight": 0.10074804973176957
+          "finalWeight": 0.003404976013850969
         },
         {
           "tq": "hk03328",
           "code": "03328",
           "name": "交通银行",
           "publishedPct": null,
-          "finalWeight": 0.062370585619365856
+          "finalWeight": 0.1025604185022981
         },
         {
           "tq": "hk00998",
           "code": "00998",
           "name": "中信银行",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.02086631442482685
         },
         {
           "tq": "hk00005",
           "code": "00005",
           "name": "汇丰控股",
           "publishedPct": 16.13,
-          "finalWeight": 0.08378914345724578
+          "finalWeight": 0
         },
         {
           "tq": "hk00939",
           "code": "00939",
           "name": "建设银行",
           "publishedPct": 15.32,
-          "finalWeight": 0.04331515406450133
+          "finalWeight": 0.07231419569599354
         },
         {
           "tq": "hk01398",
           "code": "01398",
           "name": "工商银行",
           "publishedPct": 12.98,
-          "finalWeight": 0.0813197100261674
+          "finalWeight": 0.08969788877490174
         },
         {
           "tq": "hk03988",
           "code": "03988",
           "name": "中国银行",
           "publishedPct": 9.06,
-          "finalWeight": 0.03385702513385274
+          "finalWeight": 0.04662620758206997
         },
         {
           "tq": "hk02888",
@@ -4072,35 +4072,35 @@
           "code": "03968",
           "name": "招商银行",
           "publishedPct": 7.68,
-          "finalWeight": 0.005939157306261462
+          "finalWeight": 0.04104699686226878
         },
         {
           "tq": "hk02388",
           "code": "02388",
           "name": "中银香港",
           "publishedPct": 6.69,
-          "finalWeight": 0.10074804870670939
+          "finalWeight": 0.0034049725040925134
         },
         {
           "tq": "hk01288",
           "code": "01288",
           "name": "农业银行",
           "publishedPct": 6.33,
-          "finalWeight": 0.08866120200310959
+          "finalWeight": 0.12348299909972063
         },
         {
           "tq": "hk03328",
           "code": "03328",
           "name": "交通银行",
           "publishedPct": 4.56,
-          "finalWeight": 0.062370581750715005
+          "finalWeight": 0.10256041530525535
         },
         {
           "tq": "hk00998",
           "code": "00998",
           "name": "中信银行",
           "publishedPct": 3.04,
-          "finalWeight": 0
+          "finalWeight": 0.020866310840731112
         }
       ]
     },
@@ -4392,288 +4392,288 @@
           "simpleWeight": 0.017422096317280453
         }
       ],
-      "regressionR2": 0.29512461518936894,
-      "constrainedR2": -0.11250626423757737,
+      "regressionR2": 0.36430773371933334,
+      "constrainedR2": -0.05652960961887832,
       "constrainedWeights": [
         {
           "tq": "hk09988",
           "code": "09988",
           "name": "阿里巴巴-W",
           "publishedPct": null,
-          "finalWeight": 0.03392977157045828
+          "finalWeight": 0.030028378897811084
         },
         {
           "tq": "hk00700",
           "code": "00700",
           "name": "腾讯控股",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.04443045223896703
         },
         {
           "tq": "hk00939",
           "code": "00939",
           "name": "建设银行",
           "publishedPct": null,
-          "finalWeight": 0.05641441788977286
+          "finalWeight": 0.029466171479589257
         },
         {
           "tq": "hk01810",
           "code": "01810",
           "name": "小米集团-W",
           "publishedPct": null,
-          "finalWeight": 0.02055233761636084
+          "finalWeight": 0.026911286198662576
         },
         {
           "tq": "hk03690",
           "code": "03690",
           "name": "美团-W",
           "publishedPct": null,
-          "finalWeight": 0.015494527305040029
+          "finalWeight": 0
         },
         {
           "tq": "hk00941",
           "code": "00941",
           "name": "中国移动",
           "publishedPct": null,
-          "finalWeight": 0.0030758998345795153
+          "finalWeight": 0.010541878663196383
         },
         {
           "tq": "hk01398",
           "code": "01398",
           "name": "工商银行",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.018040096042476195
         },
         {
           "tq": "hk02318",
           "code": "02318",
           "name": "中国平安",
           "publishedPct": null,
-          "finalWeight": 0.05154759222651298
+          "finalWeight": 0.013440305429345692
         },
         {
           "tq": "hk01211",
           "code": "01211",
           "name": "比亚迪股份",
           "publishedPct": null,
-          "finalWeight": 0.04523488620681647
+          "finalWeight": 0.03963438488677457
         },
         {
           "tq": "hk00883",
           "code": "00883",
           "name": "中国海洋石油",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.021191283034214466
         },
         {
           "tq": "hk09988",
           "code": "09988",
           "name": "阿里巴巴-W",
           "publishedPct": 17.51,
-          "finalWeight": 0.033929769705918676
+          "finalWeight": 0.03002838096140746
         },
         {
           "tq": "hk00700",
           "code": "00700",
           "name": "腾讯控股",
           "publishedPct": 14.72,
-          "finalWeight": 0
+          "finalWeight": 0.044430458722607744
         },
         {
           "tq": "hk01810",
           "code": "01810",
           "name": "小米集团-W",
           "publishedPct": 8.13,
-          "finalWeight": 0.020552362443149993
+          "finalWeight": 0.02691131934571682
         },
         {
           "tq": "hk00939",
           "code": "00939",
           "name": "建设银行",
           "publishedPct": 6.71,
-          "finalWeight": 0.05641441884332498
+          "finalWeight": 0.029466178817570955
         },
         {
           "tq": "hk03690",
           "code": "03690",
           "name": "美团-W",
           "publishedPct": 4.76,
-          "finalWeight": 0.01549454140163687
+          "finalWeight": 0
         },
         {
           "tq": "hk00941",
           "code": "00941",
           "name": "中国移动",
           "publishedPct": 4.35,
-          "finalWeight": 0.003075900685558515
+          "finalWeight": 0.010541879342986645
         },
         {
           "tq": "hk01398",
           "code": "01398",
           "name": "工商银行",
           "publishedPct": 3.92,
-          "finalWeight": 0
+          "finalWeight": 0.018040100670437455
         },
         {
           "tq": "hk01211",
           "code": "01211",
           "name": "比亚迪股份",
           "publishedPct": 3.37,
-          "finalWeight": 0.04523489871050186
+          "finalWeight": 0.03963439528918068
         },
         {
           "tq": "hk00981",
           "code": "00981",
           "name": "中芯国际",
           "publishedPct": 2.97,
-          "finalWeight": 0
+          "finalWeight": 0.04577745898619824
         },
         {
           "tq": "hk02318",
           "code": "02318",
           "name": "中国平安",
           "publishedPct": 2.95,
-          "finalWeight": 0.05154759579950248
+          "finalWeight": 0.013440310302562725
         },
         {
           "tq": "hk00700",
           "code": "00700",
           "name": "腾讯控股",
           "publishedPct": 13.9,
-          "finalWeight": 0
+          "finalWeight": 0.04443046936972737
         },
         {
           "tq": "hk09988",
           "code": "09988",
           "name": "阿里巴巴-W",
           "publishedPct": 13.45,
-          "finalWeight": 0.033929777852562855
+          "finalWeight": 0.0300283930316038
         },
         {
           "tq": "hk01810",
           "code": "01810",
           "name": "小米集团-W",
           "publishedPct": 9.92,
-          "finalWeight": 0.020552391953676696
+          "finalWeight": 0.02691132167089037
         },
         {
           "tq": "hk00939",
           "code": "00939",
           "name": "建设银行",
           "publishedPct": 7.81,
-          "finalWeight": 0.056414422982670555
+          "finalWeight": 0.02946618037225291
         },
         {
           "tq": "hk03690",
           "code": "03690",
           "name": "美团-W",
           "publishedPct": 6.28,
-          "finalWeight": 0.015494554428653898
+          "finalWeight": 0
         },
         {
           "tq": "hk00941",
           "code": "00941",
           "name": "中国移动",
           "publishedPct": 4.93,
-          "finalWeight": 0.0030759011546999627
+          "finalWeight": 0.010541879409938577
         },
         {
           "tq": "hk01398",
           "code": "01398",
           "name": "工商银行",
           "publishedPct": 4.68,
-          "finalWeight": 0
+          "finalWeight": 0.01804010211211147
         },
         {
           "tq": "hk01211",
           "code": "01211",
           "name": "比亚迪股份",
           "publishedPct": 4.11,
-          "finalWeight": 0.04523490747268268
+          "finalWeight": 0.039634397475709265
         },
         {
           "tq": "hk03988",
           "code": "03988",
           "name": "中国银行",
           "publishedPct": 3.48,
-          "finalWeight": 0.047500997315193805
+          "finalWeight": 0.04152960977679374
         },
         {
           "tq": "hk02318",
           "code": "02318",
           "name": "中国平安",
           "publishedPct": 3.04,
-          "finalWeight": 0.051547598784448465
+          "finalWeight": 0.01344031091628337
         },
         {
           "tq": "hk00700",
           "code": "00700",
           "name": "腾讯控股",
           "publishedPct": 9.44,
-          "finalWeight": 0
+          "finalWeight": 0.04443046916926624
         },
         {
           "tq": "hk09988",
           "code": "09988",
           "name": "阿里巴巴-W",
           "publishedPct": 9.34,
-          "finalWeight": 0.033929781554546755
+          "finalWeight": 0.03002839074716315
         },
         {
           "tq": "hk01810",
           "code": "01810",
           "name": "小米集团-W",
           "publishedPct": 9.08,
-          "finalWeight": 0.0205523818491147
+          "finalWeight": 0.026911296760544837
         },
         {
           "tq": "hk03690",
           "code": "03690",
           "name": "美团-W",
           "publishedPct": 9.01,
-          "finalWeight": 0.015494547759270698
+          "finalWeight": 0
         },
         {
           "tq": "hk00939",
           "code": "00939",
           "name": "建设银行",
           "publishedPct": 8.85,
-          "finalWeight": 0.056414422039296565
+          "finalWeight": 0.029466176826148518
         },
         {
           "tq": "hk00941",
           "code": "00941",
           "name": "中国移动",
           "publishedPct": 6.17,
-          "finalWeight": 0.0030759006652316028
+          "finalWeight": 0.010541879026353508
         },
         {
           "tq": "hk01398",
           "code": "01398",
           "name": "工商银行",
           "publishedPct": 5.43,
-          "finalWeight": 0
+          "finalWeight": 0.018040098816294193
         },
         {
           "tq": "hk01211",
           "code": "01211",
           "name": "比亚迪股份",
           "publishedPct": 5.13,
-          "finalWeight": 0.045234900615871834
+          "finalWeight": 0.039634389873784995
         },
         {
           "tq": "hk03988",
           "code": "03988",
           "name": "中国银行",
           "publishedPct": 4.67,
-          "finalWeight": 0.04750099654974998
+          "finalWeight": 0.04152960734455631
         },
         {
           "tq": "hk02318",
           "code": "02318",
           "name": "中国平安",
           "publishedPct": 3.69,
-          "finalWeight": 0.051547596783194476
+          "finalWeight": 0.01344030799087162
         }
       ]
     },
@@ -4828,15 +4828,15 @@
           "simpleWeight": 0.0849933598937583
         }
       ],
-      "regressionR2": 0.4497043119417222,
-      "constrainedR2": -3.13749967448725,
+      "regressionR2": 0.3664157179864641,
+      "constrainedR2": -2.520617161864963,
       "constrainedWeights": [
         {
           "tq": "hk01347",
           "code": "01347",
           "name": "华虹宏力",
           "publishedPct": null,
-          "finalWeight": 0.12793918277057859
+          "finalWeight": 0
         },
         {
           "tq": "hk03750",
@@ -4850,28 +4850,28 @@
           "code": "01888",
           "name": "建滔积层板",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.053899682453346115
         },
         {
           "tq": "hk00522",
           "code": "00522",
           "name": "ASMPT",
           "publishedPct": null,
-          "finalWeight": 0.09983411013252412
+          "finalWeight": 0.14692166708088297
         },
         {
           "tq": "hk00148",
           "code": "00148",
           "name": "建滔集团",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.09613705383926772
         },
         {
           "tq": "hk02359",
           "code": "02359",
           "name": "药明康德",
           "publishedPct": null,
-          "finalWeight": 0.07661170170738152
+          "finalWeight": 0.01376379819413212
         },
         {
           "tq": "hk02338",
@@ -4885,21 +4885,21 @@
           "code": "03993",
           "name": "洛阳钼业",
           "publishedPct": null,
-          "finalWeight": 0.06223034615541763
+          "finalWeight": 0.019470967919659743
         },
         {
           "tq": "hk00300",
           "code": "00300",
           "name": "美的集团",
           "publishedPct": null,
-          "finalWeight": 0.04147221858749297
+          "finalWeight": 0
         },
         {
           "tq": "hk01308",
           "code": "01308",
           "name": "海丰国际",
           "publishedPct": null,
-          "finalWeight": 0.10367922757182219
+          "finalWeight": 0.21735412179351518
         },
         {
           "tq": "hk03750",
@@ -4913,28 +4913,28 @@
           "code": "00020",
           "name": "商汤-W",
           "publishedPct": 1.63,
-          "finalWeight": 0.07630046883511582
+          "finalWeight": 0.20186382941316483
         },
         {
           "tq": "hk03993",
           "code": "03993",
           "name": "洛阳钼业",
           "publishedPct": 1.58,
-          "finalWeight": 0.06223034707867785
+          "finalWeight": 0.019470961646245014
         },
         {
           "tq": "hk01347",
           "code": "01347",
           "name": "华虹半导体",
           "publishedPct": 1.55,
-          "finalWeight": 0.12793926084359786
+          "finalWeight": 0
         },
         {
           "tq": "hk02359",
           "code": "02359",
           "name": "药明康德",
           "publishedPct": 1.46,
-          "finalWeight": 0.07661170229743426
+          "finalWeight": 0.013763793164090089
         },
         {
           "tq": "hk01818",
@@ -4955,14 +4955,14 @@
           "code": "00300",
           "name": "美的集团",
           "publishedPct": 1.34,
-          "finalWeight": 0.04147221464760318
+          "finalWeight": 0
         },
         {
           "tq": "hk01308",
           "code": "01308",
           "name": "海丰国际",
           "publishedPct": 1.3,
-          "finalWeight": 0.1036792193723541
+          "finalWeight": 0.2173541244956961
         },
         {
           "tq": "hk02331",
@@ -5121,148 +5121,148 @@
           "simpleWeight": 0.07329136690647482
         }
       ],
-      "regressionR2": 0.26643665702196684,
-      "constrainedR2": -0.5162511836762913,
+      "regressionR2": 0.41553769816228014,
+      "constrainedR2": -0.1025457644133787,
       "constrainedWeights": [
         {
           "tq": "hk00316",
           "code": "00316",
           "name": "东方海外国际",
           "publishedPct": null,
-          "finalWeight": 0.12734785956716954
+          "finalWeight": 0.08962125307529772
         },
         {
           "tq": "hk01308",
           "code": "01308",
           "name": "海丰国际",
           "publishedPct": null,
-          "finalWeight": 0.02154205345441146
+          "finalWeight": 0.08356531299419984
         },
         {
           "tq": "hk01088",
           "code": "01088",
           "name": "中国神华",
           "publishedPct": null,
-          "finalWeight": 0.02634112359462671
+          "finalWeight": 0.026093063889336916
         },
         {
           "tq": "hk01378",
           "code": "01378",
           "name": "中国宏桥",
           "publishedPct": null,
-          "finalWeight": 0.08090518881665687
+          "finalWeight": 0.0612938336307444
         },
         {
           "tq": "hk00883",
           "code": "00883",
           "name": "中国海洋石油",
           "publishedPct": null,
-          "finalWeight": 0.014238003728613523
+          "finalWeight": 0.05748867372152261
         },
         {
           "tq": "hk00857",
           "code": "00857",
           "name": "中国石油股份",
           "publishedPct": null,
-          "finalWeight": 0.040270820543512754
+          "finalWeight": 0.04105552574447815
         },
         {
           "tq": "hk00386",
           "code": "00386",
           "name": "中国石油化工股份",
           "publishedPct": null,
-          "finalWeight": 0.0790988174912522
+          "finalWeight": 0.05491299305349731
         },
         {
           "tq": "hk00998",
           "code": "00998",
           "name": "中信银行",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.028214122545835704
         },
         {
           "tq": "hk02343",
           "code": "02343",
           "name": "太平洋航运",
           "publishedPct": null,
-          "finalWeight": 0.075727365105837
+          "finalWeight": 0.018091751956979787
         },
         {
           "tq": "hk03988",
           "code": "03988",
           "name": "中国银行",
           "publishedPct": null,
-          "finalWeight": 0.06905758023816731
+          "finalWeight": 0.04479285884705021
         },
         {
           "tq": "hk00316",
           "code": "00316",
           "name": "东方海外国际",
           "publishedPct": 8.42,
-          "finalWeight": 0.12734785860425132
+          "finalWeight": 0.08962124992125228
         },
         {
           "tq": "hk01088",
           "code": "01088",
           "name": "中国神华",
           "publishedPct": 5.19,
-          "finalWeight": 0.026341119326265997
+          "finalWeight": 0.026093062747221292
         },
         {
           "tq": "hk01308",
           "code": "01308",
           "name": "海丰国际",
           "publishedPct": 4.59,
-          "finalWeight": 0.021542049442742142
+          "finalWeight": 0.08356531341831054
         },
         {
           "tq": "hk01378",
           "code": "01378",
           "name": "中国宏桥",
           "publishedPct": 4.1,
-          "finalWeight": 0.08090517855179309
+          "finalWeight": 0.06129383338466605
         },
         {
           "tq": "hk00857",
           "code": "00857",
           "name": "中国石油股份",
           "publishedPct": 3.94,
-          "finalWeight": 0.040270811620821946
+          "finalWeight": 0.04105552590602111
         },
         {
           "tq": "hk00386",
           "code": "00386",
           "name": "中国石油化工股份",
           "publishedPct": 3.92,
-          "finalWeight": 0.07909881506766095
+          "finalWeight": 0.05491299315911725
         },
         {
           "tq": "hk00883",
           "code": "00883",
           "name": "中国海洋石油",
           "publishedPct": 3.85,
-          "finalWeight": 0.014237994377611267
+          "finalWeight": 0.05748867343320615
         },
         {
           "tq": "hk00998",
           "code": "00998",
           "name": "中信银行",
           "publishedPct": 3.62,
-          "finalWeight": 0
+          "finalWeight": 0.02821412316338511
         },
         {
           "tq": "hk02343",
           "code": "02343",
           "name": "太平洋航运",
           "publishedPct": 3.59,
-          "finalWeight": 0.07572736046860572
+          "finalWeight": 0.018091753194793038
         },
         {
           "tq": "hk01171",
           "code": "01171",
           "name": "兖矿能源",
           "publishedPct": 3.26,
-          "finalWeight": 0
+          "finalWeight": 0.03453408221308477
         }
       ]
     },
@@ -5414,148 +5414,148 @@
           "simpleWeight": 0.07329136690647482
         }
       ],
-      "regressionR2": 0.2657712122409579,
-      "constrainedR2": -0.5217079159949105,
+      "regressionR2": 0.41509222348590524,
+      "constrainedR2": -0.10197023513761727,
       "constrainedWeights": [
         {
           "tq": "hk00316",
           "code": "00316",
           "name": "东方海外国际",
           "publishedPct": null,
-          "finalWeight": 0.12676465324933076
+          "finalWeight": 0.08917228667810063
         },
         {
           "tq": "hk01308",
           "code": "01308",
           "name": "海丰国际",
           "publishedPct": null,
-          "finalWeight": 0.021178574513366685
+          "finalWeight": 0.08330760947464091
         },
         {
           "tq": "hk01088",
           "code": "01088",
           "name": "中国神华",
           "publishedPct": null,
-          "finalWeight": 0.026676608427645774
+          "finalWeight": 0.0263004260513308
         },
         {
           "tq": "hk01378",
           "code": "01378",
           "name": "中国宏桥",
           "publishedPct": null,
-          "finalWeight": 0.08097541054050277
+          "finalWeight": 0.06148132671634655
         },
         {
           "tq": "hk00883",
           "code": "00883",
           "name": "中国海洋石油",
           "publishedPct": null,
-          "finalWeight": 0.014659353608671323
+          "finalWeight": 0.057603625404147235
         },
         {
           "tq": "hk00857",
           "code": "00857",
           "name": "中国石油股份",
           "publishedPct": null,
-          "finalWeight": 0.040727840510526477
+          "finalWeight": 0.04128919416124061
         },
         {
           "tq": "hk00386",
           "code": "00386",
           "name": "中国石油化工股份",
           "publishedPct": null,
-          "finalWeight": 0.07948294520349045
+          "finalWeight": 0.05518169769879568
         },
         {
           "tq": "hk00998",
           "code": "00998",
           "name": "中信银行",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.02855305126531484
         },
         {
           "tq": "hk02343",
           "code": "02343",
           "name": "太平洋航运",
           "publishedPct": null,
-          "finalWeight": 0.07508998856830833
+          "finalWeight": 0.01764621164783034
         },
         {
           "tq": "hk03988",
           "code": "03988",
           "name": "中国银行",
           "publishedPct": null,
-          "finalWeight": 0.06888929577235445
+          "finalWeight": 0.04467314867675526
         },
         {
           "tq": "hk00316",
           "code": "00316",
           "name": "东方海外国际",
           "publishedPct": 8.42,
-          "finalWeight": 0.12676465231276585
+          "finalWeight": 0.08917228350728862
         },
         {
           "tq": "hk01088",
           "code": "01088",
           "name": "中国神华",
           "publishedPct": 5.19,
-          "finalWeight": 0.026676604192227043
+          "finalWeight": 0.026300424902228968
         },
         {
           "tq": "hk01308",
           "code": "01308",
           "name": "海丰国际",
           "publishedPct": 4.59,
-          "finalWeight": 0.021178570521833535
+          "finalWeight": 0.08330760988687431
         },
         {
           "tq": "hk01378",
           "code": "01378",
           "name": "中国宏桥",
           "publishedPct": 4.1,
-          "finalWeight": 0.08097540023593083
+          "finalWeight": 0.061481326463939195
         },
         {
           "tq": "hk00857",
           "code": "00857",
           "name": "中国石油股份",
           "publishedPct": 3.94,
-          "finalWeight": 0.040727831526139784
+          "finalWeight": 0.041289194316364144
         },
         {
           "tq": "hk00386",
           "code": "00386",
           "name": "中国石油化工股份",
           "publishedPct": 3.92,
-          "finalWeight": 0.0794829427595768
+          "finalWeight": 0.05518169780069195
         },
         {
           "tq": "hk00883",
           "code": "00883",
           "name": "中国海洋石油",
           "publishedPct": 3.85,
-          "finalWeight": 0.014659344198848533
+          "finalWeight": 0.05760362510863108
         },
         {
           "tq": "hk00998",
           "code": "00998",
           "name": "中信银行",
           "publishedPct": 3.62,
-          "finalWeight": 0
+          "finalWeight": 0.02855305188176435
         },
         {
           "tq": "hk02343",
           "code": "02343",
           "name": "太平洋航运",
           "publishedPct": 3.59,
-          "finalWeight": 0.07508998385848073
+          "finalWeight": 0.017646212880963397
         },
         {
           "tq": "hk01171",
           "code": "01171",
           "name": "兖矿能源",
           "publishedPct": 3.26,
-          "finalWeight": 0
+          "finalWeight": 0.03425599547675131
         }
       ]
     },
@@ -5707,57 +5707,57 @@
           "simpleWeight": 0.07539450613676213
         }
       ],
-      "regressionR2": 0.20983077664285388,
-      "constrainedR2": -1.1346888360238632,
+      "regressionR2": 0.31546811164699795,
+      "constrainedR2": -4.160474166863793,
       "constrainedWeights": [
         {
           "tq": "hk01919",
           "code": "01919",
           "name": "中远海控",
           "publishedPct": null,
-          "finalWeight": 0.18212000537131026
+          "finalWeight": 0.1281140721639605
         },
         {
           "tq": "hk03668",
           "code": "03668",
           "name": "兖煤澳大利亚",
           "publishedPct": null,
-          "finalWeight": 0.08774327001682204
+          "finalWeight": 0
         },
         {
           "tq": "sh603156",
           "code": "603156",
           "name": "养元饮品",
           "publishedPct": null,
-          "finalWeight": 0.05290551599223052
+          "finalWeight": 0
         },
         {
           "tq": "hk01308",
           "code": "01308",
           "name": "海丰国际",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.09510244858912759
         },
         {
           "tq": "sh600188",
           "code": "600188",
           "name": "兖矿能源",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.008295444672978875
         },
         {
           "tq": "hk00316",
           "code": "00316",
           "name": "东方海外国际",
           "publishedPct": null,
-          "finalWeight": 0.2036839680897228
+          "finalWeight": 0.12959326392966686
         },
         {
           "tq": "hk01088",
           "code": "01088",
           "name": "中国神华",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.012027325519377626
         },
         {
           "tq": "sh603897",
@@ -5771,49 +5771,49 @@
           "code": "601699",
           "name": "潞安环能",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.02893492946073038
         },
         {
           "tq": "sh600256",
           "code": "600256",
           "name": "广汇能源",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.026529986062715057
         },
         {
           "tq": "hk01919",
           "code": "01919",
           "name": "中远海控",
           "publishedPct": 3.03,
-          "finalWeight": 0.1821200089024148
+          "finalWeight": 0.12811405394898376
         },
         {
           "tq": "hk03668",
           "code": "03668",
           "name": "兖煤澳大利亚",
           "publishedPct": 3.01,
-          "finalWeight": 0.08774326339397129
+          "finalWeight": 0
         },
         {
           "tq": "sh600256",
           "code": "600256",
           "name": "广汇能源",
           "publishedPct": 1.48,
-          "finalWeight": 0
+          "finalWeight": 0.02652997934722533
         },
         {
           "tq": "hk01308",
           "code": "01308",
           "name": "海丰国际",
           "publishedPct": 1.48,
-          "finalWeight": 0
+          "finalWeight": 0.09510243649077947
         },
         {
           "tq": "sh600188",
           "code": "600188",
           "name": "兖矿能源",
           "publishedPct": 1.46,
-          "finalWeight": 0
+          "finalWeight": 0.00829541929919138
         },
         {
           "tq": "sz000937",
@@ -5827,28 +5827,28 @@
           "code": "01088",
           "name": "中国神华",
           "publishedPct": 1.35,
-          "finalWeight": 0
+          "finalWeight": 0.01202731905113709
         },
         {
           "tq": "hk00883",
           "code": "00883",
           "name": "中国海洋石油",
           "publishedPct": 1.31,
-          "finalWeight": 0
+          "finalWeight": 0.08366882240269866
         },
         {
           "tq": "hk00639",
           "code": "00639",
           "name": "首钢资源",
           "publishedPct": 1.29,
-          "finalWeight": 0
+          "finalWeight": 0.08807123823001597
         },
         {
           "tq": "hk00316",
           "code": "00316",
           "name": "东方海外国际",
           "publishedPct": 1.29,
-          "finalWeight": 0.2036839682335282
+          "finalWeight": 0.12959326083141137
         }
       ]
     },
@@ -6000,36 +6000,36 @@
           "simpleWeight": 0.07052529182879377
         }
       ],
-      "regressionR2": 0.11449227117767657,
-      "constrainedR2": -0.5196058007633992,
+      "regressionR2": 0.23891799992222662,
+      "constrainedR2": -0.04311484297683199,
       "constrainedWeights": [
         {
           "tq": "hk03988",
           "code": "03988",
           "name": "中国银行",
           "publishedPct": null,
-          "finalWeight": 0.07917195823137607
+          "finalWeight": 0.06717357178007433
         },
         {
           "tq": "hk00939",
           "code": "00939",
           "name": "建设银行",
           "publishedPct": null,
-          "finalWeight": 0.07348524885183542
+          "finalWeight": 0.07950565171544273
         },
         {
           "tq": "hk01398",
           "code": "01398",
           "name": "工商银行",
           "publishedPct": null,
-          "finalWeight": 0.048429290903962634
+          "finalWeight": 0.061341486077316605
         },
         {
           "tq": "hk00857",
           "code": "00857",
           "name": "中国石油股份",
           "publishedPct": null,
-          "finalWeight": 0.015361233109504805
+          "finalWeight": 0.032901014132783464
         },
         {
           "tq": "hk02628",
@@ -6043,7 +6043,7 @@
           "code": "00386",
           "name": "中国石油化工股份",
           "publishedPct": null,
-          "finalWeight": 0.16114492505854594
+          "finalWeight": 0.10471252258872424
         },
         {
           "tq": "sh601668",
@@ -6057,56 +6057,56 @@
           "code": "01109",
           "name": "华润置地",
           "publishedPct": null,
-          "finalWeight": 0.0075556084907717974
+          "finalWeight": 0.05543879588000324
         },
         {
           "tq": "hk00267",
           "code": "00267",
           "name": "中信股份",
           "publishedPct": null,
-          "finalWeight": 0.06268115349202381
+          "finalWeight": 0.04994740029712282
         },
         {
           "tq": "hk03328",
           "code": "03328",
           "name": "交通银行",
           "publishedPct": null,
-          "finalWeight": 0.05217057582637214
+          "finalWeight": 0.0489795733394504
         },
         {
           "tq": "hk00857",
           "code": "00857",
           "name": "中国石油股份",
           "publishedPct": 5.92,
-          "finalWeight": 0.015361235111908034
+          "finalWeight": 0.03290100894870578
         },
         {
           "tq": "hk03988",
           "code": "03988",
           "name": "中国银行",
           "publishedPct": 5.14,
-          "finalWeight": 0.07917196455525419
+          "finalWeight": 0.06717356972590945
         },
         {
           "tq": "hk00939",
           "code": "00939",
           "name": "建设银行",
           "publishedPct": 5.04,
-          "finalWeight": 0.07348525355338434
+          "finalWeight": 0.07950564577033888
         },
         {
           "tq": "hk01398",
           "code": "01398",
           "name": "工商银行",
           "publishedPct": 5.04,
-          "finalWeight": 0.048429292618840755
+          "finalWeight": 0.061341478730902364
         },
         {
           "tq": "hk00386",
           "code": "00386",
           "name": "中国石油化工股份",
           "publishedPct": 3.69,
-          "finalWeight": 0.16114492509794368
+          "finalWeight": 0.10471251901633162
         },
         {
           "tq": "hk02628",
@@ -6127,21 +6127,21 @@
           "code": "00267",
           "name": "中信股份",
           "publishedPct": 3.25,
-          "finalWeight": 0.06268115293784773
+          "finalWeight": 0.049947396602895565
         },
         {
           "tq": "hk03328",
           "code": "03328",
           "name": "交通银行",
           "publishedPct": 3.05,
-          "finalWeight": 0.05217057431142438
+          "finalWeight": 0.04897957138198679
         },
         {
           "tq": "hk01109",
           "code": "01109",
           "name": "华润置地",
           "publishedPct": 2.9,
-          "finalWeight": 0.007555607849004386
+          "finalWeight": 0.055438794012011676
         }
       ]
     },
@@ -6293,22 +6293,22 @@
           "simpleWeight": 0.036941948366852086
         }
       ],
-      "regressionR2": 0.2222804209037248,
-      "constrainedR2": -0.3911578065841541,
+      "regressionR2": 0.13780804604233565,
+      "constrainedR2": -0.14233249779027024,
       "constrainedWeights": [
         {
           "tq": "hk00700",
           "code": "00700",
           "name": "腾讯控股",
           "publishedPct": null,
-          "finalWeight": 0.06505552809991544
+          "finalWeight": 0.1253938671072576
         },
         {
           "tq": "hk09988",
           "code": "09988",
           "name": "阿里巴巴-W",
           "publishedPct": null,
-          "finalWeight": 0.23727567707282057
+          "finalWeight": 0.14999414285351653
         },
         {
           "tq": "hk01810",
@@ -6329,28 +6329,28 @@
           "code": "00981",
           "name": "中芯国际",
           "publishedPct": null,
-          "finalWeight": 0.0016733452839175003
+          "finalWeight": 0.08783920029080097
         },
         {
           "tq": "hk01211",
           "code": "01211",
           "name": "比亚迪股份",
           "publishedPct": null,
-          "finalWeight": 0.008850709956780084
+          "finalWeight": 0.052057971347654754
         },
         {
           "tq": "hk06160",
           "code": "06160",
           "name": "百济神州",
           "publishedPct": null,
-          "finalWeight": 0.10510719437440925
+          "finalWeight": 0.016687346665670146
         },
         {
           "tq": "hk00669",
           "code": "00669",
           "name": "创科实业",
           "publishedPct": null,
-          "finalWeight": 0
+          "finalWeight": 0.038653059889176736
         },
         {
           "tq": "hk01347",
@@ -6371,14 +6371,14 @@
           "code": "00700",
           "name": "腾讯控股",
           "publishedPct": 14,
-          "finalWeight": 0.06505553457447387
+          "finalWeight": 0.12539386188619342
         },
         {
           "tq": "hk09988",
           "code": "09988",
           "name": "阿里巴巴-W",
           "publishedPct": 13.04,
-          "finalWeight": 0.23727568485676484
+          "finalWeight": 0.14999414249468127
         },
         {
           "tq": "hk01810",
@@ -6399,35 +6399,35 @@
           "code": "01211",
           "name": "比亚迪股份",
           "publishedPct": 7.39,
-          "finalWeight": 0.008850713035657298
+          "finalWeight": 0.05205797234460286
         },
         {
           "tq": "hk00981",
           "code": "00981",
           "name": "中芯国际",
           "publishedPct": 4.04,
-          "finalWeight": 0.0016733451096222292
+          "finalWeight": 0.08783919688255301
         },
         {
           "tq": "hk06160",
           "code": "06160",
           "name": "百济神州",
           "publishedPct": 3.94,
-          "finalWeight": 0.10510719319475836
+          "finalWeight": 0.016687346637210835
         },
         {
           "tq": "hk00669",
           "code": "00669",
           "name": "创科实业",
           "publishedPct": 2.83,
-          "finalWeight": 0
+          "finalWeight": 0.038653060143919137
         },
         {
           "tq": "hk01801",
           "code": "01801",
           "name": "信达生物",
           "publishedPct": 2.65,
-          "finalWeight": 0.16407507444088062
+          "finalWeight": 0.05874883145676271
         },
         {
           "tq": "hk00175",
