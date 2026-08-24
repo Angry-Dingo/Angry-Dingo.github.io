@@ -12,8 +12,8 @@
       "fee": "1.20%",
       "rfee": "1.00%",
       "benchmark": "usXBI",
-      "officialNav": 2.2372,
-      "navDate": "2026-08-19"
+      "officialNav": 2.1874,
+      "navDate": "2026-08-21"
     },
     {
       "code": "164906",
@@ -27,8 +27,8 @@
       "fee": "1.20%",
       "rfee": "1.50%",
       "benchmark": "usKWEB",
-      "officialNav": 0.962,
-      "navDate": "2026-08-19"
+      "officialNav": 0.9563,
+      "navDate": "2026-08-21"
     },
     {
       "code": "501312",
@@ -55,8 +55,8 @@
           "w": 0.1
         }
       ],
-      "officialNav": 2.4077,
-      "navDate": "2026-08-19"
+      "officialNav": 2.4354,
+      "navDate": "2026-08-21"
     },
     {
       "code": "164824",
@@ -70,8 +70,8 @@
       "fee": "1.20%",
       "rfee": "1.50%",
       "benchmark": "usINDA",
-      "officialNav": 1.3109,
-      "navDate": "2026-08-19"
+      "officialNav": 1.315,
+      "navDate": "2026-08-21"
     },
     {
       "code": "160644",
@@ -85,8 +85,8 @@
       "fee": "1.50%",
       "rfee": "1.50%",
       "benchmark": "usMCHI",
-      "officialNav": 1.7402,
-      "navDate": "2026-08-19"
+      "officialNav": 1.7573,
+      "navDate": "2026-08-21"
     },
     {
       "code": "162415",
@@ -100,8 +100,8 @@
       "fee": "1.20%",
       "rfee": "1.50%",
       "benchmark": "usXLY",
-      "officialNav": 2.908,
-      "navDate": "2026-08-19"
+      "officialNav": 2.894,
+      "navDate": "2026-08-21"
     },
     {
       "code": "161126",
@@ -115,8 +115,8 @@
       "fee": "1.20%",
       "rfee": "1.00%",
       "benchmark": "usRSPH",
-      "officialNav": 2.1998,
-      "navDate": "2026-08-19"
+      "officialNav": 2.1825,
+      "navDate": "2026-08-21"
     },
     {
       "code": "161128",
@@ -130,8 +130,8 @@
       "fee": "1.20%",
       "rfee": "1.00%",
       "benchmark": "usXLK",
-      "officialNav": 6.6711,
-      "navDate": "2026-08-19"
+      "officialNav": 6.6422,
+      "navDate": "2026-08-21"
     },
     {
       "code": "161125",
@@ -145,8 +145,8 @@
       "fee": "1.20%",
       "rfee": "1.50%",
       "benchmark": "usINX",
-      "officialNav": 3.1671,
-      "navDate": "2026-08-19"
+      "officialNav": 3.1526,
+      "navDate": "2026-08-21"
     },
     {
       "code": "161130",
@@ -160,8 +160,8 @@
       "fee": "1.20%",
       "rfee": "0.60%",
       "benchmark": "usQQQ",
-      "officialNav": 4.4381,
-      "navDate": "2026-08-19"
+      "officialNav": 4.4198,
+      "navDate": "2026-08-21"
     },
     {
       "code": "501300",
@@ -175,8 +175,8 @@
       "fee": "0.80%",
       "rfee": "1.50%",
       "benchmark": "usAGG",
-      "officialNav": 0.9394,
-      "navDate": "2026-08-19"
+      "officialNav": 0.9364,
+      "navDate": "2026-08-21"
     },
     {
       "code": "160140",
@@ -190,8 +190,8 @@
       "fee": "1.20%",
       "rfee": "1.00%",
       "benchmark": "usRWR",
-      "officialNav": 1.4602,
-      "navDate": "2026-08-19"
+      "officialNav": 1.4603,
+      "navDate": "2026-08-21"
     },
     {
       "code": "501225",
@@ -205,8 +205,8 @@
       "fee": "1.50%",
       "rfee": "1.50%",
       "benchmark": "usSMH",
-      "officialNav": 2.999,
-      "navDate": "2026-08-19"
+      "officialNav": 2.9937,
+      "navDate": "2026-08-21"
     },
     {
       "code": "160216",
@@ -249,8 +249,8 @@
           "w": 0.038
         }
       ],
-      "officialNav": 0.661,
-      "navDate": "2026-08-19"
+      "officialNav": 0.678,
+      "navDate": "2026-08-21"
     },
     {
       "code": "161116",
@@ -264,8 +264,8 @@
       "fee": "0%",
       "rfee": "1.50%",
       "benchmark": "sh518880",
-      "officialNav": 1.6656,
-      "navDate": "2026-08-19"
+      "officialNav": 1.7033,
+      "navDate": "2026-08-21"
     },
     {
       "code": "164701",
@@ -279,8 +279,8 @@
       "fee": "0.80%",
       "rfee": "1.50%",
       "benchmark": "usGLD",
-      "officialNav": 1.756,
-      "navDate": "2026-08-19"
+      "officialNav": 1.795,
+      "navDate": "2026-08-21"
     },
     {
       "code": "165513",
@@ -294,8 +294,8 @@
       "fee": "1.60%",
       "rfee": "1.50%",
       "benchmark": "usGLD",
-      "officialNav": 1.0559,
-      "navDate": "2026-08-19"
+      "officialNav": 1.078,
+      "navDate": "2026-08-21"
     },
     {
       "code": "160719",
@@ -309,8 +309,8 @@
       "fee": "1.20%",
       "rfee": "1.50%",
       "benchmark": "sh518880",
-      "officialNav": 1.999,
-      "navDate": "2026-08-19"
+      "officialNav": 2.045,
+      "navDate": "2026-08-21"
     },
     {
       "code": "161815",
@@ -365,8 +365,8 @@
           "w": 0.053
         }
       ],
-      "officialNav": 1.099,
-      "navDate": "2026-08-19"
+      "officialNav": 1.113,
+      "navDate": "2026-08-21"
     },
     {
       "code": "163208",
@@ -380,8 +380,8 @@
       "fee": "1.50%",
       "rfee": "1.50%",
       "benchmark": "usXLE",
-      "officialNav": 1.401,
-      "navDate": "2026-08-19"
+      "officialNav": 1.411,
+      "navDate": "2026-08-21"
     },
     {
       "code": "501018",
@@ -404,8 +404,8 @@
           "w": 0.4
         }
       ],
-      "officialNav": 1.8127,
-      "navDate": "2026-08-19"
+      "officialNav": 1.8441,
+      "navDate": "2026-08-21"
     },
     {
       "code": "161129",
@@ -419,8 +419,8 @@
       "fee": "1.20%",
       "rfee": "1.50%",
       "benchmark": "usUSO",
-      "officialNav": 1.7267,
-      "navDate": "2026-08-19"
+      "officialNav": 1.7605,
+      "navDate": "2026-08-21"
     },
     {
       "code": "160723",
@@ -434,8 +434,8 @@
       "fee": "1.20%",
       "rfee": "1.50%",
       "benchmark": "usUSO",
-      "officialNav": 2.0658,
-      "navDate": "2026-08-19"
+      "officialNav": 2.1048,
+      "navDate": "2026-08-21"
     },
     {
       "code": "162719",
@@ -449,8 +449,8 @@
       "fee": "1.20%",
       "rfee": "1.50%",
       "benchmark": "usXOP",
-      "officialNav": 3.0412,
-      "navDate": "2026-08-19"
+      "officialNav": 3.0848,
+      "navDate": "2026-08-21"
     },
     {
       "code": "162411",
@@ -464,8 +464,8 @@
       "fee": "1.50%",
       "rfee": "1.50%",
       "benchmark": "usXOP",
-      "officialNav": 0.979,
-      "navDate": "2026-08-19"
+      "officialNav": 0.994,
+      "navDate": "2026-08-21"
     },
     {
       "code": "160416",
@@ -479,8 +479,8 @@
       "fee": "1.20%",
       "rfee": "1.20%",
       "benchmark": "usIXC",
-      "officialNav": 2.2055,
-      "navDate": "2026-08-19"
+      "officialNav": 2.22,
+      "navDate": "2026-08-21"
     },
     {
       "code": "501303",
@@ -494,8 +494,8 @@
       "fee": "1.20%",
       "rfee": "0.60%",
       "benchmark": "hkHSMI",
-      "officialNav": 0.9779,
-      "navDate": "2026-08-20"
+      "officialNav": 0.9812,
+      "navDate": "2026-08-24"
     },
     {
       "code": "161124",
@@ -509,8 +509,8 @@
       "fee": "1.20%",
       "rfee": "1.00%",
       "benchmark": "hkHSSI",
-      "officialNav": 0.895,
-      "navDate": "2026-08-20"
+      "officialNav": 0.8953,
+      "navDate": "2026-08-24"
     },
     {
       "code": "160322",
@@ -524,8 +524,8 @@
       "fee": "1.20%",
       "rfee": "1.50%",
       "benchmark": "hkHSCI",
-      "officialNav": 1.0713,
-      "navDate": "2026-08-20"
+      "officialNav": 1.0569,
+      "navDate": "2026-08-24"
     },
     {
       "code": "501021",
@@ -539,8 +539,8 @@
       "fee": "1.20%",
       "rfee": "1.20%",
       "benchmark": "usMCHI",
-      "officialNav": 1.353,
-      "navDate": "2026-08-20"
+      "officialNav": 1.3525,
+      "navDate": "2026-08-24"
     },
     {
       "code": "501310",
@@ -554,8 +554,8 @@
       "fee": "1.20%",
       "rfee": "0.90%",
       "benchmark": "usFXI",
-      "officialNav": 1.3258,
-      "navDate": "2026-08-20"
+      "officialNav": 1.3359,
+      "navDate": "2026-08-24"
     },
     {
       "code": "501302",
@@ -569,8 +569,8 @@
       "fee": "1.20%",
       "rfee": "0.60%",
       "benchmark": "usMCHI",
-      "officialNav": 1.1651,
-      "navDate": "2026-08-20"
+      "officialNav": 1.1561,
+      "navDate": "2026-08-24"
     },
     {
       "code": "501307",
@@ -584,8 +584,8 @@
       "fee": "1.00%",
       "rfee": "0.68%",
       "benchmark": "usFXI",
-      "officialNav": 1.2773,
-      "navDate": "2026-08-20"
+      "officialNav": 1.2894,
+      "navDate": "2026-08-24"
     },
     {
       "code": "501306",
@@ -599,8 +599,8 @@
       "fee": "0.00%",
       "rfee": "0.60%",
       "benchmark": "usFXI",
-      "officialNav": 1.2678,
-      "navDate": "2026-08-20"
+      "officialNav": 1.2854,
+      "navDate": "2026-08-24"
     },
     {
       "code": "160717",
@@ -614,8 +614,8 @@
       "fee": "1.20%",
       "rfee": "0.95%",
       "benchmark": "usMCHI",
-      "officialNav": 0.7337,
-      "navDate": "2026-08-20"
+      "officialNav": 0.7279,
+      "navDate": "2026-08-24"
     },
     {
       "code": "501311",
@@ -629,8 +629,8 @@
       "fee": "1.20%",
       "rfee": "0.90%",
       "benchmark": "usMCHI",
-      "officialNav": 0.9724,
-      "navDate": "2026-08-20"
+      "officialNav": 0.9456,
+      "navDate": "2026-08-24"
     },
     {
       "code": "501301",
@@ -644,8 +644,8 @@
       "fee": "1.20%",
       "rfee": "0.90%",
       "benchmark": "usMCHI",
-      "officialNav": 1.2423,
-      "navDate": "2026-08-20"
+      "officialNav": 1.2232,
+      "navDate": "2026-08-24"
     },
     {
       "code": "164705",
@@ -659,8 +659,8 @@
       "fee": "1.20%",
       "rfee": "1.00%",
       "benchmark": "usMCHI",
-      "officialNav": 1.1494,
-      "navDate": "2026-08-20"
+      "officialNav": 1.1423,
+      "navDate": "2026-08-24"
     },
     {
       "code": "161831",
@@ -674,8 +674,8 @@
       "fee": "1.20%",
       "rfee": "1.20%",
       "benchmark": "usMCHI",
-      "officialNav": 0.7392,
-      "navDate": "2026-08-20"
+      "officialNav": 0.7324,
+      "navDate": "2026-08-24"
     },
     {
       "code": "501305",
@@ -689,8 +689,8 @@
       "fee": "1.20%",
       "rfee": "0.60%",
       "benchmark": "usFXI",
-      "officialNav": 1.3139,
-      "navDate": "2026-08-20"
+      "officialNav": 1.3322,
+      "navDate": "2026-08-24"
     },
     {
       "code": "160924",
@@ -704,8 +704,8 @@
       "fee": "1.20%",
       "rfee": "1.20%",
       "benchmark": "usMCHI",
-      "officialNav": 1.0176,
-      "navDate": "2026-08-20"
+      "officialNav": 1.0108,
+      "navDate": "2026-08-24"
     },
     {
       "code": "501025",
@@ -719,8 +719,8 @@
       "fee": "1.20%",
       "rfee": "0.90%",
       "benchmark": "usFXI",
-      "officialNav": 1.8603,
-      "navDate": "2026-08-20"
+      "officialNav": 1.8692,
+      "navDate": "2026-08-24"
     },
     {
       "code": "161226",
@@ -734,8 +734,8 @@
       "fee": "1.50%",
       "rfee": "0.50%",
       "benchmark": "nf_AG0",
-      "officialNav": 1.8224,
-      "navDate": "2026-08-20"
+      "officialNav": 1.9084,
+      "navDate": "2026-08-24"
     },
     {
       "code": "161217",
@@ -749,8 +749,8 @@
       "fee": "1.50%",
       "rfee": "0.50%",
       "benchmark": "sh000945",
-      "officialNav": 2.278,
-      "navDate": "2026-08-20"
+      "officialNav": 2.321,
+      "navDate": "2026-08-24"
     },
     {
       "code": "161715",
@@ -764,8 +764,8 @@
       "fee": "1.50%",
       "rfee": "0.50%",
       "benchmark": "sh000066",
-      "officialNav": 2.2567,
-      "navDate": "2026-08-20"
+      "officialNav": 2.2839,
+      "navDate": "2026-08-24"
     },
     {
       "code": "161725",
@@ -779,8 +779,8 @@
       "fee": "1.50%",
       "rfee": "0.50%",
       "benchmark": "sh000852",
-      "officialNav": 0.5546,
-      "navDate": "2026-08-20"
+      "officialNav": 0.5505,
+      "navDate": "2026-08-24"
     },
     {
       "code": "161032",
@@ -794,8 +794,8 @@
       "fee": "1.50%",
       "rfee": "0.50%",
       "benchmark": "sz399998",
-      "officialNav": 2.312,
-      "navDate": "2026-08-20"
+      "officialNav": 2.379,
+      "navDate": "2026-08-24"
     }
   ],
   "indexNames": {
@@ -849,5 +849,5 @@
     "csi931573": "港股通科技指数",
     "csi930839": "港股通高股息精选"
   },
-  "updatedAt": "2026-08-20T20:37:31.704Z"
+  "updatedAt": "2026-08-24T13:57:36.908Z"
 }
