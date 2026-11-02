@@ -1,23 +1,15 @@
 {
-  "updatedAt": "2026-10-26T07:31:37.231Z",
+  "updatedAt": "2026-11-02T09:05:13.023Z",
   "totalFunds": 22,
   "fundsWithHoldings": 22,
   "results": {
     "160322": {
       "code": "160322",
       "reportDate": "",
-      "totalHoldings": 20,
+      "totalHoldings": 30,
       "holdings": [
         {
           "seq": 1,
-          "code": "00981",
-          "name": "中芯国际",
-          "tq": "hk00981",
-          "market": "hk",
-          "percent": null
-        },
-        {
-          "seq": 2,
           "code": "00005",
           "name": "汇丰控股",
           "tq": "hk00005",
@@ -25,15 +17,15 @@
           "percent": null
         },
         {
-          "seq": 3,
-          "code": "01347",
-          "name": "华虹宏力",
-          "tq": "hk01347",
+          "seq": 2,
+          "code": "00981",
+          "name": "中芯国际",
+          "tq": "hk00981",
           "market": "hk",
           "percent": null
         },
         {
-          "seq": 4,
+          "seq": 3,
           "code": "00700",
           "name": "腾讯控股",
           "tq": "hk00700",
@@ -41,39 +33,7 @@
           "percent": null
         },
         {
-          "seq": 5,
-          "code": "00883",
-          "name": "中国海洋石油",
-          "tq": "hk00883",
-          "market": "hk",
-          "percent": null
-        },
-        {
-          "seq": 6,
-          "code": "03690",
-          "name": "美团-W",
-          "tq": "hk03690",
-          "market": "hk",
-          "percent": null
-        },
-        {
-          "seq": 7,
-          "code": "02319",
-          "name": "蒙牛乳业",
-          "tq": "hk02319",
-          "market": "hk",
-          "percent": null
-        },
-        {
-          "seq": 8,
-          "code": "01024",
-          "name": "快手-W",
-          "tq": "hk01024",
-          "market": "hk",
-          "percent": null
-        },
-        {
-          "seq": 9,
+          "seq": 4,
           "code": "02423",
           "name": "贝壳-W",
           "tq": "hk02423",
@@ -81,12 +41,132 @@
           "percent": null
         },
         {
-          "seq": 10,
+          "seq": 5,
+          "code": "01801",
+          "name": "信达生物",
+          "tq": "hk01801",
+          "market": "hk",
+          "percent": null
+        },
+        {
+          "seq": 6,
+          "code": "00883",
+          "name": "中国海洋石油",
+          "tq": "hk00883",
+          "market": "hk",
+          "percent": null
+        },
+        {
+          "seq": 7,
+          "code": "09988",
+          "name": "阿里巴巴-W",
+          "tq": "hk09988",
+          "market": "hk",
+          "percent": null
+        },
+        {
+          "seq": 8,
           "code": "02015",
           "name": "理想汽车-W",
           "tq": "hk02015",
           "market": "hk",
           "percent": null
+        },
+        {
+          "seq": 9,
+          "code": "03690",
+          "name": "美团-W",
+          "tq": "hk03690",
+          "market": "hk",
+          "percent": null
+        },
+        {
+          "seq": 10,
+          "code": "00012",
+          "name": "恒基地产",
+          "tq": "hk00012",
+          "market": "hk",
+          "percent": null
+        },
+        {
+          "seq": 1,
+          "code": "00981",
+          "name": "中芯国际",
+          "tq": "hk00981",
+          "market": "hk",
+          "percent": 10.12
+        },
+        {
+          "seq": 2,
+          "code": "00005",
+          "name": "汇丰控股",
+          "tq": "hk00005",
+          "market": "hk",
+          "percent": 8.51
+        },
+        {
+          "seq": 3,
+          "code": "01347",
+          "name": "华虹宏力",
+          "tq": "hk01347",
+          "market": "hk",
+          "percent": 7.44
+        },
+        {
+          "seq": 4,
+          "code": "00700",
+          "name": "腾讯控股",
+          "tq": "hk00700",
+          "market": "hk",
+          "percent": 6.41
+        },
+        {
+          "seq": 5,
+          "code": "00883",
+          "name": "中国海洋石油",
+          "tq": "hk00883",
+          "market": "hk",
+          "percent": 6.09
+        },
+        {
+          "seq": 6,
+          "code": "03690",
+          "name": "美团-W",
+          "tq": "hk03690",
+          "market": "hk",
+          "percent": 5.27
+        },
+        {
+          "seq": 7,
+          "code": "02319",
+          "name": "蒙牛乳业",
+          "tq": "hk02319",
+          "market": "hk",
+          "percent": 5.11
+        },
+        {
+          "seq": 8,
+          "code": "01024",
+          "name": "快手-W",
+          "tq": "hk01024",
+          "market": "hk",
+          "percent": 4.89
+        },
+        {
+          "seq": 9,
+          "code": "02423",
+          "name": "贝壳-W",
+          "tq": "hk02423",
+          "market": "hk",
+          "percent": 4.5
+        },
+        {
+          "seq": 10,
+          "code": "02015",
+          "name": "理想汽车-W",
+          "tq": "hk02015",
+          "market": "hk",
+          "percent": 4.41
         },
         {
           "seq": 1,
@@ -420,21 +500,21 @@
     "160717": {
       "code": "160717",
       "reportDate": "",
-      "totalHoldings": 20,
+      "totalHoldings": 30,
       "holdings": [
         {
           "seq": 1,
-          "code": "00700",
-          "name": "腾讯控股",
-          "tq": "hk00700",
+          "code": "00939",
+          "name": "建设银行",
+          "tq": "hk00939",
           "market": "hk",
           "percent": null
         },
         {
           "seq": 2,
-          "code": "00939",
-          "name": "建设银行",
-          "tq": "hk00939",
+          "code": "00700",
+          "name": "腾讯控股",
+          "tq": "hk00700",
           "market": "hk",
           "percent": null
         },
@@ -472,6 +552,14 @@
         },
         {
           "seq": 7,
+          "code": "03988",
+          "name": "中国银行",
+          "tq": "hk03988",
+          "market": "hk",
+          "percent": null
+        },
+        {
+          "seq": 8,
           "code": "03690",
           "name": "美团-W",
           "tq": "hk03690",
@@ -479,18 +567,10 @@
           "percent": null
         },
         {
-          "seq": 8,
-          "code": "00981",
-          "name": "中芯国际",
-          "tq": "hk00981",
-          "market": "hk",
-          "percent": null
-        },
-        {
           "seq": 9,
-          "code": "03988",
-          "name": "中国银行",
-          "tq": "hk03988",
+          "code": "00883",
+          "name": "中国海洋石油",
+          "tq": "hk00883",
           "market": "hk",
           "percent": null
         },
@@ -501,6 +581,86 @@
           "tq": "hk02318",
           "market": "hk",
           "percent": null
+        },
+        {
+          "seq": 1,
+          "code": "00700",
+          "name": "腾讯控股",
+          "tq": "hk00700",
+          "market": "hk",
+          "percent": 7.69
+        },
+        {
+          "seq": 2,
+          "code": "00939",
+          "name": "建设银行",
+          "tq": "hk00939",
+          "market": "hk",
+          "percent": 7.41
+        },
+        {
+          "seq": 3,
+          "code": "09988",
+          "name": "阿里巴巴-W",
+          "tq": "hk09988",
+          "market": "hk",
+          "percent": 6.11
+        },
+        {
+          "seq": 4,
+          "code": "01398",
+          "name": "工商银行",
+          "tq": "hk01398",
+          "market": "hk",
+          "percent": 5.06
+        },
+        {
+          "seq": 5,
+          "code": "00941",
+          "name": "中国移动",
+          "tq": "hk00941",
+          "market": "hk",
+          "percent": 4.55
+        },
+        {
+          "seq": 6,
+          "code": "01810",
+          "name": "小米集团-W",
+          "tq": "hk01810",
+          "market": "hk",
+          "percent": 3.75
+        },
+        {
+          "seq": 7,
+          "code": "03690",
+          "name": "美团-W",
+          "tq": "hk03690",
+          "market": "hk",
+          "percent": 3.64
+        },
+        {
+          "seq": 8,
+          "code": "00981",
+          "name": "中芯国际",
+          "tq": "hk00981",
+          "market": "hk",
+          "percent": 3.6
+        },
+        {
+          "seq": 9,
+          "code": "03988",
+          "name": "中国银行",
+          "tq": "hk03988",
+          "market": "hk",
+          "percent": 3.39
+        },
+        {
+          "seq": 10,
+          "code": "02318",
+          "name": "中国平安",
+          "tq": "hk02318",
+          "market": "hk",
+          "percent": 3.27
         },
         {
           "seq": 1,
@@ -587,7 +747,7 @@
     "160924": {
       "code": "160924",
       "reportDate": "",
-      "totalHoldings": 20,
+      "totalHoldings": 30,
       "holdings": [
         {
           "seq": 1,
@@ -663,11 +823,91 @@
         },
         {
           "seq": 10,
+          "code": "03988",
+          "name": "中国银行",
+          "tq": "hk03988",
+          "market": "hk",
+          "percent": null
+        },
+        {
+          "seq": 1,
+          "code": "00005",
+          "name": "汇丰控股",
+          "tq": "hk00005",
+          "market": "hk",
+          "percent": 8.31
+        },
+        {
+          "seq": 2,
+          "code": "00700",
+          "name": "腾讯控股",
+          "tq": "hk00700",
+          "market": "hk",
+          "percent": 7.39
+        },
+        {
+          "seq": 3,
+          "code": "09988",
+          "name": "阿里巴巴-W",
+          "tq": "hk09988",
+          "market": "hk",
+          "percent": 5.87
+        },
+        {
+          "seq": 4,
+          "code": "00939",
+          "name": "建设银行",
+          "tq": "hk00939",
+          "market": "hk",
+          "percent": 4.72
+        },
+        {
+          "seq": 5,
+          "code": "01299",
+          "name": "友邦保险",
+          "tq": "hk01299",
+          "market": "hk",
+          "percent": 4.57
+        },
+        {
+          "seq": 6,
+          "code": "01398",
+          "name": "工商银行",
+          "tq": "hk01398",
+          "market": "hk",
+          "percent": 3.22
+        },
+        {
+          "seq": 7,
+          "code": "00941",
+          "name": "中国移动",
+          "tq": "hk00941",
+          "market": "hk",
+          "percent": 2.88
+        },
+        {
+          "seq": 8,
+          "code": "00388",
+          "name": "香港交易所",
+          "tq": "hk00388",
+          "market": "hk",
+          "percent": 2.66
+        },
+        {
+          "seq": 9,
+          "code": "01810",
+          "name": "小米集团-W",
+          "tq": "hk01810",
+          "market": "hk",
+          "percent": 2.39
+        },
+        {
+          "seq": 10,
           "code": "03690",
           "name": "美团-W",
           "tq": "hk03690",
           "market": "hk",
-          "percent": null
+          "percent": 2.31
         },
         {
           "seq": 1,
@@ -754,7 +994,7 @@
     "161032": {
       "code": "161032",
       "reportDate": "",
-      "totalHoldings": 20,
+      "totalHoldings": 30,
       "holdings": [
         {
           "seq": 1,
@@ -782,14 +1022,6 @@
         },
         {
           "seq": 4,
-          "code": "601898",
-          "name": "中煤能源",
-          "tq": "sh601898",
-          "market": "cn",
-          "percent": null
-        },
-        {
-          "seq": 5,
           "code": "600256",
           "name": "广汇能源",
           "tq": "sh600256",
@@ -797,15 +1029,15 @@
           "percent": null
         },
         {
-          "seq": 6,
-          "code": "601699",
-          "name": "潞安环能",
-          "tq": "sh601699",
+          "seq": 5,
+          "code": "601898",
+          "name": "中煤能源",
+          "tq": "sh601898",
           "market": "cn",
           "percent": null
         },
         {
-          "seq": 7,
+          "seq": 6,
           "code": "000983",
           "name": "山西焦煤",
           "tq": "sz000983",
@@ -813,18 +1045,26 @@
           "percent": null
         },
         {
+          "seq": 7,
+          "code": "601699",
+          "name": "潞安环能",
+          "tq": "sh601699",
+          "market": "cn",
+          "percent": null
+        },
+        {
           "seq": 8,
-          "code": "600985",
-          "name": "淮北矿业",
-          "tq": "sh600985",
+          "code": "601918",
+          "name": "新集能源",
+          "tq": "sh601918",
           "market": "cn",
           "percent": null
         },
         {
           "seq": 9,
-          "code": "601001",
-          "name": "晋控煤业",
-          "tq": "sh601001",
+          "code": "600985",
+          "name": "淮北矿业",
+          "tq": "sh600985",
           "market": "cn",
           "percent": null
         },
@@ -835,6 +1075,86 @@
           "tq": "sh600348",
           "market": "cn",
           "percent": null
+        },
+        {
+          "seq": 1,
+          "code": "601088",
+          "name": "中国神华",
+          "tq": "sh601088",
+          "market": "cn",
+          "percent": 9.51
+        },
+        {
+          "seq": 2,
+          "code": "601225",
+          "name": "陕西煤业",
+          "tq": "sh601225",
+          "market": "cn",
+          "percent": 9.05
+        },
+        {
+          "seq": 3,
+          "code": "600188",
+          "name": "兖矿能源",
+          "tq": "sh600188",
+          "market": "cn",
+          "percent": 8.72
+        },
+        {
+          "seq": 4,
+          "code": "601898",
+          "name": "中煤能源",
+          "tq": "sh601898",
+          "market": "cn",
+          "percent": 6.39
+        },
+        {
+          "seq": 5,
+          "code": "600256",
+          "name": "广汇能源",
+          "tq": "sh600256",
+          "market": "cn",
+          "percent": 6.34
+        },
+        {
+          "seq": 6,
+          "code": "601699",
+          "name": "潞安环能",
+          "tq": "sh601699",
+          "market": "cn",
+          "percent": 4.9
+        },
+        {
+          "seq": 7,
+          "code": "000983",
+          "name": "山西焦煤",
+          "tq": "sz000983",
+          "market": "cn",
+          "percent": 4.72
+        },
+        {
+          "seq": 8,
+          "code": "600985",
+          "name": "淮北矿业",
+          "tq": "sh600985",
+          "market": "cn",
+          "percent": 4.34
+        },
+        {
+          "seq": 9,
+          "code": "601001",
+          "name": "晋控煤业",
+          "tq": "sh601001",
+          "market": "cn",
+          "percent": 4.17
+        },
+        {
+          "seq": 10,
+          "code": "600348",
+          "name": "华阳股份",
+          "tq": "sh600348",
+          "market": "cn",
+          "percent": 3.96
         },
         {
           "seq": 1,
@@ -921,26 +1241,10 @@
     "161124": {
       "code": "161124",
       "reportDate": "",
-      "totalHoldings": 20,
+      "totalHoldings": 30,
       "holdings": [
         {
           "seq": 1,
-          "code": "06869",
-          "name": "长飞光纤光缆",
-          "tq": "hk06869",
-          "market": "hk",
-          "percent": null
-        },
-        {
-          "seq": 2,
-          "code": "01772",
-          "name": "赣锋锂业",
-          "tq": "hk01772",
-          "market": "hk",
-          "percent": null
-        },
-        {
-          "seq": 3,
           "code": "01138",
           "name": "中远海能",
           "tq": "hk01138",
@@ -948,7 +1252,15 @@
           "percent": null
         },
         {
-          "seq": 4,
+          "seq": 2,
+          "code": "03396",
+          "name": "联想控股",
+          "tq": "hk03396",
+          "market": "hk",
+          "percent": null
+        },
+        {
+          "seq": 3,
           "code": "02162",
           "name": "康诺亚-B",
           "tq": "hk02162",
@@ -956,10 +1268,18 @@
           "percent": null
         },
         {
+          "seq": 4,
+          "code": "01440",
+          "name": "应星控股",
+          "tq": "hk01440",
+          "market": "hk",
+          "percent": null
+        },
+        {
           "seq": 5,
-          "code": "09969",
-          "name": "诺诚健华",
-          "tq": "hk09969",
+          "code": "03618",
+          "name": "重庆农村商业银行",
+          "tq": "hk03618",
           "market": "hk",
           "percent": null
         },
@@ -973,11 +1293,91 @@
         },
         {
           "seq": 7,
+          "code": "02225",
+          "name": "今海医疗科技",
+          "tq": "hk02225",
+          "market": "hk",
+          "percent": null
+        },
+        {
+          "seq": 8,
+          "code": "00177",
+          "name": "江苏宁沪高速公路",
+          "tq": "hk00177",
+          "market": "hk",
+          "percent": null
+        },
+        {
+          "seq": 9,
+          "code": "06031",
+          "name": "三一重工",
+          "tq": "hk06031",
+          "market": "hk",
+          "percent": null
+        },
+        {
+          "seq": 10,
+          "code": "02050",
+          "name": "三花智控",
+          "tq": "hk02050",
+          "market": "hk",
+          "percent": null
+        },
+        {
+          "seq": 1,
+          "code": "06869",
+          "name": "长飞光纤光缆",
+          "tq": "hk06869",
+          "market": "hk",
+          "percent": 10.51
+        },
+        {
+          "seq": 2,
+          "code": "01772",
+          "name": "赣锋锂业",
+          "tq": "hk01772",
+          "market": "hk",
+          "percent": 2.37
+        },
+        {
+          "seq": 3,
+          "code": "01138",
+          "name": "中远海能",
+          "tq": "hk01138",
+          "market": "hk",
+          "percent": 1.66
+        },
+        {
+          "seq": 4,
+          "code": "02162",
+          "name": "康诺亚-B",
+          "tq": "hk02162",
+          "market": "hk",
+          "percent": 1.53
+        },
+        {
+          "seq": 5,
+          "code": "09969",
+          "name": "诺诚健华",
+          "tq": "hk09969",
+          "market": "hk",
+          "percent": 1.39
+        },
+        {
+          "seq": 6,
+          "code": "09995",
+          "name": "荣昌生物",
+          "tq": "hk09995",
+          "market": "hk",
+          "percent": 1.36
+        },
+        {
+          "seq": 7,
           "code": "00290",
           "name": "国富量子",
           "tq": "hk00290",
           "market": "hk",
-          "percent": null
+          "percent": 1.35
         },
         {
           "seq": 8,
@@ -985,7 +1385,7 @@
           "name": "重庆农村商业银行",
           "tq": "hk03618",
           "market": "hk",
-          "percent": null
+          "percent": 1.27
         },
         {
           "seq": 9,
@@ -993,7 +1393,7 @@
           "name": "中创新航",
           "tq": "hk03931",
           "market": "hk",
-          "percent": null
+          "percent": 1.22
         },
         {
           "seq": 10,
@@ -1001,7 +1401,7 @@
           "name": "汇聚科技",
           "tq": "hk01729",
           "market": "hk",
-          "percent": null
+          "percent": 1.2
         },
         {
           "seq": 1,
@@ -1088,7 +1488,7 @@
     "161126": {
       "code": "161126",
       "reportDate": "",
-      "totalHoldings": 20,
+      "totalHoldings": 30,
       "holdings": [
         {
           "seq": 1,
@@ -1100,25 +1500,25 @@
         },
         {
           "seq": 2,
-          "code": "TECH",
-          "name": "Bio-Techne Corp",
-          "tq": "usTECH",
+          "code": "ILMN",
+          "name": "Illumina Inc",
+          "tq": "usILMN",
           "market": "us",
           "percent": null
         },
         {
           "seq": 3,
-          "code": "CRL",
-          "name": "查尔斯河",
-          "tq": "usCRL",
+          "code": "RVTY",
+          "name": "Revvity Inc",
+          "tq": "usRVTY",
           "market": "us",
           "percent": null
         },
         {
           "seq": 4,
-          "code": "VRTX",
-          "name": "福泰制药",
-          "tq": "usVRTX",
+          "code": "A",
+          "name": "安捷伦",
+          "tq": "usA",
           "market": "us",
           "percent": null
         },
@@ -1132,11 +1532,91 @@
         },
         {
           "seq": 6,
+          "code": "ISRG",
+          "name": "直觉外科",
+          "tq": "usISRG",
+          "market": "us",
+          "percent": null
+        },
+        {
+          "seq": 7,
+          "code": "TMO",
+          "name": "赛默飞世尔科技",
+          "tq": "usTMO",
+          "market": "us",
+          "percent": null
+        },
+        {
+          "seq": 8,
+          "code": "WST",
+          "name": "西氏医药服务",
+          "tq": "usWST",
+          "market": "us",
+          "percent": null
+        },
+        {
+          "seq": 9,
+          "code": "VEEV",
+          "name": "Veeva Systems Inc-A",
+          "tq": "usVEEV",
+          "market": "us",
+          "percent": null
+        },
+        {
+          "seq": 10,
+          "code": "WAT",
+          "name": "沃特世",
+          "tq": "usWAT",
+          "market": "us",
+          "percent": null
+        },
+        {
+          "seq": 1,
+          "code": "MRNA",
+          "name": "Moderna Inc",
+          "tq": "usMRNA",
+          "market": "us",
+          "percent": 2.34
+        },
+        {
+          "seq": 2,
+          "code": "TECH",
+          "name": "Bio-Techne Corp",
+          "tq": "usTECH",
+          "market": "us",
+          "percent": 2.07
+        },
+        {
+          "seq": 3,
+          "code": "CRL",
+          "name": "查尔斯河",
+          "tq": "usCRL",
+          "market": "us",
+          "percent": 1.87
+        },
+        {
+          "seq": 4,
+          "code": "VRTX",
+          "name": "福泰制药",
+          "tq": "usVRTX",
+          "market": "us",
+          "percent": 1.75
+        },
+        {
+          "seq": 5,
+          "code": "MTD",
+          "name": "梅特勒-托利多",
+          "tq": "usMTD",
+          "market": "us",
+          "percent": 1.74
+        },
+        {
+          "seq": 6,
           "code": "DVA",
           "name": "达维塔保健",
           "tq": "usDVA",
           "market": "us",
-          "percent": null
+          "percent": 1.72
         },
         {
           "seq": 7,
@@ -1144,7 +1624,7 @@
           "name": "艾伯维",
           "tq": "usABBV",
           "market": "us",
-          "percent": null
+          "percent": 1.72
         },
         {
           "seq": 8,
@@ -1152,7 +1632,7 @@
           "name": "生化基因",
           "tq": "usBIIB",
           "market": "us",
-          "percent": null
+          "percent": 1.71
         },
         {
           "seq": 9,
@@ -1160,7 +1640,7 @@
           "name": "卡地纳健康",
           "tq": "usCAH",
           "market": "us",
-          "percent": null
+          "percent": 1.69
         },
         {
           "seq": 10,
@@ -1168,7 +1648,7 @@
           "name": "Revvity Inc",
           "tq": "usRVTY",
           "market": "us",
-          "percent": null
+          "percent": 1.69
         },
         {
           "seq": 1,
@@ -1502,10 +1982,26 @@
     "161715": {
       "code": "161715",
       "reportDate": "",
-      "totalHoldings": 20,
+      "totalHoldings": 30,
       "holdings": [
         {
           "seq": 1,
+          "code": "600988",
+          "name": "赤峰黄金",
+          "tq": "sh600988",
+          "market": "cn",
+          "percent": null
+        },
+        {
+          "seq": 2,
+          "code": "002714",
+          "name": "牧原股份",
+          "tq": "sz002714",
+          "market": "cn",
+          "percent": null
+        },
+        {
+          "seq": 3,
           "code": "301526",
           "name": "国际复材",
           "tq": "sz301526",
@@ -1513,7 +2009,47 @@
           "percent": null
         },
         {
-          "seq": 2,
+          "seq": 4,
+          "code": "300498",
+          "name": "温氏股份",
+          "tq": "sz300498",
+          "market": "cn",
+          "percent": null
+        },
+        {
+          "seq": 5,
+          "code": "002493",
+          "name": "荣盛石化",
+          "tq": "sz002493",
+          "market": "cn",
+          "percent": null
+        },
+        {
+          "seq": 6,
+          "code": "000301",
+          "name": "东方盛虹",
+          "tq": "sz000301",
+          "market": "cn",
+          "percent": null
+        },
+        {
+          "seq": 7,
+          "code": "000975",
+          "name": "山金国际",
+          "tq": "sz000975",
+          "market": "cn",
+          "percent": null
+        },
+        {
+          "seq": 8,
+          "code": "002648",
+          "name": "卫星化学",
+          "tq": "sz002648",
+          "market": "cn",
+          "percent": null
+        },
+        {
+          "seq": 9,
           "code": "600176",
           "name": "中国巨石",
           "tq": "sh600176",
@@ -1521,15 +2057,7 @@
           "percent": null
         },
         {
-          "seq": 3,
-          "code": "600141",
-          "name": "兴发集团",
-          "tq": "sh600141",
-          "market": "cn",
-          "percent": null
-        },
-        {
-          "seq": 4,
+          "seq": 10,
           "code": "600497",
           "name": "驰宏锌锗",
           "tq": "sh600497",
@@ -1537,12 +2065,44 @@
           "percent": null
         },
         {
+          "seq": 1,
+          "code": "301526",
+          "name": "国际复材",
+          "tq": "sz301526",
+          "market": "cn",
+          "percent": 1.98
+        },
+        {
+          "seq": 2,
+          "code": "600176",
+          "name": "中国巨石",
+          "tq": "sh600176",
+          "market": "cn",
+          "percent": 1.91
+        },
+        {
+          "seq": 3,
+          "code": "600141",
+          "name": "兴发集团",
+          "tq": "sh600141",
+          "market": "cn",
+          "percent": 1.61
+        },
+        {
+          "seq": 4,
+          "code": "600497",
+          "name": "驰宏锌锗",
+          "tq": "sh600497",
+          "market": "cn",
+          "percent": 1.37
+        },
+        {
           "seq": 5,
           "code": "600549",
           "name": "厦门钨业",
           "tq": "sh600549",
           "market": "cn",
-          "percent": null
+          "percent": 1.35
         },
         {
           "seq": 6,
@@ -1550,7 +2110,7 @@
           "name": "中钨高新",
           "tq": "sz000657",
           "market": "cn",
-          "percent": null
+          "percent": 1.32
         },
         {
           "seq": 7,
@@ -1558,7 +2118,7 @@
           "name": "宏和科技",
           "tq": "sh603256",
           "market": "cn",
-          "percent": null
+          "percent": 1.31
         },
         {
           "seq": 8,
@@ -1566,7 +2126,7 @@
           "name": "金钼股份",
           "tq": "sh601958",
           "market": "cn",
-          "percent": null
+          "percent": 1.26
         },
         {
           "seq": 9,
@@ -1574,7 +2134,7 @@
           "name": "合盛硅业",
           "tq": "sh603260",
           "market": "cn",
-          "percent": null
+          "percent": 1.26
         },
         {
           "seq": 10,
@@ -1582,7 +2142,7 @@
           "name": "盛和资源",
           "tq": "sh600392",
           "market": "cn",
-          "percent": null
+          "percent": 1.24
         },
         {
           "seq": 1,
@@ -1669,7 +2229,7 @@
     "161725": {
       "code": "161725",
       "reportDate": "",
-      "totalHoldings": 20,
+      "totalHoldings": 30,
       "holdings": [
         {
           "seq": 1,
@@ -1745,11 +2305,91 @@
         },
         {
           "seq": 10,
+          "code": "600779",
+          "name": "水井坊",
+          "tq": "sh600779",
+          "market": "cn",
+          "percent": null
+        },
+        {
+          "seq": 1,
+          "code": "600519",
+          "name": "贵州茅台",
+          "tq": "sh600519",
+          "market": "cn",
+          "percent": 17.28
+        },
+        {
+          "seq": 2,
+          "code": "600809",
+          "name": "山西汾酒",
+          "tq": "sh600809",
+          "market": "cn",
+          "percent": 15.19
+        },
+        {
+          "seq": 3,
+          "code": "000568",
+          "name": "泸州老窖",
+          "tq": "sz000568",
+          "market": "cn",
+          "percent": 15.03
+        },
+        {
+          "seq": 4,
+          "code": "000858",
+          "name": "五粮液",
+          "tq": "sz000858",
+          "market": "cn",
+          "percent": 14.22
+        },
+        {
+          "seq": 5,
+          "code": "002304",
+          "name": "洋河股份",
+          "tq": "sz002304",
+          "market": "cn",
+          "percent": 7.88
+        },
+        {
+          "seq": 6,
+          "code": "000596",
+          "name": "古井贡酒",
+          "tq": "sz000596",
+          "market": "cn",
+          "percent": 4.86
+        },
+        {
+          "seq": 7,
+          "code": "603369",
+          "name": "今世缘",
+          "tq": "sh603369",
+          "market": "cn",
+          "percent": 4.67
+        },
+        {
+          "seq": 8,
+          "code": "603198",
+          "name": "迎驾贡酒",
+          "tq": "sh603198",
+          "market": "cn",
+          "percent": 2.72
+        },
+        {
+          "seq": 9,
+          "code": "000799",
+          "name": "酒鬼酒",
+          "tq": "sz000799",
+          "market": "cn",
+          "percent": 2.23
+        },
+        {
+          "seq": 10,
           "code": "600702",
           "name": "舍得酒业",
           "tq": "sh600702",
           "market": "cn",
-          "percent": null
+          "percent": 1.87
         },
         {
           "seq": 1,
@@ -2083,7 +2723,7 @@
     "164705": {
       "code": "164705",
       "reportDate": "",
-      "totalHoldings": 20,
+      "totalHoldings": 30,
       "holdings": [
         {
           "seq": 1,
@@ -2159,11 +2799,91 @@
         },
         {
           "seq": 10,
+          "code": "03988",
+          "name": "中国银行",
+          "tq": "hk03988",
+          "market": "hk",
+          "percent": null
+        },
+        {
+          "seq": 1,
+          "code": "00005",
+          "name": "汇丰控股",
+          "tq": "hk00005",
+          "market": "hk",
+          "percent": 8.53
+        },
+        {
+          "seq": 2,
+          "code": "00700",
+          "name": "腾讯控股",
+          "tq": "hk00700",
+          "market": "hk",
+          "percent": 7.57
+        },
+        {
+          "seq": 3,
+          "code": "09988",
+          "name": "阿里巴巴-W",
+          "tq": "hk09988",
+          "market": "hk",
+          "percent": 6.02
+        },
+        {
+          "seq": 4,
+          "code": "00939",
+          "name": "建设银行",
+          "tq": "hk00939",
+          "market": "hk",
+          "percent": 4.84
+        },
+        {
+          "seq": 5,
+          "code": "01299",
+          "name": "友邦保险",
+          "tq": "hk01299",
+          "market": "hk",
+          "percent": 4.68
+        },
+        {
+          "seq": 6,
+          "code": "01398",
+          "name": "工商银行",
+          "tq": "hk01398",
+          "market": "hk",
+          "percent": 3.3
+        },
+        {
+          "seq": 7,
+          "code": "00941",
+          "name": "中国移动",
+          "tq": "hk00941",
+          "market": "hk",
+          "percent": 2.95
+        },
+        {
+          "seq": 8,
+          "code": "00388",
+          "name": "香港交易所",
+          "tq": "hk00388",
+          "market": "hk",
+          "percent": 2.72
+        },
+        {
+          "seq": 9,
+          "code": "01810",
+          "name": "小米集团-W",
+          "tq": "hk01810",
+          "market": "hk",
+          "percent": 2.45
+        },
+        {
+          "seq": 10,
           "code": "03690",
           "name": "美团-W",
           "tq": "hk03690",
           "market": "hk",
-          "percent": null
+          "percent": 2.37
         },
         {
           "seq": 1,
@@ -2250,26 +2970,10 @@
     "501021": {
       "code": "501021",
       "reportDate": "",
-      "totalHoldings": 20,
+      "totalHoldings": 30,
       "holdings": [
         {
           "seq": 1,
-          "code": "00992",
-          "name": "联想集团",
-          "tq": "hk00992",
-          "market": "hk",
-          "percent": null
-        },
-        {
-          "seq": 2,
-          "code": "01347",
-          "name": "华虹宏力",
-          "tq": "hk01347",
-          "market": "hk",
-          "percent": null
-        },
-        {
-          "seq": 3,
           "code": "02269",
           "name": "药明生物",
           "tq": "hk02269",
@@ -2277,7 +2981,7 @@
           "percent": null
         },
         {
-          "seq": 4,
+          "seq": 2,
           "code": "01801",
           "name": "信达生物",
           "tq": "hk01801",
@@ -2285,7 +2989,7 @@
           "percent": null
         },
         {
-          "seq": 5,
+          "seq": 3,
           "code": "09987",
           "name": "百胜中国",
           "tq": "hk09987",
@@ -2293,7 +2997,7 @@
           "percent": null
         },
         {
-          "seq": 6,
+          "seq": 4,
           "code": "00175",
           "name": "吉利汽车",
           "tq": "hk00175",
@@ -2301,26 +3005,42 @@
           "percent": null
         },
         {
+          "seq": 5,
+          "code": "02423",
+          "name": "贝壳-W",
+          "tq": "hk02423",
+          "market": "hk",
+          "percent": null
+        },
+        {
+          "seq": 6,
+          "code": "09926",
+          "name": "康方生物",
+          "tq": "hk09926",
+          "market": "hk",
+          "percent": null
+        },
+        {
           "seq": 7,
-          "code": "01109",
-          "name": "华润置地",
-          "tq": "hk01109",
+          "code": "01093",
+          "name": "石药集团",
+          "tq": "hk01093",
           "market": "hk",
           "percent": null
         },
         {
           "seq": 8,
-          "code": "01888",
-          "name": "建滔积层板",
-          "tq": "hk01888",
+          "code": "01308",
+          "name": "海丰国际",
+          "tq": "hk01308",
           "market": "hk",
           "percent": null
         },
         {
           "seq": 9,
-          "code": "06869",
-          "name": "长飞光纤光缆",
-          "tq": "hk06869",
+          "code": "02057",
+          "name": "中通快递-W",
+          "tq": "hk02057",
           "market": "hk",
           "percent": null
         },
@@ -2331,6 +3051,86 @@
           "tq": "hk09868",
           "market": "hk",
           "percent": null
+        },
+        {
+          "seq": 1,
+          "code": "00992",
+          "name": "联想集团",
+          "tq": "hk00992",
+          "market": "hk",
+          "percent": 4.44
+        },
+        {
+          "seq": 2,
+          "code": "01347",
+          "name": "华虹宏力",
+          "tq": "hk01347",
+          "market": "hk",
+          "percent": 3.75
+        },
+        {
+          "seq": 3,
+          "code": "02269",
+          "name": "药明生物",
+          "tq": "hk02269",
+          "market": "hk",
+          "percent": 3.18
+        },
+        {
+          "seq": 4,
+          "code": "01801",
+          "name": "信达生物",
+          "tq": "hk01801",
+          "market": "hk",
+          "percent": 2.92
+        },
+        {
+          "seq": 5,
+          "code": "09987",
+          "name": "百胜中国",
+          "tq": "hk09987",
+          "market": "hk",
+          "percent": 2.84
+        },
+        {
+          "seq": 6,
+          "code": "00175",
+          "name": "吉利汽车",
+          "tq": "hk00175",
+          "market": "hk",
+          "percent": 2.37
+        },
+        {
+          "seq": 7,
+          "code": "01109",
+          "name": "华润置地",
+          "tq": "hk01109",
+          "market": "hk",
+          "percent": 2.18
+        },
+        {
+          "seq": 8,
+          "code": "01888",
+          "name": "建滔积层板",
+          "tq": "hk01888",
+          "market": "hk",
+          "percent": 2.07
+        },
+        {
+          "seq": 9,
+          "code": "06869",
+          "name": "长飞光纤光缆",
+          "tq": "hk06869",
+          "market": "hk",
+          "percent": 1.96
+        },
+        {
+          "seq": 10,
+          "code": "09868",
+          "name": "小鹏集团-W",
+          "tq": "hk09868",
+          "market": "hk",
+          "percent": 1.9
         },
         {
           "seq": 1,
@@ -2991,65 +3791,49 @@
     "501302": {
       "code": "501302",
       "reportDate": "",
-      "totalHoldings": 1,
+      "totalHoldings": 4,
       "holdings": [
+        {
+          "seq": 1,
+          "code": "920162",
+          "name": "莫森泰克",
+          "tq": "",
+          "market": "",
+          "percent": null
+        },
+        {
+          "seq": 2,
+          "code": "920196",
+          "name": "南方乳业",
+          "tq": "",
+          "market": "",
+          "percent": null
+        },
+        {
+          "seq": 3,
+          "code": "920157",
+          "name": "宇特光电",
+          "tq": "",
+          "market": "",
+          "percent": null
+        },
         {
           "seq": 1,
           "code": "920189",
           "name": "康美特",
           "tq": "",
           "market": "",
-          "percent": null
+          "percent": 0
         }
       ]
     },
     "501303": {
       "code": "501303",
       "reportDate": "",
-      "totalHoldings": 20,
+      "totalHoldings": 30,
       "holdings": [
         {
           "seq": 1,
-          "code": "01347",
-          "name": "华虹宏力",
-          "tq": "hk01347",
-          "market": "hk",
-          "percent": null
-        },
-        {
-          "seq": 2,
-          "code": "03750",
-          "name": "宁德时代",
-          "tq": "hk03750",
-          "market": "hk",
-          "percent": null
-        },
-        {
-          "seq": 3,
-          "code": "01888",
-          "name": "建滔积层板",
-          "tq": "hk01888",
-          "market": "hk",
-          "percent": null
-        },
-        {
-          "seq": 4,
-          "code": "00522",
-          "name": "ASMPT",
-          "tq": "hk00522",
-          "market": "hk",
-          "percent": null
-        },
-        {
-          "seq": 5,
-          "code": "00148",
-          "name": "建滔集团",
-          "tq": "hk00148",
-          "market": "hk",
-          "percent": null
-        },
-        {
-          "seq": 6,
           "code": "02359",
           "name": "药明康德",
           "tq": "hk02359",
@@ -3057,15 +3841,23 @@
           "percent": null
         },
         {
-          "seq": 7,
-          "code": "02338",
-          "name": "潍柴动力",
-          "tq": "hk02338",
+          "seq": 2,
+          "code": "06869",
+          "name": "长飞光纤光缆",
+          "tq": "hk06869",
           "market": "hk",
           "percent": null
         },
         {
-          "seq": 8,
+          "seq": 3,
+          "code": "01548",
+          "name": "金斯瑞生物-一千",
+          "tq": "hk01548",
+          "market": "hk",
+          "percent": null
+        },
+        {
+          "seq": 4,
           "code": "03993",
           "name": "洛阳钼业",
           "tq": "hk03993",
@@ -3073,7 +3865,7 @@
           "percent": null
         },
         {
-          "seq": 9,
+          "seq": 5,
           "code": "00300",
           "name": "美的集团",
           "tq": "hk00300",
@@ -3081,12 +3873,124 @@
           "percent": null
         },
         {
+          "seq": 6,
+          "code": "02338",
+          "name": "潍柴动力",
+          "tq": "hk02338",
+          "market": "hk",
+          "percent": null
+        },
+        {
+          "seq": 7,
+          "code": "00522",
+          "name": "ASMPT",
+          "tq": "hk00522",
+          "market": "hk",
+          "percent": null
+        },
+        {
+          "seq": 8,
+          "code": "02099",
+          "name": "中国黄金国际",
+          "tq": "hk02099",
+          "market": "hk",
+          "percent": null
+        },
+        {
+          "seq": 9,
+          "code": "01339",
+          "name": "中国人民保险集团",
+          "tq": "hk01339",
+          "market": "hk",
+          "percent": null
+        },
+        {
+          "seq": 10,
+          "code": "00019",
+          "name": "太古股份公司A",
+          "tq": "hk00019",
+          "market": "hk",
+          "percent": null
+        },
+        {
+          "seq": 1,
+          "code": "01347",
+          "name": "华虹宏力",
+          "tq": "hk01347",
+          "market": "hk",
+          "percent": 4.52
+        },
+        {
+          "seq": 2,
+          "code": "03750",
+          "name": "宁德时代",
+          "tq": "hk03750",
+          "market": "hk",
+          "percent": 3.77
+        },
+        {
+          "seq": 3,
+          "code": "01888",
+          "name": "建滔积层板",
+          "tq": "hk01888",
+          "market": "hk",
+          "percent": 2.43
+        },
+        {
+          "seq": 4,
+          "code": "00522",
+          "name": "ASMPT",
+          "tq": "hk00522",
+          "market": "hk",
+          "percent": 2.12
+        },
+        {
+          "seq": 5,
+          "code": "00148",
+          "name": "建滔集团",
+          "tq": "hk00148",
+          "market": "hk",
+          "percent": 2.06
+        },
+        {
+          "seq": 6,
+          "code": "02359",
+          "name": "药明康德",
+          "tq": "hk02359",
+          "market": "hk",
+          "percent": 1.96
+        },
+        {
+          "seq": 7,
+          "code": "02338",
+          "name": "潍柴动力",
+          "tq": "hk02338",
+          "market": "hk",
+          "percent": 1.75
+        },
+        {
+          "seq": 8,
+          "code": "03993",
+          "name": "洛阳钼业",
+          "tq": "hk03993",
+          "market": "hk",
+          "percent": 1.49
+        },
+        {
+          "seq": 9,
+          "code": "00300",
+          "name": "美的集团",
+          "tq": "hk00300",
+          "market": "hk",
+          "percent": 1.35
+        },
+        {
           "seq": 10,
           "code": "01308",
           "name": "海丰国际",
           "tq": "hk01308",
           "market": "hk",
-          "percent": null
+          "percent": 1.25
         },
         {
           "seq": 1,
@@ -3754,18 +4658,10 @@
     "501310": {
       "code": "501310",
       "reportDate": "",
-      "totalHoldings": 20,
+      "totalHoldings": 30,
       "holdings": [
         {
           "seq": 1,
-          "code": "03988",
-          "name": "中国银行",
-          "tq": "hk03988",
-          "market": "hk",
-          "percent": null
-        },
-        {
-          "seq": 2,
           "code": "00939",
           "name": "建设银行",
           "tq": "hk00939",
@@ -3773,7 +4669,7 @@
           "percent": null
         },
         {
-          "seq": 3,
+          "seq": 2,
           "code": "01398",
           "name": "工商银行",
           "tq": "hk01398",
@@ -3781,19 +4677,27 @@
           "percent": null
         },
         {
+          "seq": 3,
+          "code": "03988",
+          "name": "中国银行",
+          "tq": "hk03988",
+          "market": "hk",
+          "percent": null
+        },
+        {
           "seq": 4,
-          "code": "00857",
-          "name": "中国石油股份",
-          "tq": "hk00857",
+          "code": "00267",
+          "name": "中信股份",
+          "tq": "hk00267",
           "market": "hk",
           "percent": null
         },
         {
           "seq": 5,
-          "code": "02628",
-          "name": "中国人寿",
-          "tq": "hk02628",
-          "market": "hk",
+          "code": "601166",
+          "name": "兴业银行",
+          "tq": "sh601166",
+          "market": "cn",
           "percent": null
         },
         {
@@ -3822,11 +4726,91 @@
         },
         {
           "seq": 9,
+          "code": "600000",
+          "name": "浦发银行",
+          "tq": "sh600000",
+          "market": "cn",
+          "percent": null
+        },
+        {
+          "seq": 10,
+          "code": "600019",
+          "name": "宝钢股份",
+          "tq": "sh600019",
+          "market": "cn",
+          "percent": null
+        },
+        {
+          "seq": 1,
+          "code": "03988",
+          "name": "中国银行",
+          "tq": "hk03988",
+          "market": "hk",
+          "percent": 5.61
+        },
+        {
+          "seq": 2,
+          "code": "00939",
+          "name": "建设银行",
+          "tq": "hk00939",
+          "market": "hk",
+          "percent": 5.26
+        },
+        {
+          "seq": 3,
+          "code": "01398",
+          "name": "工商银行",
+          "tq": "hk01398",
+          "market": "hk",
+          "percent": 5.12
+        },
+        {
+          "seq": 4,
+          "code": "00857",
+          "name": "中国石油股份",
+          "tq": "hk00857",
+          "market": "hk",
+          "percent": 5.08
+        },
+        {
+          "seq": 5,
+          "code": "02628",
+          "name": "中国人寿",
+          "tq": "hk02628",
+          "market": "hk",
+          "percent": 4.2
+        },
+        {
+          "seq": 6,
+          "code": "00386",
+          "name": "中国石油化工股份",
+          "tq": "hk00386",
+          "market": "hk",
+          "percent": 3.57
+        },
+        {
+          "seq": 7,
+          "code": "601668",
+          "name": "中国建筑",
+          "tq": "sh601668",
+          "market": "cn",
+          "percent": 3.37
+        },
+        {
+          "seq": 8,
+          "code": "01109",
+          "name": "华润置地",
+          "tq": "hk01109",
+          "market": "hk",
+          "percent": 3.29
+        },
+        {
+          "seq": 9,
           "code": "00267",
           "name": "中信股份",
           "tq": "hk00267",
           "market": "hk",
-          "percent": null
+          "percent": 3.18
         },
         {
           "seq": 10,
@@ -3834,7 +4818,7 @@
           "name": "交通银行",
           "tq": "hk03328",
           "market": "hk",
-          "percent": null
+          "percent": 3.16
         },
         {
           "seq": 1,
@@ -3921,7 +4905,7 @@
     "501311": {
       "code": "501311",
       "reportDate": "",
-      "totalHoldings": 20,
+      "totalHoldings": 30,
       "holdings": [
         {
           "seq": 1,
@@ -3957,9 +4941,9 @@
         },
         {
           "seq": 5,
-          "code": "00981",
-          "name": "中芯国际",
-          "tq": "hk00981",
+          "code": "09999",
+          "name": "网易",
+          "tq": "hk09999",
           "market": "hk",
           "percent": null
         },
@@ -3973,6 +4957,14 @@
         },
         {
           "seq": 7,
+          "code": "00981",
+          "name": "中芯国际",
+          "tq": "hk00981",
+          "market": "hk",
+          "percent": null
+        },
+        {
+          "seq": 8,
           "code": "06160",
           "name": "百济神州",
           "tq": "hk06160",
@@ -3980,12 +4972,84 @@
           "percent": null
         },
         {
+          "seq": 9,
+          "code": "00992",
+          "name": "联想集团",
+          "tq": "hk00992",
+          "market": "hk",
+          "percent": null
+        },
+        {
+          "seq": 10,
+          "code": "02269",
+          "name": "药明生物",
+          "tq": "hk02269",
+          "market": "hk",
+          "percent": null
+        },
+        {
+          "seq": 1,
+          "code": "00700",
+          "name": "腾讯控股",
+          "tq": "hk00700",
+          "market": "hk",
+          "percent": 14.82
+        },
+        {
+          "seq": 2,
+          "code": "09988",
+          "name": "阿里巴巴-W",
+          "tq": "hk09988",
+          "market": "hk",
+          "percent": 11.78
+        },
+        {
+          "seq": 3,
+          "code": "01810",
+          "name": "小米集团-W",
+          "tq": "hk01810",
+          "market": "hk",
+          "percent": 8.04
+        },
+        {
+          "seq": 4,
+          "code": "03690",
+          "name": "美团-W",
+          "tq": "hk03690",
+          "market": "hk",
+          "percent": 7.79
+        },
+        {
+          "seq": 5,
+          "code": "00981",
+          "name": "中芯国际",
+          "tq": "hk00981",
+          "market": "hk",
+          "percent": 7.69
+        },
+        {
+          "seq": 6,
+          "code": "01211",
+          "name": "比亚迪股份",
+          "tq": "hk01211",
+          "market": "hk",
+          "percent": 5.46
+        },
+        {
+          "seq": 7,
+          "code": "06160",
+          "name": "百济神州",
+          "tq": "hk06160",
+          "market": "hk",
+          "percent": 4.23
+        },
+        {
           "seq": 8,
           "code": "00669",
           "name": "创科实业",
           "tq": "hk00669",
           "market": "hk",
-          "percent": null
+          "percent": 3.88
         },
         {
           "seq": 9,
@@ -3993,7 +5057,7 @@
           "name": "华虹宏力",
           "tq": "hk01347",
           "market": "hk",
-          "percent": null
+          "percent": 3.53
         },
         {
           "seq": 10,
@@ -4001,7 +5065,7 @@
           "name": "联想集团",
           "tq": "hk00992",
           "market": "hk",
-          "percent": null
+          "percent": 3.22
         },
         {
           "seq": 1,
